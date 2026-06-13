@@ -10,7 +10,6 @@ import { SideMenuComponent } from "../../shared/components/side-menu/side-menu.c
 })
 export class LoginComponent {
 
-  //constructor(private auth: AuthService) {}
   auth = inject(AuthService);
 
   public user$ = this.auth.user$;
@@ -20,7 +19,6 @@ export class LoginComponent {
     this.auth.loginWithGoogle();
   }
   logout() {
-    this.auth.logout(); //Calling Firebase APIs outside of an Injection context may destabilize your application leading to subtle change-detection and hydration bugs. 
+    this.auth.logout();
   }
-
 }

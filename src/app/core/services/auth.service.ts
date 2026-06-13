@@ -10,7 +10,7 @@ import { async } from 'rxjs';
 export class AuthService {
   private auth = inject(Auth);
   private router = inject(Router);
-  private firestore =  inject(Firestore); //esto lo añadí yo sin más, revisar eventuamente si está bien
+  private firestore =  inject(Firestore);
 
   currentUser = signal<User | null>(null);
   constructor() {

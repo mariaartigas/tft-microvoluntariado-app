@@ -9,7 +9,7 @@ import { IonMenuButton, IonHeader, IonButtons, IonToolbar, IonContent, IonTitle,
   templateUrl: './home.component.html'
 })
 export class HomeComponent {
-  auth = inject(AuthService); // hacer referencia a authservice
+  auth = inject(AuthService); 
   public user$ = this.auth.user$;
 
   onImageError(event: Event) {
