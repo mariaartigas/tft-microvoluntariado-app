@@ -1,0 +1,12 @@
+
+@if (user$ | async; as user) {
+  <p>Hola {{ user.displayName }}</p>
+  <p>{{ user.email }}</p>
+  <button (click)="logout()">Logout</button>
+} @else {
+  <button (click)="login()">Login con Google</button>
+}
+
+<app-side-menu></app-side-menu>
+
+
