@@ -23,7 +23,7 @@ export class LoginComponent {
   });
 
 
-  public user$ = this.auth.user$;
+  public user$ = this.auth.currentUser;
   login() {
     console.log('BOTÓN LOGIN FUNCIONA');
 

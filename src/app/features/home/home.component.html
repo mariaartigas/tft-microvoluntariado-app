@@ -1,44 +1,34 @@
-<ion-header>
-  <ion-toolbar>
+<app-header title="INICIO"></app-header>
 
-    <ion-buttons slot="start">
-      <ion-menu-button></ion-menu-button>
-    </ion-buttons>
+<ion-content class="ion-padding">
 
-    <ion-title>
-      HOME
-    </ion-title>
+  @if (currentUser(); as user) {
+    <div class="user-welcome-container">
+      <ion-avatar>
+        @if (user.photoURL) {
+          <img [src]="user.photoURL" 
+              referrerpolicy="no-referrer"
+              (error)="onImageError($event)" 
+              alt="User avatar" />
+        } @else {
+          <div class="avatar-fallback">
+            {{ getInitials(user.displayName) }}
+          </div>
+        }
+      </ion-avatar>
 
-  </ion-toolbar>
-</ion-header>
+      <h2>¡Hola, {{ user.displayName || 'Usuario' }}!</h2>
+      <p>{{ user.email }}</p>
 
-<ion-buttons slot="end">
-  @if (auth.user$ | async) {
-    <ion-button routerLink="/profile">
-      <p>Logeado</p>
-    </ion-button>
-  } @else {
-    <ion-button routerLink="/login">
-      <p>Sin logear</p>
-    </ion-button>
-  }
-</ion-buttons>
-
-<ion-content>
-
-  @if (auth.user$ | async; as user) {
-
-    <ion-avatar>
-      <img [src]="user.photoURL" 
-      (error)="onImageError($event)"
-      />
-      
-    </ion-avatar>
-
-    <h2>{{ user.displayName }}</h2>
-    <p>{{ user.email }}</p>
-
+      @if (userProfile(); as profile) {
+        <div class="profile-badge">
+          <p>Rol: <strong>{{ profile.role === 'volunteer' ? 'Voluntario' : 'Organización' }}</strong></p>
+          <p>Puntos de XP: <strong>{{ profile.xp || 0 }} ⭐</strong></p>
+        </div>
+      }
+    </div>
   }
 
 </ion-content>
 
+<app-footer></app-footer>
