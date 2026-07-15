@@ -7,8 +7,9 @@ import { authGuard, guestGuard } from './core/guards/auth.guard';
 
 
 export const routes: Routes = [
-  { path: '', redirectTo: 'login', pathMatch: 'full' },
+  { path: '', redirectTo: 'home', pathMatch: 'full' },
   { path: 'login', component: LoginComponent, canActivate: [guestGuard]},
+  { path: 'home', component: HomeComponent}, //no proteger con authguard porque quiero poder acceder siempre
   { path: 'dashboard', component: HomeComponent, canActivate: [authGuard]},
   {
   path: 'profile',

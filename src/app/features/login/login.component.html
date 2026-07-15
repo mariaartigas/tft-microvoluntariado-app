@@ -1,12 +1,92 @@
+<ion-content class="login-page">
 
-@if (user$ | async; as user) {
-  <p>Hola {{ user.displayName }}</p>
-  <p>{{ user.email }}</p>
-  <button (click)="logout()">Logout</button>
-} @else {
-  <button (click)="login()">Login con Google</button>
-}
+  <div class="login-container">
 
-<app-side-menu></app-side-menu>
+    <div class="login-card">
+
+      <h1>Iniciar sesión</h1>
+
+      <p class="subtitle">
+        Accede a tu cuenta de Impacto en Momentos
+      </p>
 
 
+      <form [formGroup]="logInForm">
+
+        <ion-input
+          label="Email"
+          labelPlacement="stacked"
+          fill="outline"
+          type="email"
+          formControlName="email">
+        </ion-input>
+
+
+        <ion-input
+          label="Contraseña"
+          labelPlacement="stacked"
+          fill="outline"
+          type="password"
+          formControlName="password">
+        </ion-input>
+
+
+        <div class="remember">
+
+          <ion-checkbox></ion-checkbox>
+
+          <span>
+            Mantener sesión iniciada
+          </span>
+
+        </div>
+
+
+        <ion-button
+          expand="block"
+          class="main-button"
+          (click)="login()">
+
+          Iniciar sesión
+
+        </ion-button>
+
+
+        <div class="separator">
+          <span></span>
+          <p>o</p>
+          <span></span>
+        </div>
+
+
+        <ion-button
+          expand="block"
+          fill="outline"
+          class="google-button"
+          (click)="loginWithGoogle()">
+
+          Continuar con Google
+
+        </ion-button>
+
+
+        <p class="register">
+
+          ¿No tienes cuenta?
+
+          <a routerLink="/register">
+            Crear cuenta
+          </a>
+
+        </p>
+
+
+      </form>
+
+
+    </div>
+
+  </div>
+
+
+</ion-content>

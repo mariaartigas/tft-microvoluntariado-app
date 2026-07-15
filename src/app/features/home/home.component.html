@@ -6,11 +6,23 @@
     </ion-buttons>
 
     <ion-title>
-      Dashboard
+      HOME
     </ion-title>
 
   </ion-toolbar>
 </ion-header>
+
+<ion-buttons slot="end">
+  @if (auth.user$ | async) {
+    <ion-button routerLink="/profile">
+      <p>Logeado</p>
+    </ion-button>
+  } @else {
+    <ion-button routerLink="/login">
+      <p>Sin logear</p>
+    </ion-button>
+  }
+</ion-buttons>
 
 <ion-content>
 
@@ -29,3 +41,4 @@
   }
 
 </ion-content>
+

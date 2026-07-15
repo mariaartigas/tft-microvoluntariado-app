@@ -1,0 +1,177 @@
+.login-page {
+  --background: #100e1a;
+}
+
+
+.login-container {
+
+  position: absolute;
+
+  inset: 0;
+
+  display: flex;
+
+  justify-content: center;
+
+  align-items: center;
+
+  padding: 20px;
+
+}
+
+
+.login-card {
+
+  width: 100%;
+
+  max-width: 420px;
+
+  background: #1e1c27;
+
+  border: 1px solid #353141;
+
+  border-radius: 18px;
+
+  padding: 45px 50px;
+
+}
+
+
+h1 {
+
+  color: white;
+
+  font-size: 32px;
+
+  margin: 0 0 8px;
+
+  font-weight: 700;
+
+}
+
+
+.subtitle {
+
+  color: #aaa5bb;
+
+  margin-bottom: 35px;
+
+}
+
+
+ion-input {
+
+  margin-bottom: 20px;
+
+  --background: #17151f;
+
+  --color: white;
+
+  --border-color: #4a4459;
+
+  --highlight-color-focused: #6d4aff;
+
+}
+
+
+.remember {
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 10px;
+
+  margin-bottom: 20px;
+
+  color: #aaa5bb;
+
+
+  ion-checkbox {
+
+    --size: 18px;
+
+    --checkbox-background-checked: #6d4aff;
+
+  }
+
+}
+
+
+.main-button {
+
+  margin-top: 10px;
+
+  height: 48px;
+
+  --background: #6d4aff;
+
+  --border-radius: 8px;
+
+}
+
+
+.google-button {
+
+  height: 48px;
+
+  --border-color: #6d4aff;
+
+  --color: white;
+
+  --border-radius: 8px;
+
+}
+
+
+.separator {
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 12px;
+
+  margin: 25px 0;
+
+
+  span {
+
+    flex: 1;
+
+    height: 1px;
+
+    background: #454052;
+
+  }
+
+
+  p {
+
+    color: #aaa5bb;
+
+    margin: 0;
+
+  }
+
+}
+
+
+.register {
+
+  text-align: center;
+
+  color: #aaa5bb;
+
+  margin-top: 25px;
+
+
+  a {
+
+    color: #8064ff;
+
+    text-decoration: none;
+
+  }
+
+}
