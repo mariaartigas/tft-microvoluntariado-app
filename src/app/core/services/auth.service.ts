@@ -2,6 +2,9 @@ import { Injectable, computed, inject, signal } from '@angular/core';
 import { Auth, authState, GoogleAuthProvider, createUserWithEmailAndPassword, onAuthStateChanged, signInWithPopup, signOut, User, EmailAuthCredential } from '@angular/fire/auth';
 import { Router } from '@angular/router';
 import { UserService } from './user.service';
+import { firstValueFrom, of, switchMap, tap } from 'rxjs';
+import { UserModel,UserRole } from '../../shared/models/user.model';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Injectable({ providedIn: 'root' })
 
@@ -12,63 +15,102 @@ export class AuthService {
   private userService = inject(UserService);
 
   currentUser = signal<User | null>(null);
-  constructor() {
-    onAuthStateChanged(this.auth, (user) => {
-      this.currentUser.set(user);
-    });}
+  currentUserProfile = signal<UserModel | null>(null);
+  isAuthenticated = computed(() => this.currentUser() !== null); //comprobación
 
-  user$ = authState(this.auth);
+  /*constructor() { --> antiguo constuctor
+    this.auth.onAuthStateChanged(async (firebaseUser) => {
+      this.currentUser.set(firebaseUser);
 
-  isAuthenticated = computed(() =>
-    this.currentUser() !== null
-  );
+    if (firebaseUser) {
+      try {
+        const profile = await firstValueFrom(this.userService.ensureUserProfile$(firebaseUser));
+        this.currentUserProfile.set(profile);
+      } catch (error) {
+        console.error('Error:', error);
+        this.currentUserProfile.set(null); 
+      }
+    } else {
+      this.currentUserProfile.set(null);
+      }
+   });
+  }
 
-  async loginWithGoogle() {
-    const provider = new GoogleAuthProvider();
+  user$ = authState(this.auth);*/
 
-   // const result = await signInWithPopup(this.auth, provider)
-    //.then(() => this.router.navigate(['/dashboard']));
+ constructor() {
+  authState(this.auth).pipe(
+    takeUntilDestroyed()
+  ).subscribe((firebaseUser) => {
+    this.currentUser.set(firebaseUser);
+      if (firebaseUser) {
+        this.loadUserProfile(firebaseUser);
+      } else {
+        this.currentUserProfile.set(null);
+      }
+  });
+}
 
-    const result = await signInWithPopup(this.auth, provider);
+  //carga de información independiente del flujo
+  private async loadUserProfile(firebaseUser: User) {
+  try {
+    const profile = await firstValueFrom(this.userService.ensureUserProfile$(firebaseUser));
+    this.currentUserProfile.set(profile);
+  } catch (error) {
+    console.warn('Error en carga de perfil:', error);
+    this.currentUserProfile.set(null); // solo por asegurar
+  }
+}
 
-    await this.userService.ensureUserProfile(
-      result.user
-    );
-
-    //await this.userService.createUser(user);
-
-    console.log('Antes de navegar');
-
+  //login
+  async loginWithGoogle() { //sin tipo de rol? es lo ideal si no existe?
     try {
-      const tSC = await this.router.navigate(['/home']);
-      console.log('Resultado:', tSC);
+      const provider = new GoogleAuthProvider();
+      const result = await signInWithPopup(this.auth, provider);
+
+      await firstValueFrom(this.userService.ensureUserProfile$(result.user, ));
+
+      await this.router.navigate(['/home']);
+      return result.user;
     } catch (e) {
-      console.error('Error navegando:', e);
+      console.error('Error en login:', e);
+      throw e;
     }
-    return result.user;
-    console.log('Después de navegar');
   } 
 
-  async register (email: string, password: string) {
-     const credential = await createUserWithEmailAndPassword(
-        this.auth,
-        email,
-        password
-    );
+  //Métodos de registro de usuarios
 
-    await this.userService.ensureUserProfile(
-        credential.user
-    );
+  async registerOrganizationWithGoogle() { 
+    try {
+      const provider = new GoogleAuthProvider();    
+      const result = await signInWithPopup(this.auth, provider);
 
-    return credential.user;
+      await firstValueFrom(this.userService.ensureUserProfile$(result.user, 'organization'));
+
+      await this.router.navigate(['/home']);
+      return result.user;
+    } catch (e) {
+     console.error('Error en el registro:', e);
+      throw e;
+    }
+  } 
+ 
+
+  async register (email: string, password: string, role: UserRole) {
+    try {
+      const credential = await createUserWithEmailAndPassword(this.auth, email, password);
+      await this.userService.ensureUserProfile$(credential.user);
+      return credential.user;
+    } catch (e) {
+      console.error('Error en el registro:', e);
+      throw e;
+    }
   }
 
-
-
-
+  //cierre de sesión
   async logout() {
-    const result = await signOut(this.auth)
-    .then(() => this.router.navigate(['/login']));
-
+    const result = await signOut(this.auth).then(() => this.router.navigate(['/login']));
   }
+
+
 }

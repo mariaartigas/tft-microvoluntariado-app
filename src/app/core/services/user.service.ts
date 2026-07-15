@@ -1,15 +1,8 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
-import { Auth, authState, GoogleAuthProvider, createUserWithEmailAndPassword, onAuthStateChanged, signInWithPopup, signOut, User, EmailAuthCredential } from '@angular/fire/auth';
-import {
-  Firestore,
-  doc,
-  setDoc,
-  getDoc,
-  serverTimestamp,
-  updateDoc
-} from '@angular/fire/firestore';
-import { UserModel } from '../../shared/models/user.model';
-import { firebaseUserToUserModel } from '../../shared/converters/user.converter';
+import {Firestore, doc, setDoc, getDoc, serverTimestamp, updateDoc, docData} from '@angular/fire/firestore';
+import { UserModel, UserRole, userConverter, createDefaultUser  } from '../../shared/models/user.model';
+import { Observable } from 'rxjs/internal/Observable';
+import { from, map, of, switchMap, take } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 
@@ -18,36 +11,52 @@ export class UserService {
 
   private firestore =  inject(Firestore);
 
-//Método: obtener el usuario actual
+//Método: obtener el usuario actual --> esto pasa por el converter por comodidad, consistencia y tipado estricto (Type Safety). si no lo hiciese entonces no devolvería un tipo USER plo que haría que se repitiese todo el rato
   private getUserRef(uid: string) {
-  return doc(this.firestore, 'users', uid);
+  return doc(this.firestore, 'users', uid).withConverter(userConverter);
 }
 
-//Método: crear el documento de un usuario nuevo
-  async ensureUserProfile(firebaseUser: User) {
-    const userModel =  firebaseUserToUserModel(firebaseUser); //llamamos al converter para la creación del modelo incial
-    const userRef = this.getUserRef(firebaseUser.uid)
+//CRUD ------------------
 
-    const userSnap = await getDoc(userRef);
-      
-  if (!userSnap.exists()) { //revisión de existencia del usuario
-      
-      await setDoc(
-        userRef,
-        userModel
-      );
+//READ GET -> recoge el documento por id, el documento puede ser modificaod por algo por tanto es observable (no significa que se modifique el id importante)
+getById$(uid: string): Observable<UserModel | undefined> {
+    return docData(this.getUserRef(uid));
+  }
 
-    }
-    console.log('createUser terminado');
+//CREATE
+create(user: UserModel): Promise<void> {
+    const ref = this.getUserRef(user.uid);
+    return setDoc(ref, user);
   } 
 
-  //actualizar datos del user
-  async updateUser(uid: string, data: Partial<UserModel>) {
-    const userRef = this.getUserRef(uid)
-    
-    await updateDoc(userRef, {
+//UPDATE
+async update(uid: string, data: Partial<UserModel>): Promise<void> {
+    const ref = this.getUserRef(uid);
+    await updateDoc(ref, {
       ...data,
-      updatedAt: serverTimestamp()
+      updatedAt: serverTimestamp() // Metadata de control técnico ?
     });
   }
+//CAMBIOS DE AQUÍ ARRIBA !!!!!!
+
+//Método: crear el documento de un usuario nuevo
+ensureUserProfile$ (firebaseUser: any, selectedRole: UserRole = 'volunteer'): Observable<UserModel | null> {
+  if (!firebaseUser) return of(null);
+
+  return this.getById$(firebaseUser.uid).pipe( 
+      take(1),
+      switchMap(appUser => {
+        if (appUser) return of(appUser); //si es usuario existe entonces out
+
+        const newUser = createDefaultUser(firebaseUser, selectedRole);
+
+        return from(this.create(newUser)).pipe(
+          map(() => newUser)
+        );
+      })
+    );
   }
+
+
+
+}
