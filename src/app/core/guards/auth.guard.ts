@@ -18,6 +18,6 @@ export const guestGuard = () => {
   const router = inject(Router);
 
   return authService.isAuthenticated()
-    ? router.parseUrl('/dashboard')
+    ? router.parseUrl('/home')
     : true;
 };
