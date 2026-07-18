@@ -1,18 +1,12 @@
 <ion-content class="login-page">
-
   <div class="login-container">
-
     <div class="login-card">
-
       <h1>Iniciar sesión</h1>
-
       <p class="subtitle">
         Accede a tu cuenta de Impacto en Momentos
       </p>
 
-
       <form [formGroup]="logInForm">
-
         <ion-input
           label="Email"
           labelPlacement="stacked"
@@ -20,7 +14,6 @@
           type="email"
           formControlName="email">
         </ion-input>
-
 
         <ion-input
           label="Contraseña"
@@ -30,27 +23,17 @@
           formControlName="password">
         </ion-input>
 
-
         <div class="remember">
-
           <ion-checkbox></ion-checkbox>
-
-          <span>
-            Mantener sesión iniciada
-          </span>
-
+          <span>Mantener sesión iniciada</span>
         </div>
-
 
         <ion-button
           expand="block"
           class="main-button"
           (click)="login()">
-
           Iniciar sesión
-
         </ion-button>
-
 
         <div class="separator">
           <span></span>
@@ -58,35 +41,26 @@
           <span></span>
         </div>
 
-
         <ion-button
           expand="block"
           fill="outline"
           class="google-button"
           (click)="loginWithGoogle()">
-
           Continuar con Google
-
         </ion-button>
 
-
-        <p class="register">
-
-          ¿No tienes cuenta?
-
-          <a routerLink="/register">
-            Crear cuenta
-          </a>
-
+        <!-- ─── NUEVA SECCIÓN: ENTRADA PARA ORGANIZACIONES ─── -->
+        <div class="org-divider"></div>
+        <p class="register org-section">
+  ¿Representas a una ONG?
+        <ion-button
+          fill="clear" 
+          routerLink="/register-organization" 
+          class="org-link-btn">
+          Registra tu organización
+        </ion-button>
         </p>
-
-
       </form>
-
-
     </div>
-
   </div>
-
-
 </ion-content>

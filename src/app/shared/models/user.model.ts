@@ -2,7 +2,7 @@
 //MODELO de gestión de usuarios
 
 import { User } from "@angular/fire/auth";
-import { FirestoreDataConverter, QueryDocumentSnapshot, SnapshotOptions } from "@angular/fire/firestore";
+import { DocumentData, FirestoreDataConverter, QueryDocumentSnapshot, SnapshotOptions } from "@angular/fire/firestore";
 
 export type UserRole = 'volunteer' | 'organization' | 'moderator';
 
@@ -30,7 +30,7 @@ export interface UserModel {
   createdAt?: Date;
   updatedAt?: Date;
 }
-
+//función factory o algo así !
 export function createDefaultUser(firebaseUser: { uid: string, email: string | null, displayName: string | null, photoURL: string | null }, role: UserRole = 'volunteer'
 ): UserModel {
 
@@ -62,25 +62,10 @@ export function createDefaultUser(firebaseUser: { uid: string, email: string | n
 
 //modelos
 export const userConverter: FirestoreDataConverter<UserModel> = {
-    toFirestore(user: UserModel) {
-      return {
-        username: user.username,
-        email: user.email,
-        displayName: user.displayName,
-        photoURL: user.photoURL,
-        role: user.role,
-        isVisible: user.isVisible,
-        organizationId: user.organizationId,
-        isVerified: user.isVerified,
-        xp: user.xp,
-        reputation: user.reputation,
-        reliability: user.reliability,
-        statistics: user.statistics,
-        createdAt: user.createdAt || new Date(),
-        updatedAt: new Date() // seguimiento - control de versiones y actualizaciones
-      };
+    toFirestore(user: UserModel): DocumentData { //repasar el uso del document data
+      return { ...user };
     },
-    fromFirestore(snapshot: QueryDocumentSnapshot, options: SnapshotOptions): UserModel { //snapshot son los metadatos + id + datos reales
+    fromFirestore(snapshot: QueryDocumentSnapshot, options?: SnapshotOptions): UserModel { //snapshot son los metadatos + id + datos reales
     const data = snapshot.data(options);
     return {
       uid: snapshot.id,

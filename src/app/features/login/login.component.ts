@@ -8,13 +8,13 @@ import { FormBuilder, FormGroup, Validators, ReactiveFormsModule  } from '@angul
 
 @Component({
   standalone: true,
-  imports: [AsyncPipe, SideMenuComponent, IonCheckbox, IonInput, IonButton, ReactiveFormsModule, IonContent, IonCheckbox],
+  imports: [RouterLink, AsyncPipe, SideMenuComponent, IonCheckbox, IonInput, IonButton, ReactiveFormsModule, IonContent, IonCheckbox],
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss']
 })
 export class LoginComponent {
 
-  auth = inject(AuthService);
+  private auth = inject(AuthService);
   private fb = inject(FormBuilder);
 
   logInForm: FormGroup = this.fb.group({

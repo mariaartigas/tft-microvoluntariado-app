@@ -1,0 +1,82 @@
+<ion-content class="login-page">
+  <div class="login-container">
+    <div class="login-card">
+      
+      <ion-button fill="clear" routerLink="/login" class="back-btn" [disabled]="isLoading()">
+        <ion-icon name="arrow-back-outline" slot="start"></ion-icon>
+        Volver
+      </ion-button>
+
+      <h1>Registra tu ONG</h1>
+      <p class="subtitle">
+        Crea el perfil de tu organización y vincúlala a tu cuenta de Google en un solo paso.
+      </p>
+
+      <!-- Mensaje de error u notificación !! MODIFICAR ESTO-->
+      @if (errorMessage()) {
+        <div class="error-banner">
+          <p>{{ errorMessage() }}</p>
+        </div>
+      }
+
+      <form [formGroup]="registerForm">
+        
+        <!-- tema de registro -->
+        <ion-input
+          label="Nombre de la Organización"
+          labelPlacement="stacked"
+          fill="outline"
+          type="text"
+          placeholder="Ej. Protectores de la Naturaleza"
+          formControlName="orgName"
+          [disabled]="isLoading()">
+        </ion-input>
+        
+        @if (registerForm.get('orgName')?.touched && registerForm.get('orgName')?.invalid) {
+          <span class="error-text">El nombre es obligatorio y debe tener al menos 3 caracteres.</span>
+        }
+
+      <ion-input
+        label="Email de Contacto de la ONG"
+        labelPlacement="stacked"
+        fill="outline"
+        type="email"
+        placeholder="contacto@tuong.org"
+        formControlName="orgEmail"
+        [disabled]="isLoading()">
+      </ion-input>
+      
+      @if (registerForm.get('orgEmail')?.touched && registerForm.get('orgEmail')?.invalid) {
+        <span class="error-text">Introduce un correo electrónico válido para la organización.</span>
+      }
+
+        <ion-button
+          expand="block"
+          class="main-button google-auth-btn"
+          [disabled]="registerForm.invalid || isLoading()"
+          (click)="registerWithGoogle()">
+          
+          @if (isLoading()) {
+            <ion-spinner name="crescent" slot="start"></ion-spinner>
+            Registrando...
+          } @else {
+            <ion-icon name="logo-google" slot="start"></ion-icon>
+            Registrar con Google
+          }
+        </ion-button>
+
+        <div class="org-divider"></div>
+
+        <!-- Enlace alternativo para volver -->
+        <div class="register-wrapper">
+          <span>¿Ya representas a una organización activa?</span>
+          <ion-button fill="clear" routerLink="/login" class="link-btn" [disabled]="isLoading()">
+            Inicia sesión
+          </ion-button>
+        </div>
+
+      </form>
+
+    </div>
+  </div>
+</ion-content>

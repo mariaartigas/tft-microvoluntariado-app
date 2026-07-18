@@ -39,7 +39,7 @@ async update(uid: string, data: Partial<UserModel>): Promise<void> {
   }
 //CAMBIOS DE AQUÍ ARRIBA !!!!!!
 
-//Método: crear el documento de un usuario nuevo
+//Método: crear el documento de un usuario nuevo, flujo idempotente
 ensureUserProfile$ (firebaseUser: any, selectedRole: UserRole = 'volunteer'): Observable<UserModel | null> {
   if (!firebaseUser) return of(null);
 
