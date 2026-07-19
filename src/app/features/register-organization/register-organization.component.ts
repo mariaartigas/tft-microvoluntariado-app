@@ -8,9 +8,7 @@ import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 import { Router, RouterLink } from '@angular/router';
-import { IonicModule } from '@ionic/angular';
 
-import { async } from 'rxjs';
 import { OrganizationService } from '../../core/services/organization.service';
 import { UserService } from '../../core/services/user.service';
 
@@ -59,9 +57,7 @@ export class RegisterOrganizationComponent {
       const ownerData = {uid: userProfile.uid, displayName: userProfile.displayName || '', email: userProfile.email || ''};
 
       // crear la org  de forma AISLADA CON SU SERVICIO
-      console.log('antes de ensureorg')
       const org = await this.orgService.ensureOrganization(orgName, orgEmail, ownerData);
-      console.log('desp de ensureorg')
       // vinculamos con el usuario IMPORTANT
       // Como userProfile ya vino listo del login, usamos su UID directamente
       await this.userService.update(userProfile.uid, {organizationId: org.uid,role: 'organization'});
@@ -69,10 +65,9 @@ export class RegisterOrganizationComponent {
       // redirección ...
       await this.router.navigate(['/organization', org.uid]);
 
-
     } catch (e) {
       this.errorMessage.set('No se pudo completar el registro. Inténtalo de nuevo.');
-      console.log('OMG')
+
     } finally {
       this.isLoading.set(false);
     }
