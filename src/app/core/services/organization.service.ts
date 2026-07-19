@@ -1,9 +1,9 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
-import {Firestore, doc, setDoc, getDoc, serverTimestamp, updateDoc, docData, collection} from '@angular/fire/firestore';
+import {Firestore, doc, setDoc, getDoc, serverTimestamp, updateDoc, docData, collection, getDocs, query, where} from '@angular/fire/firestore';
 import { UserModel, UserRole, userConverter, createDefaultUser  } from '../../shared/models/user.model';
-import { OrganizationModel, OrganizationMember, organizationConverter, createDefaultOrganization  } from '../../shared/models/organization.model';
+import { OrganizationModel, OrganizationMember, organizationConverter, createDefaultOrganization, generateSlug  } from '../../shared/models/organization.model';
 import { Observable } from 'rxjs/internal/Observable';
-import { from, map, of, switchMap, take } from 'rxjs';
+import { firstValueFrom, from, map, of, switchMap, take } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 
@@ -11,9 +11,13 @@ import { from, map, of, switchMap, take } from 'rxjs';
 export class OrganizationService {
 
   private firestore =  inject(Firestore);
-
-  getDocRef(orgId: string) {
+  
+  private getDocRef(orgId: string) {
     return doc(this.firestore, 'organizations', orgId).withConverter(organizationConverter);
+  }
+
+  private get getOrgs() { //solo cuesta una lectura we are ok
+    return collection(this.firestore, 'organizations').withConverter(organizationConverter);
   }
 
   //generación igual que en los users
@@ -26,74 +30,47 @@ export class OrganizationService {
   generateNewId(): string {
     return doc(collection(this.firestore, 'organizations')).id;
   }
+//rebusca en las organizaciones
+  async getBySlug(slug: string): Promise<OrganizationModel | null> {
+    try {
+      const q = query(this.getOrgs, where('slug', '==', slug));
+      const querySnapshot = await getDocs(q);  
+      
+      if (querySnapshot.empty) {
+        return null;
+      }
 
-  //falta el update y el read? o no hace falta el read?
+      return querySnapshot.docs[0].data();
 
-
-  //no es un proceso implícito o repetitivo, no se puede automatizar y requiere datos del usuario
-//se ha planteado hacer de esta otra manera --------------
-/*
-create$(name: string, owner: { uid: string; displayName: string; photoURL: string | null; email: string }): Observable<string> {
-    const orgCollection = collection(this.firestore, 'organizations');
-    const orgId = doc(orgCollection).id; // Generamos el ID en el cliente
-
-    const newOrg = createDefaultOrganization(orgId, name, owner);
-    const orgRef = doc(this.firestore, 'organizations', orgId).withConverter(organizationConverter);
-
-    // Guardamos en Firestore y retornamos el ID al terminar
-    return from(setDoc(orgRef, newOrg)).pipe(
-      map(() => orgId)
-    );
-  }
-}*/
-
-/*//Método: obtener la organización actual --> esto pasa por el converter por comodidad, consistencia y tipado estricto (Type Safety). si no lo hiciese entonces no devolvería un tipo USER plo que haría que se repitiese todo el rato
-  private getDocRef(uid: string) {
-  return doc(this.firestore, 'users', uid).withConverter(organizationConverter);
-}
-
-//CRUD ------------------
-
-//READ GET -> recoge el documento por id, el documento puede ser modificaod por algo por tanto es observable (no significa que se modifique el id importante)
-getById$(uid: string): Observable<OrganizationModel | undefined> {
-    return docData(this.getDocRef(uid));
+    } catch (error) {
+      console.error('Error en el getBySlug', error);
+      return null; 
+    }
   }
 
-//CREATE
-create(org: OrganizationModel): Promise<void> {
-    const ref = this.getDocRef(org.uid);
-    return setDoc(ref, org);
-  } 
-
-//UPDATE
-async update(uid: string, data: Partial<OrganizationModel>): Promise<void> {
-    const ref = this.getDocRef(uid);
-    await updateDoc(ref, {
-      ...data,
-      updatedAt: serverTimestamp() // Metadata de control técnico ?
-    });
-  }
-//CAMBIOS DE AQUÍ ARRIBA !!!!!!
-
-//Método: crear el documento de una org nueva - cambios con respecto a un usuario normal, esta parte es important -> queremos crear solo lo del org o tamb el usuario? debemos modificar esto! 
-ensureUserProfile$ (firebaseUser: any, selectedRole: UserRole = 'volunteer'): Observable<OrganizationModel | null> {
-  if (!firebaseUser) return of(null);
-
-  return this.getById$(firebaseUser.uid).pipe( 
-      take(1),
-      switchMap(appUser => {
-        if (appUser) return of(appUser); //si es usuario existe entonces out
-
-        const newUser = createDefaultUser(firebaseUser, selectedRole);
-
-        return from(this.create(newUser)).pipe(
-          map(() => newUser)
-        );
-      })
-    );
+//ENSURE organización -> crea la organización ligada de entrada ya con el USUARIO CREADOR
+  async ensureOrganization(orgName: string,  contactEmail: string, owner: { uid: string; displayName: string; email: string } ): Promise<OrganizationModel> {
+    try {
+    //generar slug 
+      const slug = generateSlug(orgName);
+    
+      //verificación rápida
+      const existingOrg = await this.getBySlug(slug); 
+      
+      if (existingOrg) {
+        return existingOrg;
+      }
+      
+      const newOrgId = this.generateNewId();
+      const newOrg = createDefaultOrganization(newOrgId, orgName, owner); 
+    
+      await this.create(newOrg);
+      
+      return newOrg;
+    } catch (e) {
+      console.error('Error al crear la organización:', e);
+      throw e;
+    }
   }
 
-
-
-}*/
 }

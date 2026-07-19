@@ -12,7 +12,7 @@ export class UserService {
   private firestore =  inject(Firestore);
 
 //Método: obtener el usuario actual --> esto pasa por el converter por comodidad, consistencia y tipado estricto (Type Safety). si no lo hiciese entonces no devolvería un tipo USER plo que haría que se repitiese todo el rato
-  private getUserRef(uid: string) {
+private getUserRef(uid: string) {
   return doc(this.firestore, 'users', uid).withConverter(userConverter);
 }
 
@@ -34,10 +34,9 @@ async update(uid: string, data: Partial<UserModel>): Promise<void> {
     const ref = this.getUserRef(uid);
     await updateDoc(ref, {
       ...data,
-      updatedAt: serverTimestamp() // Metadata de control técnico ?
+      updatedAt: serverTimestamp()
     });
   }
-//CAMBIOS DE AQUÍ ARRIBA !!!!!!
 
 //Método: crear el documento de un usuario nuevo, flujo idempotente
 ensureUserProfile$ (firebaseUser: any, selectedRole: UserRole = 'volunteer'): Observable<UserModel | null> {

@@ -81,42 +81,4 @@ export class AuthService {
     const result = await signOut(this.auth).then(() => this.router.navigate(['/login']));
   }
 
-
-  //ORGANIZACIONES ----------------------------------------------------------------------EDITANDO ACTUALMENTE
-//( orgId: string, name: string, owner: { uid: string; displayName: string; photoURL: string | null }): OrganizationModel {
-
-async registerOwnerAndOrganizationWithGoogle(orgName: string){
-  try { 
-    const provider = new GoogleAuthProvider();
-    const result = await signInWithPopup(this.auth, provider);
-
-    const userProfile = await firstValueFrom(this.userService.ensureUserProfile$(result.user, ));
-
-    if (userProfile) {
-      //ID único de la organización
-      const newOrgId = this.orgService.generateNewId();
-
-      // la factory function
-      const newOrg = createDefaultOrganization(newOrgId, orgName, {
-        uid: userProfile.uid,
-        displayName: userProfile.displayName,
-        email: userProfile.email
-      });
-
-        //aquí es donde se guardan las cosas en firestore
-      await this.orgService.create(newOrg);
-      //vinculación en el userprofile
-      await this.userService.update(userProfile.uid, { organizationId: newOrgId });
-  }
-    await this.router.navigate(['/home']); // en vd tras el primer register deberíamos redirigir al profile de la org
-    
-    return result.user;
-  
-  } catch (e) {
-    
-    console.error('Error en el registro de organización:', e);
-    throw e;
-  }
-}
-
 }

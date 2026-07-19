@@ -11,6 +11,8 @@ import { Router, RouterLink } from '@angular/router';
 import { IonicModule } from '@ionic/angular';
 
 import { async } from 'rxjs';
+import { OrganizationService } from '../../core/services/organization.service';
+import { UserService } from '../../core/services/user.service';
 
 @Component({
   standalone: true,
@@ -22,44 +24,55 @@ import { async } from 'rxjs';
 
 export class RegisterOrganizationComponent {
 
-  private auth = inject(AuthService);
   private fb = inject(FormBuilder);
   private router = inject(Router);
 
-  isLoading = signal<boolean>(false); 
-  errorMessage = signal<string | null>(null); //si se traba el popup etc entonces se lanza esto
-  
-  registerForm: FormGroup = this.fb.group({
+  private authService = inject(AuthService);
+  private orgService = inject(OrganizationService);
+  private userService = inject(UserService);
+
+  registerForm: FormGroup = this.fb.group({ //cambiarle el nombre si se refactoriza
     orgName: ['', [Validators.required, Validators.minLength(3)]],
     orgEmail: ['', [Validators.required, Validators.email]]
   });
+  
+  isLoading = signal<boolean>(false); 
+  errorMessage = signal<string | null>(null); //si se traba el popup etc entonces se lanza esto
 
+  //FUNCIÓN
   async registerWithGoogle() {
 
     if (this.registerForm.invalid) {
       this.registerForm.markAllAsTouched();
       return;
     }
+    const { orgName, orgEmail } = this.registerForm.getRawValue();
 
-    const orgName = this.registerForm.value.orgName.trim();
     this.isLoading.set(true);
     this.errorMessage.set(null);
 
     try {
-      // llamamos al método que realmente hace el registro
-      await this.auth.registerOwnerAndOrganizationWithGoogle(orgName);
-      
-      // REVISAR redirección
-      this.router.navigate(['/organization/dashboard']);
-    } catch (e: any) {
-      console.error('Error durante el registro de la organización:', e);
-      
-      // Mensajes de error 
-      if (e.code === 'auth/popup-closed-by-user') {
-        this.errorMessage.set('El inicio de sesión con Google fue cancelado.');
-      } else {
-        this.errorMessage.set('No se pudo completar el registro. Inténtalo de nuevo.');
-      }
+      const userProfile = await this.authService.loginWithGoogle();
+      if (!userProfile) return;
+
+      //construimos los datos del usuario a pasar a la organización
+      const ownerData = {uid: userProfile.uid, displayName: userProfile.displayName || '', email: userProfile.email || ''};
+
+      // crear la org  de forma AISLADA CON SU SERVICIO
+      console.log('antes de ensureorg')
+      const org = await this.orgService.ensureOrganization(orgName, orgEmail, ownerData);
+      console.log('desp de ensureorg')
+      // vinculamos con el usuario IMPORTANT
+      // Como userProfile ya vino listo del login, usamos su UID directamente
+      await this.userService.update(userProfile.uid, {organizationId: org.uid,role: 'organization'});
+
+      // redirección ...
+      await this.router.navigate(['/organization', org.uid]);
+
+
+    } catch (e) {
+      this.errorMessage.set('No se pudo completar el registro. Inténtalo de nuevo.');
+      console.log('OMG')
     } finally {
       this.isLoading.set(false);
     }

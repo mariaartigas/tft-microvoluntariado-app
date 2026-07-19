@@ -1,10 +1,8 @@
-
 //MODELO de gestión de organizaciones
 
-import { User } from "@angular/fire/auth";
 import { DocumentData, FirestoreDataConverter, QueryDocumentSnapshot, SnapshotOptions, Timestamp } from "@angular/fire/firestore";
 
-
+//información de contacto
 export interface OrganizationContacts {
   email: string;               // Email de contacto público (por defecto el del creador)
   phone: string | null;
@@ -12,7 +10,7 @@ export interface OrganizationContacts {
   instagram: string | null;
 }
 
-//Estadísticas de la organización
+//estadísticas de la organización
 export interface OrganizationStats {
   completedTasks: number;
   cancelledTasks: number;
@@ -20,7 +18,7 @@ export interface OrganizationStats {
   totalHours: number;
 }
 
-// para evitar lecturas extrass
+//denormalización
 export interface OrganizationMember {
   uid: string;
   displayName: string;
@@ -40,7 +38,7 @@ export interface OrganizationModel {
   uid: string;             // orgId de la base de datos
   verified: boolean;      // De entrada todo false hasta que un moderador lo revise
   displayName: string;
-  email: string; // añadir además una parte de contactos?
+  email: string; 
   contacts: OrganizationContacts;
   slug: string; //para la url de la página como tal
   logoURL: string | null;
@@ -63,14 +61,12 @@ export const generateSlug = (name: string): string => {
     .replace(/^-+|-+$/g, '');
 };
 
-//esto pa que? validar la organización en qué sentido !
+//mantener para uso futuro por si acaso
 export const isOrganizationValid = (name: string): boolean => {
   return name.trim().length >= 3;
 };
 
-//ESTAS CREACIONES DERIVADAS DEL MODELO DE USER ? REDEFINICIÓN ------------------------------------------------------
-
-//creación por defecto ! RECUERDA AÑADIR ESTADÍSITICAS ! IMPORTANT
+//creación por defecto ! 
 export function createDefaultOrganization( orgId: string, name: string, owner: { uid: string; displayName: string; email: string }): OrganizationModel {
   return {
   uid: orgId,
@@ -114,7 +110,7 @@ export const organizationConverter: FirestoreDataConverter<OrganizationModel> = 
       email: data['email'] ?? '',
       slug: data['slug'] ?? '',
       verified: data['verified'] ?? false,
-      displayName: data['name'] ?? '',
+      displayName: data['displayName'] ?? '',
       logoURL: data['logoURL'] ?? null,
       description: data['description'] ?? '',
       website: data['website'],
