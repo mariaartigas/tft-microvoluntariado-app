@@ -29,6 +29,18 @@ i.hn {
       color: #ffffff !important;
     }
 
+    .box-title {
+  display: flex;
+  align-items: center;
+  gap: 8px; /* Espacio uniforme entre el icono de Pixel y el texto */
+  margin-bottom: 12px;
+
+  i.hn {
+    font-size: 1.2rem;
+    color: var(--ion-color-primary, #6200ee); /* Puedes personalizar el color del icono */
+  }
+}
+
     // Subtítulos y párrafos con lila/gris
     p, .contact-item, .status-text, .about-paragraph, .empty-stats-placeholder p, .empty-text {
       color: #aaa5bb !important;

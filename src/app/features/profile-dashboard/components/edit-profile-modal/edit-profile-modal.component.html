@@ -1,0 +1,49 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar>
+    <ion-title>
+      {{ isOrgMode ? 'Editar Organización' : 'Editar Mi Perfil' }}
+    </ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="cancel()" color="medium">Cancelar</ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding modal-content">
+  <ion-item lines="none" class="custom-input-item ion-margin-bottom">
+    <ion-input 
+      [label]="isOrgMode ? 'Razón Social' : 'Nombre Completo'" 
+      label-placement="floating" 
+      [(ngModel)]="displayName">
+    </ion-input>
+  </ion-item>
+
+  <ion-item lines="none" class="custom-input-item ion-margin-bottom">
+    <ion-input 
+      [label]="isOrgMode ? 'URL Logo' : 'URL Foto de Perfil'" 
+      label-placement="floating" 
+      [(ngModel)]="logoURL">
+    </ion-input>
+  </ion-item>
+
+  <ion-item lines="none" class="custom-input-item ion-margin-bottom">
+    <ion-textarea 
+      [label]="isOrgMode ? 'Descripción Institucional' : 'Sobre mí'" 
+      label-placement="floating" 
+      [rows]="4"
+      [(ngModel)]="description">
+    </ion-textarea>
+  </ion-item>
+
+  <ion-button 
+    expand="block" 
+    class="main-button ion-margin-top"
+    [disabled]="isSaving()"
+    (click)="save()">
+    @if (isSaving()) {
+      <ion-spinner name="crescent"></ion-spinner>
+    } @else {
+      Guardar Cambios
+    }
+  </ion-button>
+</ion-content>

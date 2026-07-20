@@ -8,10 +8,8 @@
           
           <!-- Identidad visual Básica -->
           <div class="dashboard-box identity-box ion-text-center">
-            
-            <!-- Botón Editar con icono pixelado -->
             @if (isEditable()) {
-              <button type="button" id="open-edit-profile-modal" class="custom-edit-btn">
+              <button type="button" (click)="openEditModal()" class="custom-edit-btn">
                 <i class="hn hn-edit"></i>
                 <span>Editar</span>
               </button>
@@ -33,12 +31,15 @@
             </ion-badge>
           </div>
 
-          <!-- Información de Contacto (Solo Organizaciones) -->
+          <!-- Información de Contacto -->
           @if (isOrgMode()) {
             <div class="dashboard-box contact-box">
-              <h4 class="box-title">Contacto Institucional</h4>
-              <p class="contact-item">
+              <h4 class="box-title">
                 <i class="hn hn-mail"></i>
+                <span>Contacto Institucional</span>
+              </h4>
+              <p class="contact-item">
+                <i class="hn hn-envelope"></i>
                 <span>{{ profileData()?.email }}</span>
               </p>
             </div>
@@ -47,7 +48,8 @@
           <!-- Feed de Publicaciones / Listado de Intereses -->
           <div class="dashboard-box dynamic-left-box">
             <h4 class="box-title">
-              {{ isOrgMode() ? '📢 Noticias & Publicaciones' : '🎯 Intereses de Impacto' }}
+              <i class="hn" [ngClass]="isOrgMode() ? 'hn-megaphone' : 'hn-target'"></i>
+              <span>{{ isOrgMode() ? 'Noticias & Publicaciones' : 'Sobre mí' }}</span>
             </h4>
             
             @if (isOrgMode()) {
@@ -56,15 +58,13 @@
                   <div class="feed-post-card">
                     <p>{{ post }}</p>
                   </div>
+                } @empty {
+                  <p class="empty-text">No hay publicaciones recientes.</p>
                 }
               </div>
             } @else {
               <div class="tags-container">
-                @for (interest of profileData()?.extraContent; track interest) {
-                  <ion-chip mode="ios">
-                    <ion-label>{{ interest }}</ion-label>
-                  </ion-chip>
-                }
+                <p class="about-paragraph">{{ profileData()?.description }}</p>
               </div>
             }
           </div>
@@ -74,9 +74,12 @@
         <!-- COLUMNA DERECHA -->
         <ion-col size="12" size-md="8">
           
-          <!-- CBadges / Medallas de Gamificación -->
+          <!-- Badges / Medallas -->
           <div class="dashboard-box badges-box">
-            <h4 class="box-title">🏆 Logros & Reconocimientos</h4>
+            <h4 class="box-title">
+              <i class="hn hn-trophy"></i>
+              <span>Logros & Reconocimientos</span>
+            </h4>
             <div class="badges-flex-row">
               @for (badge of profileData()?.badges; track badge) {
                 <span class="custom-badge-pill">{{ badge }}</span>
@@ -87,7 +90,10 @@
           <!-- Tareas Dinámicas -->
           <div class="dashboard-box tasks-box">
             <div class="box-header-flex">
-              <h4 class="box-title">💼 {{ tasksTitle() }}</h4>
+              <h4 class="box-title">
+                <i class="hn" [ngClass]="isOrgMode() ? 'hn-briefcase' : 'hn-history'"></i>
+                <span>{{ tasksTitle() }}</span>
+              </h4>
               
               @if (isOrgMode() && isEditable()) {
                 <button type="button" id="open-task-modal" class="add-task-btn" title="Añadir tarea">
@@ -113,7 +119,10 @@
 
           <!-- About Section / Muro de Reseñas -->
           <div class="dashboard-box about-reviews-box">
-            <h4 class="box-title">📝 {{ aboutTitle() }}</h4>
+            <h4 class="box-title">
+              <i class="hn" [ngClass]="isOrgMode() ? 'hn-info-circle' : 'hn-star'"></i>
+              <span>{{ aboutTitle() }}</span>
+            </h4>
             
             @if (isOrgMode()) {
               <p class="about-paragraph">{{ profileData()?.description }}</p>
@@ -127,7 +136,10 @@
 
           <!-- Área Estática Vacía -->
           <div class="dashboard-box stats-box">
-            <h4 class="box-title">📊 Estadísticas de Impacto</h4>
+            <h4 class="box-title">
+              <i class="hn hn-chart-bar"></i>
+              <span>Estadísticas de Impacto</span>
+            </h4>
             <div class="empty-stats-placeholder">
               <p>Las métricas operativas y gráficas de rendimiento se activarán próximamente.</p>
             </div>
@@ -144,99 +156,3 @@
     </div>
   }
 </ion-content>
-
-<!--  MODAL CREAR TAREA -->
-<ion-modal trigger="open-task-modal" #taskModal class="task-modal">
-  <ng-template>
-    <ion-header class="ion-no-border">
-      <ion-toolbar>
-        <ion-title>Nueva Tarea Operativa</ion-title>
-        <ion-buttons slot="end">
-          <ion-button (click)="taskModal.dismiss()" color="medium">Cancelar</ion-button>
-        </ion-buttons>
-      </ion-toolbar>
-    </ion-header>
-
-    <ion-content class="ion-padding modal-content">
-      <p class="modal-subtitle">Introduce los detalles de la actividad para buscar voluntarios.</p>
-      
-      <ion-item lines="none" class="custom-input-item">
-        <ion-input 
-          label="Título de la actividad" 
-          label-placement="floating" 
-          placeholder="Ej: Clasificación de alimentos..."
-          #taskTitleInput>
-        </ion-input>
-      </ion-item>
-
-      <ion-button 
-        expand="block" 
-        class="main-button ion-margin-top"
-        (click)="addNewTask(taskTitleInput.value, taskModal)">
-        Publicar Actividad
-      </ion-button>
-    </ion-content>
-  </ng-template>
-</ion-modal>
-
-<!--  MODAL EDITAR PERFIL -->
-<ion-modal trigger="open-edit-profile-modal" #editModal class="task-modal">
-  <ng-template>
-    <ion-header class="ion-no-border">
-      <ion-toolbar>
-        <ion-title>Editar Perfil</ion-title>
-        <ion-buttons slot="end">
-          <ion-button (click)="editModal.dismiss()" color="medium">Cancelar</ion-button>
-        </ion-buttons>
-      </ion-toolbar>
-    </ion-header>
-
-    <ion-content class="ion-padding modal-content">
-      <p class="modal-subtitle">Modifica la información visible en tu perfil público.</p>
-
-      <ion-item lines="none" class="custom-input-item ion-margin-bottom">
-        <ion-input 
-          label="Nombre / Razón Social" 
-          label-placement="floating" 
-          [value]="profileData()?.displayName"
-          #nameInput>
-        </ion-input>
-      </ion-item>
-
-      <ion-item lines="none" class="custom-input-item ion-margin-bottom">
-        <ion-input 
-          label="URL de la imagen / Logo" 
-          label-placement="floating" 
-          [value]="profileData()?.logoURL"
-          #logoInput>
-        </ion-input>
-      </ion-item>
-
-      <ion-item lines="none" class="custom-input-item ion-margin-bottom">
-        <ion-textarea 
-          label="Descripción / Biografía" 
-          label-placement="floating" 
-          [rows]="4"
-          [value]="profileData()?.description"
-          #descInput>
-        </ion-textarea>
-      </ion-item>
-
-      <ion-button 
-        expand="block" 
-        class="main-button ion-margin-top"
-        [disabled]="isSaving()"
-        (click)="saveProfileChanges({
-          displayName: nameInput.value,
-          logoURL: logoInput.value,
-          description: descInput.value
-        }, editModal)">
-        @if (isSaving()) {
-          <ion-spinner name="crescent"></ion-spinner>
-        } @else {
-          Guardar Cambios
-        }
-      </ion-button>
-    </ion-content>
-  </ng-template>
-</ion-modal>

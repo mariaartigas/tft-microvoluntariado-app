@@ -1,5 +1,5 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
-import {Firestore, doc, setDoc, getDoc, serverTimestamp, updateDoc, docData, collection, getDocs, query, where} from '@angular/fire/firestore';
+import {Firestore, doc, setDoc, getDoc, serverTimestamp, updateDoc, docData, collection, getDocs, query, where, collectionData} from '@angular/fire/firestore';
 import { UserModel, UserRole, userConverter, createDefaultUser  } from '../../shared/models/user.model';
 import { OrganizationModel, OrganizationMember, organizationConverter, createDefaultOrganization, generateSlug  } from '../../shared/models/organization.model';
 import { Observable } from 'rxjs/internal/Observable';
@@ -29,27 +29,31 @@ export class OrganizationService {
     return setDoc(ref, org);
   }
 
+  //UPDATE
+  async update(uid: string, data: Partial<OrganizationModel>): Promise<void> {
+    const ref = this.getDocRef(uid);
+    await updateDoc(ref, {
+     ...data,
+      updatedAt: serverTimestamp()
+   });
+  }
+
   //generación de i dúnico, porque el id de usuario lo autogenera firebase ...
   generateNewId(): string {
     return doc(collection(this.firestore, 'organizations')).id;
   }
 //rebusca en las organizaciones
-  async getBySlug(slug: string): Promise<OrganizationModel | null> {
-    try {
-      const q = query(this.getOrgs, where('slug', '==', slug));
-      const querySnapshot = await getDocs(q);  
-      
-      if (querySnapshot.empty) {
-        return null;
-      }
+  getBySlug$(slug: string): Observable<OrganizationModel | null> {
+  const q = query(this.getOrgs, where('slug', '==', slug));
 
-      return querySnapshot.docs[0].data();
-
-    } catch (error) {
-      console.error('Error en el getBySlug', error);
-      return null; 
-    }
-  }
+  // Dejamos la conexión reactiva abierta en tiempo real
+  return collectionData(q, { idField: 'uid' }).pipe(
+    map(orgs => {
+      if (!orgs || orgs.length === 0) return null;
+      return orgs[0] as OrganizationModel;
+    })
+  );
+}
 
 //ENSURE organización -> crea la organización ligada de entrada ya con el USUARIO CREADOR
   async ensureOrganization(orgName: string,  contactEmail: string, owner: { uid: string; displayName: string; email: string } ): Promise<OrganizationModel> {
@@ -58,7 +62,7 @@ export class OrganizationService {
       const slug = generateSlug(orgName);
     
       //verificación rápida
-      const existingOrg = await this.getBySlug(slug); 
+      const existingOrg = await firstValueFrom(this.getBySlug$(slug)); 
       
       if (existingOrg) {
         return existingOrg;

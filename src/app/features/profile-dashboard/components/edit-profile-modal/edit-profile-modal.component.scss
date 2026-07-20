@@ -1,0 +1,221 @@
+@import '@hackernoon/pixel-icon-library/fonts/iconfont.css';
+
+/* Renderizado ultra nítido para iconos pixelados */
+i.hn {
+  display: inline-block;
+  line-height: 1;
+  image-rendering: pixelated;
+}
+
+// =========================================================
+// ENTORNO Y FORMULARIO DE EDICIÓN
+// =========================================================
+
+.edit-wrapper, ion-content {
+  // 🌌 Fondo base ultra oscuro de la app
+  --background: #100e1a;
+  color: #ffffff;
+
+  // Contenedor principal de la tarjeta de edición
+  .edit-card, .edit-box {
+    background: #1e1c27;
+    border: 1px solid #353141;
+    border-radius: 18px;
+    padding: 24px;
+    margin: 20px auto;
+    max-width: 700px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+
+    .edit-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 24px;
+
+      h2, h3 {
+        margin: 0;
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: #ffffff !important;
+      }
+
+      i.hn {
+        font-size: 1.4rem;
+        color: #8064ff;
+      }
+    }
+  }
+}
+
+// =========================================================
+// CONTROL DE INPUTS Y COMPONENTES IONIC
+// =========================================================
+
+/* Formateo de los grupos de entradas de datos */
+.form-group {
+  margin-bottom: 20px;
+
+  label, .input-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #aaa5bb;
+    margin-bottom: 8px;
+
+    i.hn {
+      color: #8064ff;
+      font-size: 1.1rem;
+    }
+  }
+}
+
+/* Personalización profunda de ion-item / ion-input / ion-textarea */
+ion-item {
+  --background: #17151f;
+  --border-color: #353141;
+  --border-radius: 10px;
+  --highlight-color-focused: #8064ff;
+  --color: #ffffff;
+  --placeholder-color: #6a647d;
+  --padding-start: 14px;
+  --padding-end: 14px;
+  border: 1px solid #353141;
+  border-radius: 10px;
+  margin-top: 4px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+
+  &.item-has-focus {
+    border-color: #8064ff;
+    box-shadow: 0 0 8px rgba(128, 100, 255, 0.3);
+  }
+
+  ion-label {
+    color: #aaa5bb !important;
+  }
+
+  ion-input, ion-textarea, ion-select {
+    --color: #ffffff;
+    font-size: 0.95rem;
+  }
+}
+
+// =========================================================
+// AVATAR / IMAGEN DE PERFIL EN MODO EDICIÓN
+// =========================================================
+
+.edit-avatar-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 24px;
+
+  .avatar-preview {
+    position: relative;
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background: #17151f;
+    border: 2px solid #8064ff;
+    box-shadow: 0 4px 14px rgba(128, 100, 255, 0.25);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    i.hn {
+      font-size: 3rem;
+      color: #8064ff;
+    }
+
+    .upload-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(16, 14, 26, 0.7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+      cursor: pointer;
+
+      i.hn {
+        font-size: 1.5rem;
+        color: #ffffff;
+      }
+
+      &:hover {
+        opacity: 1;
+      }
+    }
+  }
+}
+
+// =========================================================
+// BOTONES DE ACCIÓN (GUARDAR / CANCELAR)
+// =========================================================
+
+.actions-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 28px;
+  padding-top: 16px;
+  border-top: 1px solid #353141;
+
+  /* Botón Secundario / Cancelar */
+  .btn-cancel {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid #353141;
+    color: #aaa5bb;
+    border-radius: 10px;
+    padding: 10px 20px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: #ffffff;
+    }
+  }
+
+  /* Botón Primario / Guardar estilo Pixel Art Highlight */
+  .btn-save {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(128, 100, 255, 0.2);
+    border: 1px solid #8064ff;
+    color: #ffffff;
+    border-radius: 10px;
+    padding: 10px 22px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    i.hn {
+      font-size: 1.1rem;
+      color: #8064ff;
+    }
+
+    &:hover {
+      background: #8064ff;
+      color: #ffffff;
+
+      i.hn {
+        color: #ffffff;
+      }
+    }
+  }
+}
