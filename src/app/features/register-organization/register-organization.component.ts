@@ -63,7 +63,7 @@ export class RegisterOrganizationComponent {
       await this.userService.update(userProfile.uid, {organizationId: org.uid,role: 'organization'});
 
       // redirección ...
-      await this.router.navigate(['/organization', org.uid]);
+      await this.router.navigate(['/organization', org.slug]);
 
     } catch (e) {
       this.errorMessage.set('No se pudo completar el registro. Inténtalo de nuevo.');

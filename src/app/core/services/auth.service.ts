@@ -51,10 +51,10 @@ export class AuthService {
       const provider = new GoogleAuthProvider();
       const result = await signInWithPopup(this.auth, provider);
 
-      await firstValueFrom(this.userService.ensureUserProfile$(result.user, ));
-
-      await this.router.navigate(['/home']);
-      return result.user;
+      const userProfile = await firstValueFrom(this.userService.ensureUserProfile$(result.user, ));
+      
+      return userProfile;
+      
     } catch (e) {
       console.error('Error en login:', e);
       throw e;
