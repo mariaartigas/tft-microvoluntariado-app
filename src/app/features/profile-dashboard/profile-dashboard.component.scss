@@ -1,0 +1,283 @@
+@import '@hackernoon/pixel-icon-library/fonts/iconfont.css';
+
+/* Ajuste global para que los iconos pixelados se vean ultra nítidos */
+i.hn {
+  display: inline-block;
+  line-height: 1;
+  image-rendering: pixelated;
+}
+
+.dashboard-wrapper {
+  // 🌌 El fondo ultra oscuro de tu Login Page
+  --background: #100e1a; 
+
+  .dashboard-box {
+    // Login Card Styling
+    background: #1e1c27;
+    border: 1px solid #353141;
+    border-radius: 18px; 
+    padding: 24px;
+    margin-bottom: 20px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2); 
+    
+    // Títulos principales en blanco puro
+    .box-title, h3, h4 {
+      margin-top: 0;
+      margin-bottom: 16px;
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: #ffffff !important;
+    }
+
+    // Subtítulos y párrafos con lila/gris
+    p, .contact-item, .status-text, .about-paragraph, .empty-stats-placeholder p, .empty-text {
+      color: #aaa5bb !important;
+      font-size: 0.95rem;
+      line-height: 1.5;
+    }
+  }
+}
+
+// =========================================================
+// IZQUIERDA
+// =========================================================
+
+.identity-box {
+  position: relative !important; // Esencial para el botón Editar flotante
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 28px;
+
+  /* Botón de Editar con estilo Pixel Art */
+  .custom-edit-btn {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    z-index: 20;
+
+    display: flex;
+    align-items: center;
+    gap: 6px;
+
+    background: rgba(128, 100, 255, 0.15);
+    border: 1px solid #8064ff;
+    color: #8064ff;
+    border-radius: 8px;
+    padding: 6px 12px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+
+    i.hn {
+      font-size: 1rem;
+    }
+
+    &:hover {
+      background: #8064ff;
+      color: #ffffff;
+    }
+  }
+
+  .profile-avatar {
+    margin: 0 auto;
+    width: 90px;
+    height: 90px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    background: #17151f; 
+    border: 1px solid #353141;
+
+    .avatar-placeholder {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      i.hn {
+        font-size: 2.8rem;
+        color: #8064ff; 
+      }
+    }
+  }
+
+  h3 {
+    font-size: 1.4rem;
+    margin-bottom: 6px;
+  }
+
+  ion-badge {
+    --background: #6d4aff;
+    --color: white;
+    padding: 6px 16px;
+    font-weight: 600;
+    border-radius: 20px;
+  }
+}
+
+.contact-box {
+  .contact-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 14px;
+    
+    i.hn {
+      font-size: 1.25rem;
+      color: #8064ff; 
+    }
+  }
+}
+
+.dynamic-left-box {
+  min-height: 280px;
+
+  .feed-post-card {
+    background: #17151f; 
+    padding: 14px;
+    border-radius: 10px;
+    margin-bottom: 12px;
+    border: 1px solid #353141;
+    border-left: 4px solid #6d4aff; 
+    
+    p {
+      color: #ffffff !important; 
+      font-size: 0.9rem;
+    }
+  }
+
+  .tags-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+
+    ion-chip {
+      --background: #17151f;
+      --color: #aaa5bb;
+      border: 1px solid #4a4459;
+      margin: 0;
+      
+      ion-label { color: #aaa5bb; }
+    }
+  }
+}
+
+// =========================================================
+// DERECHA
+// =========================================================
+
+.badges-box {
+  .badges-flex-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+
+    .custom-badge-pill {
+      background: rgba(109, 74, 255, 0.15); 
+      color: #ffffff;
+      border: 1px solid #6d4aff;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+  }
+}
+
+.tasks-box {
+  .box-header-flex {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+
+    .box-title {
+      margin-bottom: 0;
+    }
+
+    .add-task-btn {
+      background: rgba(109, 74, 255, 0.2);
+      border: 1px solid #6d4aff;
+      color: #8064ff;
+      border-radius: 8px;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+
+      i.hn {
+        font-size: 1.1rem;
+      }
+
+      &:hover {
+        background: #6d4aff;
+        color: #ffffff;
+      }
+    }
+  }
+
+  .task-row-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: #17151f; 
+    padding: 16px;
+    border-radius: 12px;
+    margin-bottom: 10px;
+    border: 1px solid #353141;
+    
+    i.task-icon {
+      font-size: 1.4rem;
+      color: #6d4aff; 
+    }
+    
+    h2 {
+      font-size: 1.05rem;
+      margin: 0;
+      font-weight: 600;
+      color: #ffffff;
+    }
+    
+    .status-text {
+      margin: 4px 0 0 0;
+      font-size: 0.8rem;
+      color: #aaa5bb !important;
+    }
+  }
+}
+
+.about-reviews-box {
+  .review-item {
+    background: #17151f;
+    border-radius: 12px;
+    padding: 16px;
+    border: 1px solid #353141;
+    font-style: italic;
+    
+    .review-text { color: #ffffff !important; }
+    .review-author { font-size: 0.85rem; color: #8064ff !important; font-style: normal; font-weight: 600; }
+  }
+}
+
+.stats-box {
+  .empty-stats-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 140px;
+    border: 2px dashed #4a4459; 
+    border-radius: 12px;
+    padding: 20px;
+    background: rgba(23, 21, 31, 0.4); 
+    
+    p {
+      margin: 0;
+      text-align: center;
+      color: #aaa5bb !important;
+    }
+  }
+}

@@ -17,7 +17,7 @@ import { UserService } from '../../core/services/user.service';
   imports: [RouterLink, AsyncPipe, SideMenuComponent, IonInput, IonButton, ReactiveFormsModule, IonContent, IonIcon, IonSpinner],
   selector: 'app-register',
   templateUrl: './register-organization.component.html',
-  styleUrls: ['./register.component.scss'],
+  styleUrls: ['./register-organization.component.scss'],
 })
 
 export class RegisterOrganizationComponent {

@@ -1,7 +1,6 @@
 
 //MODELO de gestión de usuarios
 
-import { User } from "@angular/fire/auth";
 import { DocumentData, FirestoreDataConverter, QueryDocumentSnapshot, SnapshotOptions } from "@angular/fire/firestore";
 
 export type UserRole = 'volunteer' | 'organization' | 'moderator';
@@ -27,10 +26,16 @@ export interface UserModel {
   reputation: number; //
   reliability: number;
   statistics: UserStats;
-  createdAt?: Date;
+
+  // campos propios de perfil de usuario
+  bio?: string;
+  interests?: string[];
+  badges?: string[];
+
+  createdAt: Date;
   updatedAt?: Date;
 }
-//función factory o algo así !
+
 export function createDefaultUser(firebaseUser: { uid: string, email: string | null, displayName: string | null, photoURL: string | null }, role: UserRole = 'volunteer'
 ): UserModel {
 
@@ -47,8 +52,8 @@ export function createDefaultUser(firebaseUser: { uid: string, email: string | n
     organizationId: null, // solo si está finalmente verificado, y es de org
     isVerified: !isOrg,   // Los voluntarios entran activos, las orgs requieren verificación --> replantear cómo hacerlo? con moderadores?
     xp: 0,
-    reputation: 100,      // Empiezan con reputación máxima
-    reliability: 100,     // Empiezan con fiabilidad máxima
+    reputation: 0,      // Empiezan con reputación 0, lo máximo es 100
+    reliability: 0,     // Empiezan con fiabilidad 0
     statistics: {
       completedTasks: 0,
       cancelledTasks: 0,
@@ -86,8 +91,8 @@ export const userConverter: FirestoreDataConverter<UserModel> = {
         organizationsHelped: 0,
         totalHours: 0
       },
-      createdAt: data['createdAt']?.toDate(),
-      updatedAt: data['updatedAt']?.toDate()
+      createdAt: data['createdAt']?.toDate() ?? new Date(),
+      updatedAt: data['updatedAt']?.toDate() ?? new Date(),
     };
   }
 };

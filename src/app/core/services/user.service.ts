@@ -1,5 +1,5 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
-import {Firestore, doc, setDoc, getDoc, serverTimestamp, updateDoc, docData} from '@angular/fire/firestore';
+import {Firestore, doc, setDoc, getDoc, serverTimestamp, updateDoc, docData, collection, getDocs, query, where} from '@angular/fire/firestore';
 import { UserModel, UserRole, userConverter, createDefaultUser  } from '../../shared/models/user.model';
 import { Observable } from 'rxjs/internal/Observable';
 import { from, map, of, switchMap, take } from 'rxjs';
@@ -21,6 +21,19 @@ private getUserRef(uid: string) {
 //READ GET -> recoge el documento por id, el documento puede ser modificaod por algo por tanto es observable (no significa que se modifique el id importante)
 getById$(uid: string): Observable<UserModel | undefined> {
     return docData(this.getUserRef(uid));
+  }
+
+  getByUsername$(username: string): Observable<UserModel | null> {
+    const usersRef = collection(this.firestore, 'users');
+    const q = query(usersRef, where('username', '==', username));
+
+    return from(getDocs(q)).pipe(
+      map(snapshot => {
+        if (snapshot.empty) return null;
+        const doc = snapshot.docs[0];
+        return { uid: doc.id, ...doc.data() } as UserModel;
+      })
+    );
   }
 
 //CREATE

@@ -1,10 +1,11 @@
 //MODELO de gestión de organizaciones
 
 import { DocumentData, FirestoreDataConverter, QueryDocumentSnapshot, SnapshotOptions, Timestamp } from "@angular/fire/firestore";
+import { TaskStatus } from "./task.model";
 
 //información de contacto
 export interface OrganizationContacts {
-  email: string;               // Email de contacto público (por defecto el del creador)
+  email: string;              
   phone: string | null;
   website: string | null;
   instagram: string | null;
@@ -14,7 +15,7 @@ export interface OrganizationContacts {
 export interface OrganizationStats {
   completedTasks: number;
   cancelledTasks: number;
-  organizationsHelped: number; // whart?
+  activeVolunteers: number; 
   totalHours: number;
 }
 
@@ -23,15 +24,15 @@ export interface OrganizationMember {
   uid: string;
   displayName: string;
   email: string;
-  role: 'org_admin' | 'org_member';
+  role: 'org_admin' | 'org_member'; //actualmente solo admite uno, esto es para escalibilidad
 }
 
 // tareas recientes !
 export interface RecentTaskSummary {
   taskId: string;
-  displayName: string;
+  title: string;
   description: string;
-  status: 'open' | 'assigned' | 'in_progress' | 'under_review' | 'completed' | 'cancelled'; //revisar estados posibles
+  status: TaskStatus; //REVISAR estados posibles
 }
 
 export interface OrganizationModel {
@@ -43,7 +44,6 @@ export interface OrganizationModel {
   slug: string; //para la url de la página como tal
   logoURL: string | null;
   description: string;
-  website?: string; //cambiarlo por contacts
   ownerId: string;        // el uid del creader usuario de esta org
   members: OrganizationMember[]; // miembros, acualmente en desuso
   recentTasks: RecentTaskSummary[]; // tareas expuestas recientes !
@@ -106,16 +106,15 @@ export const organizationConverter: FirestoreDataConverter<OrganizationModel> = 
   fromFirestore(snapshot: QueryDocumentSnapshot, options?: SnapshotOptions): OrganizationModel { //snapshot son los metadatos + id + datos reales
       const data = snapshot.data(options);
     return {
-      uid: snapshot.id, // id del documento automatico? what?
+      uid: snapshot.id, // id del documento automatico
       email: data['email'] ?? '',
       slug: data['slug'] ?? '',
       verified: data['verified'] ?? false,
       displayName: data['displayName'] ?? '',
       logoURL: data['logoURL'] ?? null,
       description: data['description'] ?? '',
-      website: data['website'],
-      createdAt: (data['createdAt'] as Timestamp).toDate(), // Convertimos de vuelta de Timestamp a Date
-      updatedAt: (data['updatedAt'] as Timestamp).toDate(),
+      createdAt: data['createdAt']?.toDate() ?? new Date(), // Convertimos de vuelta de Timestamp a Date
+      updatedAt: data['updatedAt']?.toDate() ?? new Date(),
       ownerId: data['ownerId'] ?? '',
       members: data['members'] ?? [],
       recentTasks: data['recentTasks'] ?? [],

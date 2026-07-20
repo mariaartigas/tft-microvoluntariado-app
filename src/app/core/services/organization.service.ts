@@ -16,9 +16,12 @@ export class OrganizationService {
     return doc(this.firestore, 'organizations', orgId).withConverter(organizationConverter);
   }
 
+  //obtener, búsqueda en las organizaciones
   private get getOrgs() { //solo cuesta una lectura we are ok
     return collection(this.firestore, 'organizations').withConverter(organizationConverter);
   }
+
+  //CRUD ------------------
 
   //generación igual que en los users
   create(org: OrganizationModel): Promise<void> {
