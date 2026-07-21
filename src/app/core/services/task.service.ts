@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, Injector, inject, runInInjectionContext } from '@angular/core';
 import { Firestore, doc, setDoc,  updateDoc, collection, docData,  serverTimestamp, collectionData, orderBy, query, where, QueryDocumentSnapshot, getDocs, limit, startAfter, deleteDoc, increment } from '@angular/fire/firestore';
 import { Observable } from 'rxjs';
 import { TaskModel, taskConverter, TaskStatus, MessageModel, messageConverter, createDefaultTask, createDefaultMessage } from '../../shared/models/task.model';
@@ -6,7 +6,8 @@ import { TaskModel, taskConverter, TaskStatus, MessageModel, messageConverter, c
 @Injectable({ providedIn: 'root' })
 export class TaskService {
   private firestore = inject(Firestore);
-
+  private injector = inject(Injector);
+  
   // UTILS
 
   generateNewId(): string {
@@ -23,15 +24,14 @@ export class TaskService {
     return docData(this.getTaskDocRef(taskId));
   }
 
-  getTasksByVolunteer$(volunteerId: string, status: TaskStatus): Observable<TaskModel[]> {
+  getTasksByVolunteer$(volunteerId: string, status: string) {
     const colRef = collection(this.firestore, 'tasks').withConverter(taskConverter);
-    const q = query(
-      colRef,
-      where('assignedVolunteerId', '==', volunteerId),
-      where('status', '==', status),
-      orderBy('createdAt', 'desc')
+    const q = query(colRef, where('assignedVolunteerId', '==', volunteerId), where('status', '==', status));
+
+    // Envolver obligatoriamente dentro del contexto de inyección
+    return runInInjectionContext(this.injector, () => 
+      collectionData(q, { idField: 'uid' })
     );
-    return collectionData(q);
   }
 
   getTasksByOrg$(orgId: string, status: TaskStatus): Observable<TaskModel[]> {

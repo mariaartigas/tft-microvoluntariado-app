@@ -1,39 +1,37 @@
 import { Component, Input, OnInit, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { IonicModule, ModalController, ToastController } from '@ionic/angular';
+import {IonHeader, IonToolbar, IonTitle, IonButtons,IonButton, IonContent, IonItem, IonInput, IonTextarea, IonSpinner, ModalController, ToastController } from '@ionic/angular/standalone';
 import { UserService } from '../../../../core/services/user.service';
 import { OrganizationService } from '../../../../core/services/organization.service';
-import { ProfileState } from '../../profile-dashboard.component'; // Ajusta la ruta a tu interface
+import { ProfileState } from '../../profile-dashboard.component';
 
 @Component({
   selector: 'app-edit-profile-modal',
   templateUrl: './edit-profile-modal.component.html',
   styleUrls: ['./edit-profile-modal.component.scss'],
   standalone: true,
-  imports: [IonicModule, CommonModule, FormsModule]
+  imports: [FormsModule, IonHeader, IonToolbar, IonTitle, IonButtons, IonButton, IonContent, IonItem, IonInput, IonTextarea, IonSpinner]
 })
+
 export class EditProfileModalComponent implements OnInit {
   private modalCtrl = inject(ModalController);
   private toastCtrl = inject(ToastController);
   private userService = inject(UserService);
   private orgService = inject(OrganizationService);
 
+  // inputs
   @Input({ required: true }) profileData!: ProfileState;
-  @Input({ required: true }) isOrgMode!: boolean;
+  @Input() isOrgMode: boolean = false;
 
+  // Estado del formulario con Signals
   isSaving = signal<boolean>(false);
-
-  // Formulario local (ViewModel del Modal)
   displayName = '';
   description = '';
-  logoURL = '';
 
   ngOnInit() {
     if (this.profileData) {
       this.displayName = this.profileData.displayName || '';
       this.description = this.profileData.description || '';
-      this.logoURL = this.profileData.logoURL || '';
     }
   }
 
@@ -42,31 +40,31 @@ export class EditProfileModalComponent implements OnInit {
   }
 
   async save() {
-    if (!this.profileData?.uid) return;
+    const uid = this.profileData?.uid;
+    const cleanName = this.displayName.trim().slice(0, 80);
+    const cleanDescription = this.description.trim().slice(0, 500);
+
+    if (!uid || !cleanName) return;
 
     this.isSaving.set(true);
 
     try {
       if (this.isOrgMode) {
-        const updatedOrg = {
-          displayName: this.displayName.trim(),
-          description: this.description.trim(),
-          logoURL: this.logoURL.trim() || null
-        };
-        await this.orgService.update(this.profileData.uid, updatedOrg);
+        await this.orgService.update(uid, {
+          displayName: cleanName,
+          description: cleanDescription
+        });
       } else {
-        const updatedUser = {
-          displayName: this.displayName.trim(),
-          bio: this.description.trim(),
-          photoURL: this.logoURL.trim() || null
-        };
-        await this.userService.update(this.profileData.uid, updatedUser);
+        await this.userService.update(uid, {
+          displayName: cleanName,
+          bio: cleanDescription
+        });
       }
 
       await this.showToast('Perfil actualizado con éxito', 'success');
-      this.modalCtrl.dismiss(true, 'confirm'); // Retornamos true para confirmar refresco
+      this.modalCtrl.dismiss(true, 'confirm');
     } catch (error) {
-      console.error('Error al actualizar el perfil:', error);
+      console.error('[EditProfileModal] Error al actualizar perfil:', error);
       await this.showToast('Error al guardar los cambios', 'danger');
     } finally {
       this.isSaving.set(false);

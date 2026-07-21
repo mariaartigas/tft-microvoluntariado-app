@@ -9,10 +9,16 @@
           <!-- Identidad visual Básica -->
           <div class="dashboard-box identity-box ion-text-center">
             @if (isEditable()) {
-              <button type="button" (click)="openEditModal()" class="custom-edit-btn">
-                <i class="hn hn-edit"></i>
-                <span>Editar</span>
-              </button>
+              <div class="profile-actions-container ion-margin-bottom">
+                <button type="button" (click)="openEditModal()" class="custom-edit-btn">
+                  <i class="hn hn-edit"></i>
+                  <span>Editar</span>
+                </button>
+                <button type="button" (click)="confirmDeleteAccount()" class="custom-delete-btn">
+                  <i class="hn hn-trash"></i>
+                  <span>Eliminar Cuenta</span>
+                </button>
+              </div>
             }
 
             <ion-avatar class="profile-avatar">
@@ -94,22 +100,23 @@
                 <i class="hn" [ngClass]="isOrgMode() ? 'hn-briefcase' : 'hn-history'"></i>
                 <span>{{ tasksTitle() }}</span>
               </h4>
-              
-              @if (isOrgMode() && isEditable()) {
-                <button type="button" id="open-task-modal" class="add-task-btn" title="Añadir tarea">
-                  <i class="hn hn-plus"></i>
-                </button>
+
+              @if (isOrgMode()) { 
+                <ion-button [routerLink]="['/organization', profileData()?.slug, 'tasks']" fill="clear">
+                  <i class="hn hn-list ion-margin-end"></i>
+                  <span>Ver tareas</span>
+                </ion-button>
+              } @else {
+                <ion-button [routerLink]="['/user', profileData()?.username, 'tasks']" expand="block" fill="outline">
+                  VER TAREAS
+                </ion-button>
               }
             </div>
 
             <div class="tasks-list-wrapper">
-              @for (task of displayTasks(); track task.taskId || task.title) {
-                <div class="task-row-item animate-fade">
-                  <i class="hn hn-check-box task-icon"></i>
-                  <ion-label>
-                    <h2>{{ task.title }}</h2>
-                    <p class="status-text">{{ task.status }}</p>
-                  </ion-label>
+              @for (task of profileData()?.tasks; track task.taskId) {
+                <div class="task-card">
+                  {{ task.title }}
                 </div>
               } @empty {
                 <p class="empty-text">No hay actividades registradas en este perfil.</p>

@@ -4,41 +4,38 @@
       {{ isOrgMode ? 'Editar Organización' : 'Editar Mi Perfil' }}
     </ion-title>
     <ion-buttons slot="end">
-      <ion-button (click)="cancel()" color="medium">Cancelar</ion-button>
+      <ion-button (click)="cancel()" color="medium" [disabled]="isSaving()">Cancelar</ion-button>
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
 <ion-content class="ion-padding modal-content">
+  <!-- Nombre / Razón Social -->
   <ion-item lines="none" class="custom-input-item ion-margin-bottom">
     <ion-input 
       [label]="isOrgMode ? 'Razón Social' : 'Nombre Completo'" 
       label-placement="floating" 
+      maxlength="80"
       [(ngModel)]="displayName">
     </ion-input>
   </ion-item>
 
-  <ion-item lines="none" class="custom-input-item ion-margin-bottom">
-    <ion-input 
-      [label]="isOrgMode ? 'URL Logo' : 'URL Foto de Perfil'" 
-      label-placement="floating" 
-      [(ngModel)]="logoURL">
-    </ion-input>
-  </ion-item>
-
+  <!-- Biografía / Descripción -->
   <ion-item lines="none" class="custom-input-item ion-margin-bottom">
     <ion-textarea 
       [label]="isOrgMode ? 'Descripción Institucional' : 'Sobre mí'" 
       label-placement="floating" 
       [rows]="4"
+      maxlength="500"
       [(ngModel)]="description">
     </ion-textarea>
   </ion-item>
 
+  <!-- Botón Guardar -->
   <ion-button 
     expand="block" 
     class="main-button ion-margin-top"
-    [disabled]="isSaving()"
+    [disabled]="isSaving() || !displayName.trim()"
     (click)="save()">
     @if (isSaving()) {
       <ion-spinner name="crescent"></ion-spinner>

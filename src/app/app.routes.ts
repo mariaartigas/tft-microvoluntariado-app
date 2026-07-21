@@ -12,9 +12,8 @@ export const routes: Routes = [
   { path: 'register-organization', component: RegisterOrganizationComponent}, //no tiene authguard? lo ponemos el guest? VALORAR
   //{ path: 'dashboard', component: ProfileDashboardPageComponent}, //ACTUALIZAR CUANDO SEA NECESARIO
   { path: 'organization/:slug', loadComponent: () => import('./features/profile-dashboard/profile-dashboard.component').then(m => m.ProfileDashboardPageComponent) },
-  { path: 'user/:slug', loadComponent: () => import('./features/profile-dashboard/profile-dashboard.component').then(m => m.ProfileDashboardPageComponent) },
-  { path: 'task/:id', loadComponent: () => import('./features/tasks/task-detail/task-detail.component').then(m => m.TaskDetailComponent) }
-
-
+  { path: 'user/:username', loadComponent: () => import('./features/profile-dashboard/profile-dashboard.component').then(m => m.ProfileDashboardPageComponent) },
+  { path: 'organization/:slug/tasks', loadComponent: () => import('./features/tasks/tasks-list/tasks-list.component').then(m => m.TasksListComponent), data: { mode: 'org' } },
+  { path: 'user/:username/tasks', loadComponent: () => import('./features/tasks/tasks-list/tasks-list.component').then(m => m.TasksListComponent), data: { mode: 'volunteer' } },
 
 ];

@@ -1,19 +1,22 @@
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
-import { IonicModule, ModalController } from '@ionic/angular';
-import { BehaviorSubject, combineLatest, from, map, of, switchMap } from 'rxjs';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { IonicModule, ModalController, AlertController } from '@ionic/angular';
+import { BehaviorSubject, catchError, combineLatest, from, map, of, switchMap, take, distinctUntilChanged } from 'rxjs';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { OrganizationModel, RecentTaskSummary } from '../../shared/models/organization.model';
+import { OrganizationModel } from '../../shared/models/organization.model';
 import { OrganizationService } from '../../core/services/organization.service';
 import { UserService } from '../../core/services/user.service';
-
+import { TaskService } from '../../core/services/task.service';
+import { OrchestratorService } from '../../core/services/orchestrator.service'; // <--- Importado
 import { UserModel } from '../../shared/models/user.model';
 import { AuthService } from '../../core/services/auth.service';
 import { EditProfileModalComponent } from './components/edit-profile-modal/edit-profile-modal.component';
+import { TaskSummary, toTaskSummary } from '../../shared/models/task.model';
 
-//Modelo base de la página !
+//interfaz utilizada para pantalla de USERS y ORGs
+
 export interface ProfileState {
   uid: string;
   displayName: string;
@@ -21,47 +24,44 @@ export interface ProfileState {
   logoURL: string | null;
   description: string;
   email: string;
-  //phone?: string;
+  slug?: string;
+  username?: string;
   badges: string[];
-  tasks: RecentTaskSummary[];
+  tasks: TaskSummary[];
   extraContent: string[];
 }
+
+//---
 
 @Component({
   selector: 'app-dashboard',
   templateUrl: './profile-dashboard.component.html',
   styleUrls: ['./profile-dashboard.component.scss'],
   standalone: true,
-  imports: [IonicModule, CommonModule, FormsModule]
+  imports: [IonicModule, CommonModule, FormsModule, RouterLink]
 })
 
 export class ProfileDashboardPageComponent {
 
   private route = inject(ActivatedRoute);
-  private router = inject(Router); // 💡 Inyectamos Router
+  private router = inject(Router); 
   private orgService = inject(OrganizationService);
   private userService = inject(UserService);
+  private taskService = inject(TaskService);
+  private orchestrator = inject(OrchestratorService); // <--- Inyectado
   private auth = inject(AuthService);
-
   private modalCtrl = inject(ModalController);
+  private alertCtrl = inject(AlertController); // <--- Para confirmación de borrado
 
-  // Disparador reactivo para refrescar datos cuando se guarde en el modal
+  //gestión de refresh de pantalla por cambios
   private refreshTrigger$ = new BehaviorSubject<void>(undefined);
 
-  //unificación
   isOrgMode = computed(() => this.profileType() === 'org');
 
-  //detectar tipo de perfil con Signals
-  profileType = toSignal( this.route.url.pipe( map(segments => segments.some(s => s.path === 'user') ? 'user' : 'org') ),
+  profileType = toSignal(
+    this.route.url.pipe(map(segments => segments.some(s => s.path === 'user') ? 'user' : 'org')),
     { initialValue: 'user' as 'user' | 'org' }
   );
-
-  //sección sobre tareas ------------
-  localAddedTasks = signal<RecentTaskSummary[]>([]);
-
-  displayTasks = computed(() => { const serverTasks = this.profileData()?.tasks || [];
-    return [...serverTasks, ...this.localAddedTasks()];
-  });
 
   tasksTitle = computed(() => {
     return this.isOrgMode() ? 'Tareas bajo Gestión / Solicitadas' : 'Mis Tareas en Progreso';
@@ -71,72 +71,64 @@ export class ProfileDashboardPageComponent {
     return this.isOrgMode() ? 'Sobre la Empresa' : 'Reseñas de mis Tareas';
   });
 
-  //método de añadir una nueva tarea
-  public addNewTask(title: any, modalInstance: any) {
-    const taskTitle = title?.toString().trim();
-    
-    if (!taskTitle) return; // validación super básica por si aca
+  //flujo de perfil mostrado
+  private profileStream$ = combineLatest([this.route.paramMap, this.refreshTrigger$]).pipe(
+    switchMap(([params]) => { 
+      const paramValue = params.get('username') || params.get('slug');
+      if (!paramValue) return of(null);
 
-    const newTask = { title: taskTitle, status: 'Activa' }; //DUMMY
-    
-    const newTasks: RecentTaskSummary = { taskId: 'id_temporal_' + Date.now(),  title: taskTitle,description: 'Nueva tarea creada desde el panel',status: 'Activa' };
-
-
-    // Actualizamos el signal local inyectando la nueva tarea
-    this.localAddedTasks.update(currentTasks => [newTasks, ...currentTasks]);
-
-
-    //  PRÓXIMAMENTE EN FIREBASE:
-    // En lugar de crear un documento en otra colección, haces un update al documento de la ONG:
-    // await updateDoc(doc(db, 'organizations', orgId), {
-    //   recentTasks: arrayUnion(newTask)
-    // });
-    // Cerramos el modal de forma limpia --> esto que es exactamente?
-    modalInstance.dismiss();
-}
-
-//sección sobre PERFIL ------------
-
- // Carga limpia según el tipo de ruta real
-  private profileStream$ = combineLatest([ this.route.paramMap,this.refreshTrigger$]).pipe(
-   switchMap(([params]) => { 
-    const paramValue = params.get('username') || params.get('slug');
-    if (!paramValue) return of(null);
-
-    return this.isOrgMode() 
-      ? this.orgService.getBySlug$(paramValue).pipe(map(org => org ? this.mapOrgToProfile(org) : null))
-      : this.userService.getByUsername$(paramValue).pipe(map(user => user ? this.mapUserToProfile(user) : null));
-  })
+      if (this.isOrgMode()) {
+        return this.orgService.getBySlug$(paramValue).pipe(
+          map(org => org ? this.mapOrgToProfile(org) : null),
+          catchError(err => {
+            console.error('Error al cargar la organización:', err);
+            return of(null);
+          })
+        );
+      } else {
+        return this.userService.getByUsername$(paramValue).pipe(
+          switchMap(user => {
+            if (!user) return of(null);
+            
+            return this.taskService.getTasksByVolunteer$(user.uid, 'En Curso').pipe(
+              // Evita parpadeos filtrando emisiones idénticas consecutivas de Firestore !!
+              distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)),
+              map(tasks => this.mapUserToProfile(user, tasks.map(t => toTaskSummary(t)))),
+              catchError(err => {
+                console.error('Error al cargar tareas del usuario:', err);
+                return of(this.mapUserToProfile(user, []));
+              })
+            );
+          }),
+          catchError(err => {
+            console.error('Error al cargar el usuario:', err);
+            return of(null);
+          })
+        );
+      }
+    })
   );
 
-
-  //signals que son parecidos a los observables
+  //signal de dicho perfil
   profileData = toSignal(this.profileStream$, { initialValue: null });
 
- isEditable = computed(() => {
+  //revisa si el perfil visible es editable
+  isEditable = computed(() => {
     const loggedUser = this.auth.currentUser();
     const profile = this.profileData();
 
-    if (!loggedUser || !profile) {
-      return false;
-    }
+    if (!loggedUser || !profile) return false;
 
     if (this.isOrgMode()) {
-        // PRG
       const isOwner = (profile as any).organizationOwnerId === loggedUser.uid;
-
-      // 2. ¿Tiene la ONG asignada en su usuario? (Por si acaso)
       const isMember = (loggedUser as any).organizationId === profile.uid;
       return isOwner || isMember;
     } else {
-        //USER
-        return loggedUser.uid === profile.uid;
+      return loggedUser.uid === profile.uid;
     }
   });
 
-  //EDITANDO ACTUALMENTE 
-
-  //  Abre el Modal de Edición de forma limpia
+  //para apertura de pestaña de edición
   async openEditModal() {
     const currentProfile = this.profileData();
     if (!currentProfile) return;
@@ -154,23 +146,50 @@ export class ProfileDashboardPageComponent {
 
     const { data: updated, role } = await modal.onWillDismiss();
 
-    // Si se guardó correctamente, notificamos a refreshTrigger$ para recargar la data de Firestore
     if (role === 'confirm' && updated) {
       this.refreshTrigger$.next();
     }
   }
-  
-// Guardar Cambios en Firebase + Local-----------------------------------------------------------------AÑADIDO
-// --- MÉTODOS DE MAPEO (Adaptadores) ---
-  private mapUserToProfile(user: UserModel): ProfileState {
+
+  // acción delegada al orquestador! revisar el tema de los textos etc
+  async confirmDeleteAccount() {
+    const alert = await this.alertCtrl.create({
+      header: '¿Eliminar cuenta?',
+      message: 'Esta acción es irreversible y borrará todos tus datos y accesos asociados.',
+      buttons: [
+        { text: 'Cancelar', role: 'cancel' },
+        {
+          text: 'Sí, eliminar',
+          handler: async () => {
+            try {
+              if (this.isOrgMode()) {
+                await this.orchestrator.deleteOrganizationAccount();
+              } else {
+                await this.orchestrator.deleteVolunteerAccount();
+              }
+              this.router.navigate(['/']);
+            } catch (error) {
+              console.error('Error al eliminar la cuenta:', error);
+            }
+          }
+        }
+      ]
+    });
+    await alert.present();
+  }
+
+  //mapeos de profileState
+
+  private mapUserToProfile(user: UserModel, tasks: TaskSummary[] = []): ProfileState {
     return {
       uid: user.uid,
       displayName: user.displayName || user.username,
       logoURL: user.photoURL,
+      username: user.username,
       description: user.bio || 'Sin descripción personal introducida.',
       email: user.email,
-      badges: user.badges || [`XP: ${user.xp || 0}`, `Reputación: ${user.reputation || 0}`],
-      tasks: [],
+      badges: user.badges || [`Fiabilidad: ${user.reliability ?? 100}%`, `Reputación: ${user.reputation || 0}`],
+      tasks: tasks,
       extraContent: user.interests || []
     };
   }
@@ -178,9 +197,10 @@ export class ProfileDashboardPageComponent {
   private mapOrgToProfile(org: OrganizationModel): ProfileState {
     return {
       uid: org.uid,
-      organizationOwnerId: org.ownerId, //PARA REVISAR SI SE TRATA DE ALGUIEN QUE PUEDE EDITAR!
+      organizationOwnerId: org.ownerId,
       displayName: org.displayName,
       logoURL: org.logoURL,
+      slug: org.slug,
       description: org.description || 'Sin descripción corporativa disponible.',
       email: org.email,
       badges: ['Organización Verificada'],
@@ -188,5 +208,4 @@ export class ProfileDashboardPageComponent {
       extraContent: []
     };
   }
-
 }

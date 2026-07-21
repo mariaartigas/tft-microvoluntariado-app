@@ -55,26 +55,27 @@ i.hn {
 // =========================================================
 
 .identity-box {
-  position: relative !important; // Esencial para el botón Editar flotante
+  position: relative !important; 
   display: flex;
   flex-direction: column;
   align-items: center;
   padding-top: 28px;
 
-  /* Botón de Editar con estilo Pixel Art */
-  .custom-edit-btn {
+  /* Contenedor flotante para los botones de edición y eliminación */
+  .profile-actions-container {
     position: absolute;
     top: 12px;
     right: 12px;
     z-index: 20;
+    display: flex;
+    gap: 8px;
+  }
 
+  /* Estilos base compartidos para botones de acción */
+  .custom-edit-btn, .custom-delete-btn {
     display: flex;
     align-items: center;
     gap: 6px;
-
-    background: rgba(128, 100, 255, 0.15);
-    border: 1px solid #8064ff;
-    color: #8064ff;
     border-radius: 8px;
     padding: 6px 12px;
     font-size: 0.85rem;
@@ -85,9 +86,29 @@ i.hn {
     i.hn {
       font-size: 1rem;
     }
+  }
+
+  /* Estilo Editar */
+  .custom-edit-btn {
+    background: rgba(128, 100, 255, 0.15);
+    border: 1px solid #8064ff;
+    color: #8064ff;
 
     &:hover {
       background: #8064ff;
+      color: #ffffff;
+    }
+  }
+
+  /* Estilo Eliminar Cuenta (Alerta) */
+  .custom-delete-btn {
+    background: rgba(255, 75, 75, 0.15);
+    border: 1px solid #ff4b4b;
+    color: #ff4b4b;
+
+    &:hover {
+      background: rgb(255, 75, 75);
+      background: #ff4b4b;
       color: #ffffff;
     }
   }

@@ -53,19 +53,28 @@ export class OrchestratorService {
     await this.userService.recordAbandonedTask(currentUser.uid);
   }
 
-  // Delete de referencias a un usuario
   async deleteVolunteerAccount(): Promise<void> {
-    const currentUser = this.authService.currentUser();
-    if (!currentUser) throw new Error('No hay usuario autenticado');
+  const currentUser = this.authService.currentUser();
+  if (!currentUser) return;
 
-    const volunteerId = currentUser.uid;
+  try {
+    const uid = currentUser.uid;
 
-    await this.taskService.unassignVolunteerFromTasks(volunteerId);
- 
-    await this.userService.delete(volunteerId);
+    // 1. PRIMERO limpiamos y borramos en Firestore (mientras request.auth sigue activo)
+    await this.taskService.unassignVolunteerFromTasks(uid);
+    await this.userService.delete(uid);
 
+    // 2. SEGUNDO borramos de Firebase Auth al final de todo
     await this.authService.deleteAuthAccount();
+
+  } catch (error: any) {
+    if (error.code === 'auth/requires-recent-login') {
+      console.warn('Se requiere reautenticación por seguridad.');
+      throw new Error('Por seguridad, debes cerrar sesión y volver a entrar para poder eliminar tu cuenta.');
+    }
+    throw error;
   }
+}
 
    // Delete de referencias a una organización
 
@@ -86,5 +95,5 @@ export class OrchestratorService {
     
     await this.authService.deleteAuthAccount();
   }
-  
+
 }
