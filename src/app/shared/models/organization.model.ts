@@ -2,6 +2,7 @@
 
 import { DocumentData, FirestoreDataConverter, QueryDocumentSnapshot, SnapshotOptions, Timestamp } from "@angular/fire/firestore";
 import { TaskStatus } from "./task.model";
+import { TaskSummary } from './task.model';
 
 //información de contacto
 export interface OrganizationContacts {
@@ -27,14 +28,6 @@ export interface OrganizationMember {
   role: 'org_admin' | 'org_member'; //actualmente solo admite uno, esto es para escalibilidad
 }
 
-// tareas recientes !
-export interface RecentTaskSummary {
-  taskId: string;
-  title: string;
-  description: string;
-  status: TaskStatus; //REVISAR estados posibles
-}
-
 export interface OrganizationModel {
   uid: string;             // orgId de la base de datos
   verified: boolean;      // De entrada todo false hasta que un moderador lo revise
@@ -46,7 +39,7 @@ export interface OrganizationModel {
   description: string;
   ownerId: string;        // el uid del creader usuario de esta org
   members: OrganizationMember[]; // miembros, acualmente en desuso
-  recentTasks: RecentTaskSummary[]; // tareas expuestas recientes !
+  recentTasks?: TaskSummary[]; // tareas expuestas recientes !
   createdAt?:  Date, // revisar esta parte es imporante, realmente siempre tener una fecha de creación del usuario obligatoria
   updatedAt?: Date;
 }
@@ -84,7 +77,6 @@ export function createDefaultOrganization( orgId: string, name: string, owner: {
       role: 'org_admin' // creador guardamos su información
     }
   ],
-  recentTasks: [],
   email: "",
   contacts: {
     email: owner.email,

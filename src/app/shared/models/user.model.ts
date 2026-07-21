@@ -1,13 +1,16 @@
 
 //MODELO de gestión de usuarios
 
+import { NumberSymbol } from "@angular/common";
 import { DocumentData, FirestoreDataConverter, QueryDocumentSnapshot, SnapshotOptions } from "@angular/fire/firestore";
+import { TaskSummary } from './task.model';
 
 export type UserRole = 'volunteer' | 'organization' | 'moderator';
 
 export interface UserStats {
-  completedTasks: number;
-  cancelledTasks: number;
+  tasksCompleted: number;
+  tasksAbandoned: number;
+  tasksExpired: number;
   organizationsHelped: number;
   totalHours: number;
 }
@@ -26,7 +29,7 @@ export interface UserModel {
   reputation: number; //
   reliability: number;
   statistics: UserStats;
-
+  recentTasks?: TaskSummary[];
   // campos propios de perfil de usuario
   bio?: string;
   interests?: string[];
@@ -55,10 +58,11 @@ export function createDefaultUser(firebaseUser: { uid: string, email: string | n
     reputation: 0,      // Empiezan con reputación 0, lo máximo es 100
     reliability: 0,     // Empiezan con fiabilidad 0
     statistics: {
-      completedTasks: 0,
-      cancelledTasks: 0,
+      tasksCompleted: 0,
+      tasksAbandoned: 0,
+      tasksExpired: 0,
       organizationsHelped: 0,
-      totalHours: 0
+      totalHours: 0,
     },
     createdAt: new Date(),
     updatedAt: new Date()
@@ -72,6 +76,15 @@ export const userConverter: FirestoreDataConverter<UserModel> = {
     },
     fromFirestore(snapshot: QueryDocumentSnapshot, options?: SnapshotOptions): UserModel { //snapshot son los metadatos + id + datos reales
     const data = snapshot.data(options);
+
+    const rawStats = data['statistics'] || {};
+    const statistics: UserStats = {
+      tasksCompleted: rawStats['tasksCompleted'] ?? 0,
+      tasksAbandoned: rawStats['tasksAbandoned'] ?? 0,
+      tasksExpired: rawStats['tasksExpired'] ?? 0,
+      organizationsHelped: rawStats['organizationsHelped'] ?? 0,
+      totalHours: rawStats['totalHours'] ?? 0,
+    };
     return {
       uid: snapshot.id,
       username: data['username'],
@@ -85,12 +98,8 @@ export const userConverter: FirestoreDataConverter<UserModel> = {
       xp: data['xp'] ?? 0,
       reputation: data['reputation'] ?? 100,
       reliability: data['reliability'] ?? 100,
-      statistics: data['statistics'] ?? {
-        completedTasks: 0,
-        cancelledTasks: 0,
-        organizationsHelped: 0,
-        totalHours: 0
-      },
+      statistics,
+      recentTasks: data['recentTasks'] ?? [],
       createdAt: data['createdAt']?.toDate() ?? new Date(),
       updatedAt: data['updatedAt']?.toDate() ?? new Date(),
     };

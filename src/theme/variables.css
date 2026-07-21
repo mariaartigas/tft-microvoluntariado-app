@@ -21,3 +21,11 @@ ion-modal.custom-edit-modal {
     overflow: hidden;
   }
 }
+
+ion-modal.custom-task-modal {
+  --width: 90%;
+  --max-width: 520px;
+  --height: 560px; /* 👈 Cambiamos 'auto' por una altura concreta */
+  --border-radius: 16px;
+  --box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+}

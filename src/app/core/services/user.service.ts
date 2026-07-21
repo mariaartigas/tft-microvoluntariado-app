@@ -1,5 +1,5 @@
-import { Injectable, computed, inject, signal } from '@angular/core';
-import {Firestore, doc, setDoc, getDoc, serverTimestamp, updateDoc, docData, collection, getDocs, query, where} from '@angular/fire/firestore';
+import { Injectable, inject } from '@angular/core';
+import {Firestore, doc, setDoc, getDoc, serverTimestamp, updateDoc, docData, collection, getDocs, query, where, collectionData, increment, deleteDoc} from '@angular/fire/firestore';
 import { UserModel, UserRole, userConverter, createDefaultUser  } from '../../shared/models/user.model';
 import { Observable } from 'rxjs/internal/Observable';
 import { from, map, of, switchMap, take } from 'rxjs';
@@ -23,15 +23,14 @@ getById$(uid: string): Observable<UserModel | undefined> {
     return docData(this.getUserRef(uid));
   }
 
-  getByUsername$(username: string): Observable<UserModel | null> {
+getByUsername$(username: string): Observable<UserModel | null> {
     const usersRef = collection(this.firestore, 'users');
     const q = query(usersRef, where('username', '==', username));
 
-    return from(getDocs(q)).pipe(
-      map(snapshot => {
-        if (snapshot.empty) return null;
-        const doc = snapshot.docs[0];
-        return { uid: doc.id, ...doc.data() } as UserModel;
+    return collectionData(q, { idField: 'uid' }).pipe(
+      map(users => {
+      if (!users || users.length === 0) return null;
+        return users[0] as UserModel;
       })
     );
   }
@@ -49,6 +48,13 @@ async update(uid: string, data: Partial<UserModel>): Promise<void> {
       ...data,
       updatedAt: serverTimestamp()
     });
+  }
+
+//DELETE -------------
+  
+  async delete(uid: string): Promise<void> {
+    const userRef = doc(this.firestore, 'users', uid);
+    await deleteDoc(userRef);
   }
 
 //Método: crear el documento de un usuario nuevo, flujo idempotente
@@ -69,6 +75,45 @@ ensureUserProfile$ (firebaseUser: any, selectedRole: UserRole = 'volunteer'): Ob
     );
   }
 
+
+//Métodos de cosas aparte de USERS -------------
+
+async recordAbandonedTask(volunteerId: string): Promise<void> {
+  // 1. Incrementar el contador anidado en statistics
+  await this.update(volunteerId, {
+    'statistics.tasksAbandoned': increment(1)
+  } as any);
+
+  // 2. Recalcular la fiabilidad con la información actualizada
+  await this.recalculateReliability(volunteerId);
+}
+
+//calcular reliability ! 
+
+private async recalculateReliability(volunteerId: string): Promise<void> {
+  const userRef = this.getUserRef(volunteerId);
+  const snap = await getDoc(userRef);
+
+  if (!snap.exists()) return;
+
+  const user = snap.data(); // usermodel
+  const stats = user.statistics;
+
+  const completed = stats.tasksCompleted || 0;
+  const abandoned = stats.tasksAbandoned || 0;
+  const expired = stats.tasksExpired || 0;
+
+  // Fórmula del Algoritmo Heurístico de Fiabilidad
+  const totalWeighted = completed + (abandoned * 1.5) + (expired * 2.0);
+  
+  let reliability = 100;
+  if (totalWeighted > 0) {
+    reliability = Math.round((completed / totalWeighted) * 100);
+  }
+
+  // Actualizamos el campo 'reliability' en la raíz del documento
+  await this.update(volunteerId, { reliability });
+}
 
 
 }

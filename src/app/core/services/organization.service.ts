@@ -1,9 +1,9 @@
-import { Injectable, computed, inject, signal } from '@angular/core';
-import {Firestore, doc, setDoc, getDoc, serverTimestamp, updateDoc, docData, collection, getDocs, query, where, collectionData} from '@angular/fire/firestore';
-import { UserModel, UserRole, userConverter, createDefaultUser  } from '../../shared/models/user.model';
-import { OrganizationModel, OrganizationMember, organizationConverter, createDefaultOrganization, generateSlug  } from '../../shared/models/organization.model';
+import { Injectable, inject} from '@angular/core';
+import {Firestore, doc, setDoc, getDoc, serverTimestamp, updateDoc, collection, getDocs, query, where, collectionData, arrayUnion, deleteDoc, arrayRemove} from '@angular/fire/firestore';
+import { OrganizationModel, organizationConverter, createDefaultOrganization, generateSlug  } from '../../shared/models/organization.model';
 import { Observable } from 'rxjs/internal/Observable';
-import { firstValueFrom, from, map, of, switchMap, take } from 'rxjs';
+import { map } from 'rxjs';
+import { TaskSummary } from '../../shared/models/task.model';
 
 @Injectable({ providedIn: 'root' })
 
@@ -15,6 +15,16 @@ export class OrganizationService {
   private getDocRef(orgId: string) {
     return doc(this.firestore, 'organizations', orgId).withConverter(organizationConverter);
   }
+
+  getOrganizationBySlugOrId$(param: string): Observable<OrganizationModel | undefined> {
+  // Primero intentamos buscarlo por slug
+  const colRef = collection(this.firestore, 'organizations').withConverter(organizationConverter);
+  const q = query(colRef, where('slug', '==', param));
+  
+  return collectionData(q).pipe(
+    map(orgs => orgs[0] || undefined)
+  );
+}
 
   //obtener, búsqueda en las organizaciones
   private get getOrgs() { //solo cuesta una lectura we are ok
@@ -36,6 +46,12 @@ export class OrganizationService {
      ...data,
       updatedAt: serverTimestamp()
    });
+  }
+
+  //delete!
+  async delete(orgId: string): Promise<void> {
+    const ref = doc(this.firestore, 'organizations', orgId);
+    await deleteDoc(ref);
   }
 
   //generación de i dúnico, porque el id de usuario lo autogenera firebase ...
@@ -62,10 +78,11 @@ export class OrganizationService {
       const slug = generateSlug(orgName);
     
       //verificación rápida
-      const existingOrg = await firstValueFrom(this.getBySlug$(slug)); 
+      const q = query(this.getOrgs, where('slug', '==', slug));
+      const snapshot = await getDocs(q);
       
-      if (existingOrg) {
-        return existingOrg;
+      if (!snapshot.empty) {
+        return snapshot.docs[0].data();
       }
       
       const newOrgId = this.generateNewId();
@@ -79,5 +96,32 @@ export class OrganizationService {
       throw e;
     }
   }
+
+  //GESTIÓN de tareas MODIFICA RPARA USAR EL PROPIO METODO DE UPDATE ??
+
+  async addRecentTask(orgId: string, summary: TaskSummary): Promise<void> {
+    const ref = this.getDocRef(orgId);
+    return updateDoc(ref, {
+      recentTasks: arrayUnion(summary),
+      updatedAt: serverTimestamp()
+    });
+  }
+
+  async removeRecentTask(orgId: string, taskId: string): Promise<void> {
+  const ref = this.getDocRef(orgId);
+  const snap = await getDoc(ref);
+
+  if (!snap.exists()) return;
+
+  const org = snap.data();
+  // Solución al error TS18048: fallback a array vacío si recentTasks es undefined
+  const currentTasks = org.recentTasks ?? [];
+  const updatedTasks = currentTasks.filter(t => t.taskId !== taskId);
+
+  await updateDoc(ref, {
+    recentTasks: updatedTasks,
+    updatedAt: serverTimestamp()
+  });
+}
 
 }

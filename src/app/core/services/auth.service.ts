@@ -1,12 +1,10 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
-import { Auth, authState, GoogleAuthProvider, createUserWithEmailAndPassword, onAuthStateChanged, signInWithPopup, signOut, User, EmailAuthCredential } from '@angular/fire/auth';
+import { Auth, authState, GoogleAuthProvider, createUserWithEmailAndPassword, onAuthStateChanged, signInWithPopup, signOut, User, EmailAuthCredential, deleteUser } from '@angular/fire/auth';
 import { Router } from '@angular/router';
 import { UserService } from './user.service';
-import { firstValueFrom, Observable, of, switchMap, tap } from 'rxjs';
+import { firstValueFrom } from 'rxjs';
 import { UserModel,UserRole } from '../../shared/models/user.model';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { createDefaultOrganization, organizationConverter } from '../../shared/models/organization.model';
-import { OrganizationService } from './organization.service';
 
 @Injectable({ providedIn: 'root' })
 
@@ -15,8 +13,6 @@ export class AuthService {
   private router = inject(Router);
   
   private userService = inject(UserService);
-  private orgService = inject(OrganizationService);
-
   currentUser = signal<User | null>(null);
   currentUserProfile = signal<UserModel | null>(null);
   isAuthenticated = computed(() => this.currentUser() !== null); //comprobación
@@ -79,6 +75,14 @@ export class AuthService {
   //cierre de sesión
   async logout() {
     const result = await signOut(this.auth).then(() => this.router.navigate(['/login']));
+  }
+
+  //delete
+  async deleteAuthAccount(): Promise<void> {
+    const user = this.auth.currentUser;
+    if (user) {
+      await deleteUser(user);
+    }
   }
 
 }
