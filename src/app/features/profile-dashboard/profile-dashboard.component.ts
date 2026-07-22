@@ -8,7 +8,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { OrganizationModel } from '../../shared/models/organization.model';
 import { OrganizationService } from '../../core/services/organization.service';
 import { UserService } from '../../core/services/user.service';
-import { TaskService } from '../../core/services/task.service';
+import { TaskQueryScope, TaskService } from '../../core/services/task.service';
 import { OrchestratorService } from '../../core/services/orchestrator.service'; // <--- Importado
 import { UserModel } from '../../shared/models/user.model';
 import { AuthService } from '../../core/services/auth.service';
@@ -79,7 +79,24 @@ export class ProfileDashboardPageComponent {
 
       if (this.isOrgMode()) {
         return this.orgService.getBySlug$(paramValue).pipe(
-          map(org => org ? this.mapOrgToProfile(org) : null),
+          switchMap(org => {
+            if (!org) return of(null);
+
+            // Consulta dinámica de tareas creadas por la ONG en Firestore
+            const queryScope: TaskQueryScope = { 
+              type: 'org', 
+              orgId: org.uid 
+            };
+
+            return this.taskService.getTasks$(queryScope).pipe(
+              distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)),
+              map(tasks => this.mapOrgToProfile(org, tasks.map(t => toTaskSummary(t)))),
+              catchError(err => {
+                console.error('[ProfileDashboard] Error al cargar tareas de la organización:', err);
+                return of(this.mapOrgToProfile(org, org.recentTasks || []));
+              })
+            );
+          }),
           catchError(err => {
             console.error('Error al cargar la organización:', err);
             return of(null);
@@ -89,13 +106,18 @@ export class ProfileDashboardPageComponent {
         return this.userService.getByUsername$(paramValue).pipe(
           switchMap(user => {
             if (!user) return of(null);
+
+            const queryScope: TaskQueryScope = { 
+              type: 'user', 
+              volunteerId: user.uid, 
+              status: 'En Curso' 
+            };
             
-            return this.taskService.getTasksByVolunteer$(user.uid, 'En Curso').pipe(
-              // Evita parpadeos filtrando emisiones idénticas consecutivas de Firestore !!
+            return this.taskService.getTasks$(queryScope).pipe(
               distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)),
               map(tasks => this.mapUserToProfile(user, tasks.map(t => toTaskSummary(t)))),
               catchError(err => {
-                console.error('Error al cargar tareas del usuario:', err);
+                console.error('[ProfileDashboard] Error al cargar tareas del usuario:', err);
                 return of(this.mapUserToProfile(user, []));
               })
             );
@@ -194,7 +216,7 @@ export class ProfileDashboardPageComponent {
     };
   }
 
-  private mapOrgToProfile(org: OrganizationModel): ProfileState {
+  private mapOrgToProfile(org: OrganizationModel, tasks: TaskSummary[] = []): ProfileState {
     return {
       uid: org.uid,
       organizationOwnerId: org.ownerId,
@@ -204,7 +226,7 @@ export class ProfileDashboardPageComponent {
       description: org.description || 'Sin descripción corporativa disponible.',
       email: org.email,
       badges: ['Organización Verificada'],
-      tasks: org.recentTasks || [],
+      tasks: tasks.length > 0 ? tasks : (org.recentTasks || []),
       extraContent: []
     };
   }

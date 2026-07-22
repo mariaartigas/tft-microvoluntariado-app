@@ -1,0 +1,81 @@
+<div class="modal-container">
+  
+  <div class="modal-toolbar">
+    <div class="modal-title">
+      <i class="hn hn-plus"></i>
+      <span>{{ taskData ? 'Editar Microtarea' : 'Nueva Microtarea' }}</span>
+    </div>
+    <button type="button" class="close-btn" (click)="cancel()" [disabled]="isSaving()">
+      <i class="hn hn-times"></i>
+    </button>
+  </div>
+
+  <div class="modal-body">
+    <form (ngSubmit)="save()">
+      
+      <div class="form-group">
+        <label class="form-label">Título de la tarea *</label>
+        <input 
+          type="text" 
+          class="custom-input" 
+          [(ngModel)]="title" 
+          name="title" 
+          placeholder="Ej: Traducir documento al inglés" 
+          required 
+        />
+      </div>
+
+      <div class="form-row ion-margin-top">
+        <div class="form-group half-width">
+          <label class="form-label"><i class="hn hn-clock"></i> Tiempo estimado *</label>
+          <input 
+            type="text" 
+            class="custom-input" 
+            [(ngModel)]="estimatedTime" 
+            name="estimatedTime" 
+            placeholder="Ej: 30 mins" 
+            required 
+          />
+        </div>
+
+        <div class="form-group half-width">
+          <label class="form-label"><i class="hn hn-calendar"></i> Fecha límite *</label>
+          <input 
+            type="date" 
+            class="custom-input" 
+            [(ngModel)]="deadline" 
+            name="deadline" 
+            required 
+          />
+        </div>
+      </div>
+
+      <div class="form-group ion-margin-top">
+        <label class="form-label"><i class="hn hn-align-left"></i> Descripción breve</label>
+        <textarea 
+          class="custom-textarea" 
+          [(ngModel)]="description" 
+          name="description" 
+          rows="4" 
+          placeholder="Explica detalladamente en qué consiste el apoyo requerido..."
+        ></textarea>
+      </div>
+
+      <div class="modal-actions ion-margin-top">
+        <button type="button" class="btn-secondary" (click)="cancel()" [disabled]="isSaving()">
+          Cancelar
+        </button>
+
+        <button type="submit" class="btn-primary" [disabled]="isSaving()">
+          @if (isSaving()) {
+            <ion-spinner name="crescent"></ion-spinner>
+          } @else {
+            <span>{{ taskData ? 'Guardar Cambios' : 'Publicar Tarea' }}</span>
+          }
+        </button>
+      </div>
+
+    </form>
+  </div>
+
+</div>

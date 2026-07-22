@@ -1,0 +1,233 @@
+@import '@hackernoon/pixel-icon-library/fonts/iconfont.css';
+
+/* Renderizado ultra nítido para iconos pixelados */
+i.hn {
+  display: inline-block;
+  line-height: 1;
+  font-style: normal;
+  image-rendering: pixelated;
+}
+
+.tasks-content {
+  --background: #100e1a;
+
+  /* --------------------------------------------------
+   * Estado de Carga
+   * -------------------------------------------------- */
+  .loading-container {
+    padding-top: 60px;
+    
+    ion-spinner {
+      --color: #8064ff;
+      width: 36px;
+      height: 36px;
+    }
+
+    p {
+      color: #aaa5bb;
+      font-size: 0.95rem;
+      margin-top: 12px;
+    }
+  }
+
+  /* --------------------------------------------------
+   * Contenedor de Acordeones
+   * -------------------------------------------------- */
+  .custom-accordion-group {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  .custom-accordion {
+    background: #1e1c27;
+    border: 1px solid #353141;
+    border-radius: 12px;
+    overflow: hidden;
+    transition: all 0.2s ease-in-out;
+
+    &:hover {
+      border-color: #4a4459;
+    }
+
+    /* Estilo de la cabecera cuando el acordeón está desplegado */
+    &.accordion-expanded {
+      border-color: #8064ff;
+      box-shadow: 0 4px 18px rgba(109, 74, 255, 0.15);
+    }
+
+    /* Cabecera (ion-item) */
+    .accordion-header {
+      --background: #1e1c27;
+      --color: #ffffff;
+      --padding-start: 16px;
+      --padding-end: 16px;
+
+      .header-content {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+        padding: 8px 0;
+        gap: 12px;
+
+        .title-section {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+
+          i.task-icon {
+            font-size: 1.2rem;
+            color: #8064ff;
+          }
+
+          h2 {
+            margin: 0;
+            font-size: 1rem;
+            font-weight: 600;
+            color: #ffffff;
+          }
+        }
+
+        /* Insignia de Estado */
+        .status-badge {
+          font-size: 0.75rem;
+          font-weight: 600;
+          padding: 4px 10px;
+          border-radius: 20px;
+          background: rgba(170, 165, 187, 0.1);
+          color: #aaa5bb;
+          border: 1px solid #353141;
+
+          &.active {
+            background: rgba(109, 74, 255, 0.15);
+            color: #a38dff;
+            border-color: rgba(128, 100, 255, 0.4);
+          }
+        }
+      }
+    }
+
+    /* Cuerpo desplegable */
+    .accordion-content {
+      background: #161421;
+      border-top: 1px solid #2a2736;
+
+      .description-text {
+        margin: 0 0 16px 0;
+        font-size: 0.92rem;
+        line-height: 1.5;
+        color: #d1cbdc;
+      }
+
+      /* Rejilla de Metadatos */
+      .task-metadata-grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 16px;
+        padding-top: 12px;
+        border-top: 1px dashed rgba(255, 255, 255, 0.08);
+
+        .meta-item {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+
+          i.hn {
+            color: #8064ff;
+            font-size: 1.1rem;
+          }
+
+          .meta-text {
+            display: flex;
+            flex-direction: column;
+
+            .meta-label {
+              font-size: 0.7rem;
+              color: #7a748c;
+              text-transform: uppercase;
+              letter-spacing: 0.5px;
+            }
+
+            .meta-value {
+              font-size: 0.85rem;
+              font-weight: 600;
+              color: #ffffff;
+
+              &.badge-type {
+                color: #38ef7d;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  /* --------------------------------------------------
+   * Estado Vacío
+   * -------------------------------------------------- */
+  .empty-state-box {
+    background: #1e1c27;
+    border: 2px dashed #353141;
+    border-radius: 16px;
+    padding: 40px 20px;
+    max-width: 480px;
+    margin: 40px auto;
+
+    .empty-icon {
+      font-size: 2.8rem;
+      color: #8064ff;
+      margin-bottom: 12px;
+    }
+
+    h3 {
+      color: #ffffff;
+      font-size: 1.15rem;
+      font-weight: 700;
+      margin: 0 0 6px 0;
+    }
+
+    p {
+      color: #aaa5bb;
+      font-size: 0.88rem;
+      margin: 0;
+    }
+  }
+
+  /* --------------------------------------------------
+   * Botón Flotante (FAB) - Arreglo del icono +
+   * -------------------------------------------------- */
+  .custom-fab {
+    margin-bottom: 16px;
+    margin-end: 16px;
+
+    ion-fab-button {
+      --background: #6d4aff;
+      --color: #ffffff;
+      --box-shadow: 0 6px 20px rgba(109, 74, 255, 0.4);
+      --border-radius: 50%;
+      width: 56px;
+      height: 56px;
+
+      /* 🟢 Fuerza la visibilidad y alineación del icono dentro del Shadow DOM */
+      i.hn {
+        font-size: 1.6rem !important;
+        color: #ffffff !important;
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        height: 100%;
+        line-height: 1 !important;
+      }
+
+      &:hover {
+        --background: #8064ff;
+        transform: scale(1.05);
+      }
+    }
+  }
+}

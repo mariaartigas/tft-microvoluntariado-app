@@ -1,9 +1,16 @@
 import { Injectable, Injector, inject, runInInjectionContext } from '@angular/core';
-import { Firestore, doc, setDoc,  updateDoc, collection, docData,  serverTimestamp, collectionData, orderBy, query, where, QueryDocumentSnapshot, getDocs, limit, startAfter, deleteDoc, increment } from '@angular/fire/firestore';
+import { Firestore, doc, setDoc,  updateDoc, collection, docData,  serverTimestamp, collectionData, orderBy, query, where, QueryDocumentSnapshot, getDocs, limit, startAfter, deleteDoc, increment, QueryConstraint } from '@angular/fire/firestore';
 import { Observable } from 'rxjs';
 import { TaskModel, taskConverter, TaskStatus, MessageModel, messageConverter, createDefaultTask, createDefaultMessage } from '../../shared/models/task.model';
 
+//para la gestión de queries de búsqueda/filtro
+export type TaskQueryScope =
+  | { type: 'org'; orgId: string; status?: TaskStatus }
+  | { type: 'user'; volunteerId: string; status?: TaskStatus }
+  | { type: 'all'; status?: TaskStatus };
+
 @Injectable({ providedIn: 'root' })
+
 export class TaskService {
   private firestore = inject(Firestore);
   private injector = inject(Injector);
@@ -18,66 +25,89 @@ export class TaskService {
     return doc(this.firestore, 'tasks', taskId).withConverter(taskConverter);
   }
 
+  //REVISIÓN DE CONSTRAINTS para queries, método privado de clase
+
+  private buildQueryConstraints(scope: TaskQueryScope): QueryConstraint[] {
+    const constraints: QueryConstraint[] = [];
+
+    switch (scope.type) {
+      case 'org':
+        if (!scope.orgId) throw new Error('[TaskService] orgId es obligatorio para el scope "org"');
+        constraints.push(where('orgId', '==', scope.orgId));
+        break;
+
+      case 'user':
+        if (!scope.volunteerId) throw new Error('[TaskService] volunteerId es obligatorio para el scope "volunteer"');
+        constraints.push(where('assignedVolunteerId', '==', scope.volunteerId));
+        break;
+
+      case 'all':
+        // En el scope global, por defecto buscamos las que estén activas si no se especifica otro estado
+        if (!scope.status) {
+          constraints.push(where('status', '==', 'Activa'));
+        }
+        break;
+    }
+
+    if (scope.status) {
+      constraints.push(where('status', '==', scope.status));
+    }
+
+    return constraints;
+  }
+
   //GETs -------------
 
   getById$(taskId: string): Observable<TaskModel | undefined> {
     return docData(this.getTaskDocRef(taskId));
   }
 
-  getTasksByVolunteer$(volunteerId: string, status: string) {
-    const colRef = collection(this.firestore, 'tasks').withConverter(taskConverter);
-    const q = query(colRef, where('assignedVolunteerId', '==', volunteerId), where('status', '==', status));
+  private getTaskCollectionRef() {
+    return collection(this.firestore, 'tasks').withConverter(taskConverter);
+  }
 
-    // Envolver obligatoriamente dentro del contexto de inyección
-    return runInInjectionContext(this.injector, () => 
+  //obtener los TASKS por filtros! 
+
+  getTasks$(scope: TaskQueryScope): Observable<TaskModel[]> {
+    const colRef = this.getTaskCollectionRef();
+    const constraints = [
+      ...this.buildQueryConstraints(scope),
+      orderBy('createdAt', 'desc')
+    ];
+
+    const q = query(colRef, ...constraints);
+
+    return runInInjectionContext(this.injector, () =>
       collectionData(q, { idField: 'uid' })
     );
   }
 
-  getTasksByOrg$(orgId: string, status: TaskStatus): Observable<TaskModel[]> {
-    const colRef = collection(this.firestore, 'tasks').withConverter(taskConverter);
-    const q = query(
-      colRef,
-      where('orgId', '==', orgId),
-      where('status', '==', status),
-      orderBy('createdAt', 'desc')
-    );
-    return collectionData(q);
+ async getTasksPaginated(
+  scope: TaskQueryScope,
+  pageSize: number = 10,
+  lastVisible: QueryDocumentSnapshot | null = null
+): Promise<{ tasks: TaskModel[]; lastVisible: QueryDocumentSnapshot | null }> {
+  const colRef = this.getTaskCollectionRef();
+  const constraints: QueryConstraint[] = [
+    ...this.buildQueryConstraints(scope),
+    orderBy('createdAt', 'desc'),
+    limit(pageSize)
+  ];
+
+  if (lastVisible) {
+    constraints.push(startAfter(lastVisible));
   }
 
- async getTasksPaginated(orgId: string | null = null, volunteerId: string | null = null, status?: TaskStatus, lastVisible: QueryDocumentSnapshot | null = null): Promise<{ tasks: TaskModel[], lastVisible: QueryDocumentSnapshot | null }> {
-  
-    const colRef = collection(this.firestore, 'tasks').withConverter(taskConverter);
-    const constraints: any[] = [];
+  const q = query(colRef, ...constraints);
 
-    // Filtro por Organización o Voluntario
-    if (orgId) {
-      constraints.push(where('orgId', '==', orgId));
-    } else if (volunteerId) {
-      constraints.push(where('assignedVolunteerId', '==', volunteerId));
-    }
+  // Encapsulamos getDocs en runInInjectionContext para eliminar la advertencia de la consola
+  const snapshot = await runInInjectionContext(this.injector, () => getDocs(q));
 
-    // Si se pasa un estado específico, lo filtramos. Si es undefined, trae TODOS los estados.
-    if (status) {
-      constraints.push(where('status', '==', status));
-    }
+  const tasks = snapshot.docs.map(docSnap => docSnap.data());
+  const newLastVisible = snapshot.docs[snapshot.docs.length - 1] || null;
 
-    constraints.push(orderBy('createdAt', 'desc'));
-    constraints.push(limit(10));
-
-    let q = query(colRef, ...constraints);
-
-    if (lastVisible) {
-      q = query(q, startAfter(lastVisible));
-    }
-
-    const snapshot = await getDocs(q);
-    const tasks = snapshot.docs.map(d => d.data());
-    const newLastVisible = snapshot.docs[snapshot.docs.length - 1] || null;
-
-    return { tasks, lastVisible: newLastVisible };
-  }
-
+  return { tasks, lastVisible: newLastVisible };
+}
 
 
 //WRITES -------------

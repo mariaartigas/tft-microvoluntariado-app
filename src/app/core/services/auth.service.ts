@@ -1,5 +1,5 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
-import { Auth, authState, GoogleAuthProvider, createUserWithEmailAndPassword, onAuthStateChanged, signInWithPopup, signOut, User, EmailAuthCredential, deleteUser } from '@angular/fire/auth';
+import { Auth, authState, GoogleAuthProvider, createUserWithEmailAndPassword, onAuthStateChanged, signInWithPopup, signOut, User, EmailAuthCredential, deleteUser, reauthenticateWithPopup } from '@angular/fire/auth';
 import { Router } from '@angular/router';
 import { UserService } from './user.service';
 import { firstValueFrom } from 'rxjs';
@@ -55,7 +55,15 @@ export class AuthService {
       console.error('Error en login:', e);
       throw e;
     }
-  } 
+  }
+
+  async reauthenticateWithGoogle(): Promise<void> {
+    const user = this.auth.currentUser;
+    if (!user) throw new Error('No hay usuario autenticado');
+    
+    const provider = new GoogleAuthProvider();
+    await reauthenticateWithPopup(user, provider);
+  }
 
   //Métodos de registro de usuarios
  

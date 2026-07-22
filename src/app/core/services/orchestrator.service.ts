@@ -53,47 +53,53 @@ export class OrchestratorService {
     await this.userService.recordAbandonedTask(currentUser.uid);
   }
 
+  // Eliminación de voluntario adaptada para Google Auth
   async deleteVolunteerAccount(): Promise<void> {
-  const currentUser = this.authService.currentUser();
-  if (!currentUser) return;
+    const currentUser = this.authService.currentUser();
+    if (!currentUser) return;
 
-  try {
     const uid = currentUser.uid;
 
-    // 1. PRIMERO limpiamos y borramos en Firestore (mientras request.auth sigue activo)
-    await this.taskService.unassignVolunteerFromTasks(uid);
-    await this.userService.delete(uid);
+    try {
+      // 1. Aseguramos la sesión reautenticando con Google primero (si salta la popup y el usuario cancela, no se borrará nada en Firestore)
+      await this.authService.reauthenticateWithGoogle();
 
-    // 2. SEGUNDO borramos de Firebase Auth al final de todo
-    await this.authService.deleteAuthAccount();
+      // 2. Limpiamos y borramos en Firestore mientras la sesión está recién renovada
+      await this.taskService.unassignVolunteerFromTasks(uid);
+      await this.userService.delete(uid);
 
-  } catch (error: any) {
-    if (error.code === 'auth/requires-recent-login') {
-      console.warn('Se requiere reautenticación por seguridad.');
-      throw new Error('Por seguridad, debes cerrar sesión y volver a entrar para poder eliminar tu cuenta.');
+      // 3. Borramos de Firebase Auth definitivamente
+      await this.authService.deleteAuthAccount();
+
+    } catch (error: any) {
+      console.error('Error durante la eliminación del voluntario:', error);
+      throw error;
     }
-    throw error;
   }
-}
 
-   // Delete de referencias a una organización
-
+  // Eliminación de referencias a una organización adaptada para Google Auth
   async deleteOrganizationAccount(): Promise<void> {
     const currentUser = this.authService.currentUser();
     if (!currentUser) throw new Error('No hay usuario autenticado');
 
     const orgId = currentUser.uid;
 
-    await this.taskService.deleteTasksByOrganization(orgId);
+    try {
+      // 1. Aseguramos la sesión reautenticando con Google
+      await this.authService.reauthenticateWithGoogle();
 
-   
-    await this.orgService.delete(orgId);
+      // 2. Eliminación de datos en Firestore
+      await this.taskService.deleteTasksByOrganization(orgId);
+      await this.orgService.delete(orgId);
+      await this.userService.delete(orgId);
 
-    
-    await this.userService.delete(orgId);
+      // 3. Borramos de Firebase Auth
+      await this.authService.deleteAuthAccount();
 
-    
-    await this.authService.deleteAuthAccount();
+    } catch (error: any) {
+      console.error('Error durante la eliminación de la organización:', error);
+      throw error;
+    }
   }
 
 }
