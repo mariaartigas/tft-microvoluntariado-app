@@ -1,7 +1,7 @@
 import { Component, Input, OnInit, inject, signal } from '@angular/core';
-import { CommonModule, DatePipe } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { IonSpinner, IonItem, IonInput, IonTextarea, ModalController, ToastController} from '@ionic/angular/standalone';
+import { CommonModule } from '@angular/common';
+import { FormsModule, NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { IonSpinner, ModalController, ToastController} from '@ionic/angular/standalone';
 import { TaskService } from '../../../core/services/task.service';
 import { AuthService } from '../../../core/services/auth.service';
 
@@ -10,7 +10,7 @@ import { AuthService } from '../../../core/services/auth.service';
   templateUrl: './task-form-modal.component.html',
   styleUrls: ['./task-form-modal.component.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, DatePipe, IonSpinner, IonItem, IonInput, IonTextarea]
+  imports: [CommonModule, FormsModule, IonSpinner, ReactiveFormsModule]
 })
 
 export class TaskFormModalComponent implements OnInit {
@@ -18,6 +18,7 @@ export class TaskFormModalComponent implements OnInit {
   private toastCtrl = inject(ToastController);
   private taskService = inject(TaskService);
   private auth = inject(AuthService);
+  private fb = inject(NonNullableFormBuilder);
 
   @Input({ required: true }) orgId!: string;
   @Input() isOrgMode: boolean = false; // true = Crear/Editar (ONG), false = Detalle (Voluntario)
@@ -27,59 +28,50 @@ export class TaskFormModalComponent implements OnInit {
 
   isSaving = signal<boolean>(false);
   
-  title = '';
-  description = '';
-  estimatedTime = '';
-  deadline = '';
+  taskForm = this.fb.group({
+    title: ['', [Validators.required, Validators.maxLength(100)]],
+    estimatedTime: ['', [Validators.required, Validators.maxLength(30)]],
+    deadline: ['', [Validators.required]],
+    description: ['', [Validators.maxLength(1000)]]
+  });
 
-  ngOnInit() {
-    
+ ngOnInit() {
     if (this.taskData) {
-      this.title = this.taskData.title || '';
-      this.description = this.taskData.description || '';
-      this.estimatedTime = this.taskData.estimatedTime || '';
-      this.deadline = this.taskData.deadline 
+      const formattedDeadline = this.taskData.deadline 
         ? new Date(this.taskData.deadline).toISOString().split('T')[0] 
         : '';
-    } // Si viene una tarea ya creada y no es el dueño editando, cambiamos a modo vista/voluntario
-    if (!this.isOrgMode) {
-      this.isOrgMode = false;
+
+      this.taskForm.patchValue({
+        title: this.taskData.title || '',
+        estimatedTime: this.taskData.estimatedTime || '',
+        deadline: formattedDeadline,
+        description: this.taskData.description || ''
+      });
     }
   }
-
   //cancelar la acción/salir
 
   cancel() {
     this.modalCtrl.dismiss(null, 'cancel');
   }
 
-  async save() {
-    const cleanTitle = this.title.trim().slice(0, 100);
-    const cleanTime = this.estimatedTime.trim().slice(0, 30);
-    const cleanDesc = this.description.trim().slice(0, 1000);
+  //guardar la acción
 
-    if (!cleanTitle || !cleanTime || !this.deadline || !this.orgId) {
-      await this.showToast('Por favor, completa los campos obligatorios', 'danger'); //verificación
+  async save() {
+    if (this.taskForm.invalid || !this.orgId) {
+      this.taskForm.markAllAsTouched();
+      await this.showToast('Por favor, completa los campos obligatorios', 'danger');
       return;
     }
 
     this.isSaving.set(true);
+    const { title, estimatedTime, deadline, description } = this.taskForm.getRawValue();
 
     try {
-      const orgInfo = {
-        uid: this.orgId,
-        displayName: this.orgDisplayName,
-        logoURL: this.orgLogoURL
-      };
+      const orgInfo = { uid: this.orgId, displayName: this.orgDisplayName, logoURL: this.orgLogoURL };
 
-      const createdTask = await this.taskService.createTask(
-        cleanTitle,
-        orgInfo,
-        cleanDesc || 'Sin descripción',
-        'Manual',
-        cleanTime,
-        new Date(this.deadline)
-      );
+      //se crea la tarea
+      const createdTask = await this.taskService.createTask( title.trim(), orgInfo, description.trim() || 'Sin descripción', 'Manual',estimatedTime.trim(), new Date(deadline));
 
       await this.showToast('Tarea creada exitosamente', 'success');
       this.modalCtrl.dismiss(createdTask, 'confirm');
@@ -95,33 +87,31 @@ export class TaskFormModalComponent implements OnInit {
   //APUNTARSE A UNA TAREA !! funcionalidad importante
 
   async claimTask() {
-  const currentUser = this.auth.currentUser();
-  const taskId = this.taskData?.uid;
+    const currentUser = this.auth.currentUser();
+    const taskId = this.taskData?.uid;
 
-  if (!currentUser || !taskId) {
-    await this.showToast('Debes iniciar sesión para colaborar', 'danger');
-    return;
-  }
+    if (!currentUser || !taskId) {
+      await this.showToast('Debes iniciar sesión para colaborar', 'danger');
+      return;
+    }
 
-  this.isSaving.set(true);
+    this.isSaving.set(true);
 
-  try {
-    const volunteer = {
-      uid: currentUser.uid,
-      displayName: currentUser.displayName || 'Voluntario'
-    };
+    try {
+      const volunteer = {uid: currentUser.uid, displayName: currentUser.displayName || 'Voluntario'};
 
-    // Asignación directa en 1 solo paso
-    await this.taskService.claimTask(taskId, volunteer);
+      // Asignación directa en 1 solo paso
+      await this.taskService.claimTask(taskId, volunteer);
 
-    await this.showToast('¡Te has apuntado a la tarea!', 'success');
-    this.modalCtrl.dismiss(taskId, 'claimed');
-  } catch (error) {
-    console.error('[TaskDetail] Error al reclamar tarea:', error);
-    await this.showToast('Error al procesar la solicitud', 'danger');
-  } finally {
-    this.isSaving.set(false);
-  }
+      await this.showToast('¡Te has apuntado a la tarea!', 'success');
+      this.modalCtrl.dismiss(taskId, 'claimed');
+
+    } catch (error) {
+        console.error('Error al reclamar tarea:', error);
+        await this.showToast('Error al procesar la solicitud', 'danger');
+    } finally {
+        this.isSaving.set(false);
+    }
 }
 
 

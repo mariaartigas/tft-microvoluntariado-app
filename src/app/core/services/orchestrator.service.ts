@@ -4,6 +4,7 @@ import { OrganizationService } from './organization.service';
 import { TaskService } from './task.service';
 import { UserService } from './user.service';
 import { TaskModel, toTaskSummary } from '../../shared/models/task.model';
+import { firstValueFrom } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class OrchestratorService {
@@ -52,6 +53,49 @@ export class OrchestratorService {
 
     await this.userService.recordAbandonedTask(currentUser.uid);
   }
+
+  //GESTIÓN DE ENTREGA
+
+ async submitTaskDelivery(taskId: string, proofNote: string = '', proofUrl: string = ''): Promise<void> {
+    await this.taskService.submitTaskForReview(taskId, proofNote, proofUrl);
+  }
+
+  // 2. La ONG aprueba la entrega -> Marca completada y actualiza el perfil del voluntario 
+  async approveTaskCompletion(taskId: string, volunteerId?: string, feedbackReview?: string): Promise<void> {
+ 
+    await this.taskService.approveTask(taskId, feedbackReview);
+    let targetVolunteerId = volunteerId; //esto es para asegurarnos de que se actualizan los datos
+
+    if (!targetVolunteerId) {
+      // Si no nos llegó por parámetro, lo leemos directamente de la tarea en Firestore
+      const task = await firstValueFrom(this.taskService.getById$(taskId));
+      targetVolunteerId = task?.assignedVolunteerId || (task as any)?.assignedVolunteer?.uid;
+    }
+
+    // 3. Si encontramos al voluntario, actualizamos sus métricas atómicamente
+    if (targetVolunteerId) {
+      await this.userService.recordCompletedTask(targetVolunteerId);
+    } else {
+      console.warn(' No se pudo actualizar XP: La tarea no tiene un voluntario asignado válido.');
+    }
+}
+
+  // la ONG rechaza la entrega -> Pide correcciones 
+  async rejectTaskDelivery(taskId: string, feedbackNote: string): Promise<void> {
+    await this.taskService.rejectTask(taskId, feedbackNote);
+  }
+  
+  //opción de rechazar
+  async rejectTaskSubmission(taskId: string, feedbackReason?: string): Promise<void> {
+    await this.taskService.update(taskId, {
+      status: 'En Curso', // Vuelve a ponerse en curso para que el voluntario corrija
+      proofNote: null,
+      proofUrl: null
+    });
+    
+  }
+
+  //DELETE--------
 
   // Eliminación de voluntario adaptada para Google Auth
   async deleteVolunteerAccount(): Promise<void> {

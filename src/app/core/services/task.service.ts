@@ -1,7 +1,7 @@
 import { Injectable, Injector, inject, runInInjectionContext } from '@angular/core';
 import { Firestore, doc, setDoc,  updateDoc, collection, docData,  serverTimestamp, collectionData, orderBy, query, where, QueryDocumentSnapshot, getDocs, limit, startAfter, deleteDoc, increment, QueryConstraint } from '@angular/fire/firestore';
 import { Observable } from 'rxjs';
-import { TaskModel, taskConverter, TaskStatus, MessageModel, messageConverter, createDefaultTask, createDefaultMessage } from '../../shared/models/task.model';
+import { TaskModel, taskConverter, TaskStatus, createDefaultTask } from '../../shared/models/task.model';
 
 //para la gestión de queries de búsqueda/filtro
 export type TaskQueryScope =
@@ -179,23 +179,36 @@ export class TaskService {
   await Promise.all(unclaimPromises);
 }
 
-//GESTION DE MENSAJES -------------
+//ENTREGA de tarea
 
-//READ de mensajes  -------------
+async submitTaskForReview(
+  taskId: string, 
+  proofNote: string = '', 
+  proofUrl: string = ''
+): Promise<void> {
+  await this.update(taskId, {
+    status: 'Pendiente de Revisión',
+    proofNote: proofNote.trim(),
+    proofUrl: proofUrl.trim(),
+    submittedAt: new Date()
+  });
+}
 
-  getMessages$(taskId: string, volunteerId: string): Observable<MessageModel[]> {
-    const colRef = collection(this.firestore, `tasks/${taskId}/applications/${volunteerId}/messages`).withConverter(messageConverter);
-    return collectionData(colRef);
-  }
+async approveTask(taskId: string, feedbackNote?: string): Promise<void> {
+  await this.update(taskId, {
+    status: 'Completada',
+    submittedAt: new Date(), 
+    feedbackNote: feedbackNote?.trim() || null
+  });
+}
 
-// Enviar mensaje en el chat sobre la tarea (pdte de implementar)
-  async sendMessage(taskId: string, volunteerId: string, senderId: string, text: string): Promise<void> {
-    const colRef = collection(this.firestore, `tasks/${taskId}/applications/${volunteerId}/messages`);
-    const newMsgRef = doc(colRef).withConverter(messageConverter);
-    const newMessage = createDefaultMessage(newMsgRef.id, senderId, text);
-
-    await setDoc(newMsgRef, newMessage);
-  }
+//denegación de entrega
+async rejectTask(taskId: string, feedbackNote?: string): Promise<void> {
+  await this.update(taskId, {
+    status: 'En Curso',
+    feedbackNote: feedbackNote?.trim() || null
+  });
+}
 
 
 }

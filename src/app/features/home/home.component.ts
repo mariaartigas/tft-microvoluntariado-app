@@ -16,9 +16,9 @@ import { FooterComponent } from "../../shared/components/footer/footer.component
 })
 
 export class HomeComponent {
-  authService = inject(AuthService); 
+ private authService = inject(AuthService); 
 
-  currentUser = this.authService.currentUser;        //firebase
+ readonly currentUser = this.authService.currentUser;        //firebase
   userProfile = this.authService.currentUserProfile; //información
 
   //error en cargas de imágenes

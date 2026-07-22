@@ -11,14 +11,6 @@ export interface TaskSummary {
   status: TaskStatus;
 }
 
-//SUBCOLECCIÓN
-export interface MessageModel {
-  uid: string;
-  senderId: string;
-  text: string;
-  createdAt: Date;
-}
-
 //modelo general
 export interface TaskModel {
   uid: string;                 // ID del documento en la colección /tasks
@@ -30,10 +22,12 @@ export interface TaskModel {
   orgDisplayName: string;      
   estimatedTime: string;
   deadline: Date; // ISO string o formato de fecha
+  feedbackNote?: string | null;
   assignedVolunteerName?: string | null;
   assignedVolunteerId: string | null;
- // chatRoomId: string | null;   // ID del canal de mensajes dedicado a esta tarea
-  
+  proofNote?: string | null;   // Nota o texto de entrega del voluntario
+  proofUrl?: string | null;    // Enlace al entregable (Google Drive, Figma, PDF, etc.)
+  submittedAt?: Date | null;   // Fecha en la que el voluntario entregó
   createdAt: Date;
   updatedAt?: Date;
 }
@@ -52,22 +46,12 @@ export function createDefaultTask( taskId: string, title: string, org: { uid: st
     deadline: deadline,
     assignedVolunteerName: null,
     assignedVolunteerId:  null,
-   // chatRoomId: null,
+    feedbackNote:  null,   
+    proofNote:  null,   // Nota o texto de entrega del voluntario
+    proofUrl: null,  // Enlace al entregable (Google Drive, Figma, PDF, etc.)
+    submittedAt: null,  // Fecha en la que el voluntario entregó
     createdAt: new Date(),
     updatedAt: new Date()
-  };
-}
-
-export function createDefaultMessage(
-  messageId: string, 
-  senderId: string, 
-  text: string
-): MessageModel {
-  return {
-    uid: messageId,
-    senderId,
-    text: text.trim(),
-    createdAt: new Date()
   };
 }
 
@@ -90,6 +74,7 @@ export const taskConverter: FirestoreDataConverter<TaskModel> = {
       assignedVolunteerName: data['assignedVolunteerName'],
       hoursCalculated: data['hoursCalculated'] ?? 1,
       assignedVolunteerId: data['assignedVolunteerId'] ?? null,
+      feedbackNote: data['feedbackNote'] || null,
       createdAt: data['createdAt']?.toDate() ?? new Date(),
       updatedAt: data['updatedAt']?.toDate() ?? new Date()
     };
@@ -104,16 +89,3 @@ export function toTaskSummary(task: TaskModel): TaskSummary {
     status: task.status
   };
 }
-
-export const messageConverter: FirestoreDataConverter<MessageModel> = {
-  toFirestore: (data: MessageModel) => ({ ...data }),
-  fromFirestore: (snap: QueryDocumentSnapshot, options?: SnapshotOptions): MessageModel => {
-    const data = snap.data(options);
-    return {
-      uid: snap.id,
-      senderId: data['senderId'] ?? '',
-      text: data['text'] ?? '',
-      createdAt: data['createdAt']?.toDate() ?? new Date()
-    };
-  }
-};

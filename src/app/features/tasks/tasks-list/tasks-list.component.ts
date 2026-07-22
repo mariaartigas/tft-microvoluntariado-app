@@ -38,18 +38,18 @@ export class TasksListComponent {
   private refreshTrigger$ = new BehaviorSubject<void>(undefined);
 
   // Signals de Estado
-  tasks = signal<TaskModel[]>([]);
-  isLoading = signal(true);
-  currentOrg = signal<OrganizationModel | null>(null);
-  lastVisible = signal<QueryDocumentSnapshot | null>(null);
+   tasks = signal<TaskModel[]>([]);
+   isLoading = signal<boolean>(true);
+   currentOrg = signal<OrganizationModel | null>(null);
+   lastVisible = signal<QueryDocumentSnapshot | null>(null);
 
   mode: 'org' | 'user' | 'all' = 'org';
   private targetId: string | null = null;
   private isFetching = false; // Flag para evitar peticiones solapadas
 
-  currentUser = computed(() => this.auth.currentUser());
+   currentUser = computed(() => this.auth.currentUser());
 
-  isOwner = computed(() => {
+  readonly isOwner = computed(() => {
     const user = this.currentUser();
     const org = this.currentOrg();
     if (this.mode !== 'org' || !user?.uid || !org) return false;
@@ -58,8 +58,20 @@ export class TasksListComponent {
 
   //recarga pipeline
 
-  private routeTarget$ = combineLatest([ this.route.url, this.route.paramMap, this.refreshTrigger$]).pipe(
-    switchMap(([urlSegments, params]) => {
+   //constructor para el subscribe y la recarga dinámica de la página
+  constructor() {
+    this.routeTarget$.pipe(takeUntilDestroyed()).subscribe((targetId) => {
+      this.targetId = targetId;
+      this.resetAndLoadTasks();
+    });
+  }
+
+ private readonly routeTarget$ = combineLatest([
+    this.route.url, 
+    this.route.paramMap, 
+    this.refreshTrigger$
+  ]).pipe(
+    switchMap(([_, params]) => {
       const parentParams = this.route.parent?.snapshot.paramMap;
       const username = params.get('username') || parentParams?.get('username');
       const slug = params.get('slug') || parentParams?.get('slug');
@@ -78,47 +90,48 @@ export class TasksListComponent {
         this.mode = 'all';
       }
 
-      if (this.mode === 'org') {
-        const orgParam = slug || username;
-        if (!orgParam) return of(null);
-
-        return this.orgService.getOrganizationBySlugOrId$(orgParam).pipe(
-          map(org => {
-            this.currentOrg.set(org || null);
-            return org?.uid || orgParam;
-          }),
-          catchError(() => {
-            this.currentOrg.set(null);
-            return of(null);
-          })
-        );
-      } else if (this.mode === 'user') {
-        this.currentOrg.set(null);
-        const userParam = username;
-
-        if (!userParam) {
-          return of(this.currentUser()?.uid || null);
-        }
-
-        return this.userService.getByUsername$(userParam).pipe(
-          map(user => user?.uid || userParam),
-          catchError(() => of(userParam))
-        );
-      } else {
-        this.currentOrg.set(null);
-        return of('all');
-      }
+      return this.resolveTargetId(slug, username);
     })
   );
 
-  //constructor para el subscribe y la recarga dinámica de la página
-  constructor() {
-    this.routeTarget$.pipe(takeUntilDestroyed()).subscribe((targetId) => {
-      this.targetId = targetId;
-      this.resetAndLoadTasks();
-    });
-  }
+ 
+  //gestión de ID separado del pipe stream
+  private resolveTargetId(slug: string | null | undefined, username: string | null | undefined) {
+  if (this.mode === 'org') {
+    const orgParam = slug || username;
+    if (!orgParam) return of(null);
 
+    return this.orgService.getOrganizationBySlugOrId$(orgParam).pipe(
+      map(org => {
+        this.currentOrg.set(org || null);
+        return org?.uid || orgParam;
+      }),
+      catchError(() => {
+        this.currentOrg.set(null);
+        return of(null);
+      })
+    );
+  } 
+  
+  if (this.mode === 'user') {
+    this.currentOrg.set(null);
+    const userParam = username;
+
+    if (!userParam) {
+      return of(this.currentUser()?.uid || null);
+    }
+
+    return this.userService.getByUsername$(userParam).pipe(
+      map(user => user?.uid || userParam),
+      catchError(() => of(userParam))
+    );
+  } 
+
+  this.currentOrg.set(null);
+  return of('all');
+}
+
+//reset y cargar
   async resetAndLoadTasks() {
     this.isLoading.set(true);
     this.tasks.set([]);
@@ -128,28 +141,24 @@ export class TasksListComponent {
   }
 
 //carga de las tareas en pantalla
-  async loadTasks(event?: any) {
-    if (this.isFetching) return; // Evita llamadas simultáneas
+  async loadTasks(event?: any): Promise<void> {
+    if (this.isFetching) return;
     if (this.mode !== 'all' && !this.targetId) {
-      if (event) event.target.complete();
+      if (event?.target?.complete) event.target.complete();
       return;
     }
 
     this.isFetching = true;
 
-    let scope: TaskQueryScope;
-    if (this.mode === 'org') {
-      scope = { type: 'org', orgId: this.targetId! };
-    } else if (this.mode === 'user') {
-      scope = { type: 'user', volunteerId: this.targetId! };
-    } else {
-      scope = { type: 'all' };
-    }
+    const scope: TaskQueryScope = 
+      this.mode === 'org' ? { type: 'org', orgId: this.targetId! } :
+      this.mode === 'user' ? { type: 'user', volunteerId: this.targetId! } :
+      { type: 'all' };
 
     try {
       const result = await this.taskService.getTasksPaginated(scope, 10, this.lastVisible());
 
-      // Deduplicación estricta por UID antes de guardar en el Signal
+      // Deduplicación estricta por UID
       this.tasks.update(current => {
         const map = new Map<string, TaskModel>();
         [...current, ...result.tasks].forEach(t => map.set(t.uid, t));
@@ -158,7 +167,7 @@ export class TasksListComponent {
 
       this.lastVisible.set(result.lastVisible);
 
-      if (event) {
+      if (event?.target) {
         event.target.complete();
         if (!result.lastVisible) {
           event.target.disabled = true;
@@ -166,7 +175,7 @@ export class TasksListComponent {
       }
     } catch (error) {
       console.error('Error al cargar tareas:', error);
-      if (event) event.target.complete();
+      if (event?.target?.complete) event.target.complete();
     } finally {
       this.isFetching = false;
     }
@@ -215,7 +224,6 @@ export class TasksListComponent {
               this.tasks.update(list => list.filter(t => t.uid !== task.uid));
               await this.showToast('Tarea eliminada correctamente', 'success');
             } catch (error) {
-              console.error('[TasksList] Error al eliminar la tarea:', error);
               await this.showToast('Error al eliminar la tarea', 'danger');
             }
           }
@@ -230,7 +238,12 @@ export class TasksListComponent {
   async openTaskDetailModal(task: TaskModel) {
     const modal = await this.modalCtrl.create({
       component: TaskDetailModalComponent,
-      componentProps: { task }
+      componentProps: { 
+      task,
+      orgId: task.orgId,
+      isOwner: this.isOwner(),
+      orgDisplayName: task.orgDisplayName
+    }
     });
 
     await modal.present();
@@ -238,19 +251,17 @@ export class TasksListComponent {
 
     if (role === 'claimed') {
       const user = this.currentUser();
-      this.tasks.update(list =>
-        list.map(t =>
-          t.uid === task.uid
-            ? {
-                ...t,
-                status: 'En Curso' as TaskStatus,
-                assignedVolunteerId: user?.uid || null,
-                assignedVolunteerName: user?.displayName || 'Voluntario'
-              }
-            : t
-        )
-      );
-    }
+      this.updateLocalTaskStatus(task.uid, 'En Curso', {
+      assignedVolunteerId: user?.uid || null,
+      assignedVolunteerName: user?.displayName || 'Voluntario'
+    });
+  } else if (role === 'submitted') {
+    this.updateLocalTaskStatus(task.uid, 'Pendiente de Revisión');
+  } else if (role === 'approved') {
+    this.updateLocalTaskStatus(task.uid, 'Completada');
+  } else if (role === 'rejected') {
+    this.updateLocalTaskStatus(task.uid, 'En Curso');
+  }
   }
 // --- ACCIONES DE VOLUNTARIO ---
   async unclaimTask(task: TaskModel) {
@@ -279,7 +290,6 @@ export class TasksListComponent {
               }
               await this.showToast('Has abandonado la tarea', 'warning');
             } catch (error) {
-              console.error('[TasksList] Error al abandonar tarea:', error);
               await this.showToast('Error al procesar la solicitud', 'danger');
             }
           }
@@ -302,6 +312,16 @@ export class TasksListComponent {
       default: return 'status-default';
     }
   }
+
+  private updateLocalTaskStatus(taskId: string, newStatus: TaskStatus, extraData: Partial<TaskModel> = {}) {
+  this.tasks.update(list =>
+    list.map(t =>
+      t.uid === taskId
+        ? { ...t, status: newStatus, ...extraData }
+        : t
+    )
+  );
+}
 
   //visualziación de mensajito
 

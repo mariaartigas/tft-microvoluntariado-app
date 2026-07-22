@@ -91,7 +91,7 @@ i.hn {
           }
         }
 
-        /* Insignia de Estado */
+        /* Insignia de Estado en la Cabecera */
         .status-badge {
           font-size: 0.75rem;
           font-weight: 600;
@@ -163,6 +163,45 @@ i.hn {
           }
         }
       }
+
+      /* 🟢 NUEVO: Fila de Botones de Acción de las Tareas */
+      .action-buttons-row {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-top: 16px;
+        padding-top: 12px;
+        border-top: 1px solid rgba(255, 255, 255, 0.05);
+
+        ion-button {
+          --border-radius: 8px;
+          font-weight: 600;
+          font-size: 0.82rem;
+          margin: 0; /* Anula márgenes por defecto de Ionic */
+
+          &.main-button {
+            --color: #ffffff;
+            --border-color: #8064ff;
+            --background-hover: rgba(128, 100, 255, 0.1);
+          }
+        }
+
+        /* Badge de estado dentro del contenido */
+        .status-badge {
+          font-size: 0.75rem;
+          font-weight: 600;
+          padding: 6px 12px;
+          border-radius: 20px;
+
+          &.status-revision {
+            background: rgba(255, 196, 9, 0.15);
+            color: #ffd534;
+            border: 1px solid rgba(255, 196, 9, 0.3);
+          }
+        }
+      }
     }
   }
 
@@ -198,11 +237,11 @@ i.hn {
   }
 
   /* --------------------------------------------------
-   * Botón Flotante (FAB) - Arreglo del icono +
+   * Botón Flotante (FAB)
    * -------------------------------------------------- */
   .custom-fab {
     margin-bottom: 16px;
-    margin-end: 16px;
+    marker-end: 16px;
 
     ion-fab-button {
       --background: #6d4aff;
@@ -212,7 +251,6 @@ i.hn {
       width: 56px;
       height: 56px;
 
-      /* 🟢 Fuerza la visibilidad y alineación del icono dentro del Shadow DOM */
       i.hn {
         font-size: 1.6rem !important;
         color: #ffffff !important;
@@ -230,4 +268,33 @@ i.hn {
       }
     }
   }
+
+  .card-feedback-alert {
+  background: rgba(255, 152, 0, 0.08);
+  border-left: 3px solid #ff9800;
+  padding: 8px 12px;
+  border-radius: 4px;
+  font-size: 13px;
+  color: #ffcc80;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  i {
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+}
+
+.modal-footer-actions {
+  flex-shrink: 0;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 20px;
+  background: #181625;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  z-index: 10;
+}
 }

@@ -1,23 +1,23 @@
 <div class="modal-container">
   
+  <!-- 1. CABECERA FIJA ARRIBA -->
   <div class="modal-toolbar">
     <div class="modal-title">
       <i class="hn hn-file-text"></i>
       <span>Detalle de la Tarea</span>
     </div>
-    <button type="button" class="close-btn" (click)="cancel()" [disabled]="isClaiming()">
+    <button type="button" class="close-btn" (click)="cancel()" [disabled]="isProcessing()">
       <i class="hn hn-times"></i>
     </button>
   </div>
 
-  <div class="modal-body">
-    <div class="task-details-view">
+  <!-- 2. CONTENIDO INTERMEDIO CON SCROLL -->
+  <ion-content class="modal-content-scroll">
+    <div class="ion-padding">
       
       <div class="form-group">
         <h2 class="task-title-heading">{{ task.title }}</h2>
-         <!-- //REVISAR ES VD QUE NO GUARDAMOS EL NOMBRE LA ORGANIZACIÓN ! -->
-        
-        <p class="org-subtext">Publicado por <strong>{{'Organización' }}</strong></p>
+        <p class="org-subtext">Publicado por <strong>{{ task.orgDisplayName || 'Organización' }}</strong></p>
       </div>
 
       <div class="form-row ion-margin-top">
@@ -37,24 +37,122 @@
         <p class="detail-description">{{ task.description || 'Sin descripción detallada.' }}</p>
       </div>
 
-      <!-- Acciones del Voluntario -->
-      <div class="modal-actions ion-margin-top">
-        <button type="button" class="btn-secondary" (click)="cancel()" [disabled]="isClaiming()">
-          Cerrar
-        </button>
+      <!-- SECCIÓN DE ENTREGA (VOLUNTARIO) -->
+      @if (isAssignedVolunteer() && task.status === 'En Curso') {
+        <div class="submission-box ion-margin-top">
+          <hr class="divider" />
+          <h3>🚀 Entregar Trabajo Realizado</h3>
+          
+          <div class="form-group ion-margin-top">
+            <label class="form-label">Comentarios / Nota de entrega</label>
+            <textarea 
+              class="custom-textarea" 
+              [(ngModel)]="proofNote" 
+              rows="3" 
+              placeholder="Escribe brevemente qué has hecho o el resultado...">
+            </textarea>
+          </div>
 
-        @if (task.status === 'Activa') {
-          <button type="button" class="btn-primary" (click)="claimTask()" [disabled]="isClaiming()">
-            @if (isClaiming()) {
-              <ion-spinner name="crescent"></ion-spinner>
-            } @else {
-              <span>Quiero Colaborar</span>
-            }
-          </button>
-        }
-      </div>
+          <div class="form-group ion-margin-top">
+            <label class="form-label">Enlace de evidencia (Opcional)</label>
+            <input 
+              type="url" 
+              class="custom-input" 
+              [(ngModel)]="proofUrl" 
+              placeholder="https://docs.google.com/..." 
+            />
+          </div>
+        </div>
+      }
+
+      <!-- SECCIÓN DE REVISIÓN (ONG) -->
+      @if (task.status === 'Pendiente de Revisión') {
+        <div class="review-box ion-margin-top">
+          <hr class="divider" />
+          <h3>🔍 Revisión de Entrega</h3>
+          <p class="volunteer-subtext">Voluntario: <strong>{{ task.assignedVolunteerName || 'Voluntario' }}</strong></p>
+          
+          @if (task.proofNote) {
+            <div class="proof-data ion-margin-top">
+              <label class="form-label">Nota enviada:</label>
+              <p class="detail-value">{{ task.proofNote }}</p>
+            </div>
+          }
+
+          @if (task.proofUrl) {
+            <div class="proof-data ion-margin-top">
+              <label class="form-label">Enlace / Entregable:</label>
+              <div>
+                <a [href]="task.proofUrl" target="_blank" rel="noopener noreferrer" class="proof-link">
+                  Ver documento adjunto
+                </a>
+              </div>
+            </div>
+          }
+
+          @if (isOrgOwner()) {
+            <div class="form-group ion-margin-top">
+              <label class="form-label">Motivo de la corrección (Opcional)</label>
+              <textarea 
+                class="custom-textarea" 
+                [(ngModel)]="rejectFeedback" 
+                rows="2" 
+                placeholder="Indica al voluntario qué debe cambiar...">
+              </textarea>
+            </div>
+          }
+        </div>
+      }
 
     </div>
+  </ion-content>
+
+  <!-- 3. PIE DE PÁGINA FIJO ABAJO (Siempre visible) -->
+  <div class="modal-footer-actions">
+    <button type="button" class="btn-secondary" (click)="cancel()" [disabled]="isProcessing()">
+      Cerrar
+    </button>
+
+    @if (task.status === 'Activa' && !isOrgOwner()) {
+      <button type="button" class="btn-primary" (click)="claimTask()" [disabled]="isProcessing()">
+        @if (isProcessing()) {
+          <ion-spinner name="crescent"></ion-spinner>
+        } @else {
+          <span>Quiero Colaborar</span>
+        }
+      </button>
+    }
+
+    @if (isAssignedVolunteer() && task.status === 'En Curso') {
+      <button type="button" class="btn-primary" (click)="submitTask()" [disabled]="isProcessing()">
+        @if (isProcessing()) {
+          <ion-spinner name="crescent"></ion-spinner>
+        } @else {
+          <span>Enviar a Revisión</span>
+        }
+      </button>
+    }
+
+    @if (task.status === 'Pendiente de Revisión' && isOrgOwner()) {
+      <button type="button" class="btn-secondary" (click)="rejectTask()" [disabled]="isProcessing()">
+        Solicitar Corrección
+      </button>
+
+      <button type="button" class="btn-primary" (click)="approveTask()" [disabled]="isProcessing()">
+        @if (isProcessing()) {
+          <ion-spinner name="crescent"></ion-spinner>
+        } @else {
+          <span>Aprobar y Dar Puntos</span>
+        }
+      </button>
+    }
   </div>
 
+</div>
+
+<!-- 🔍 CHIVATO TEMPORAL DE DEPURACIÓN -->
+<div style="background: #2a1b3d; border: 1px solid #ff4d4d; color: #ff8080; padding: 8px; font-size: 12px; margin: 10px; border-radius: 6px;">
+  <div><strong>Status real:</strong> "{{ task.status }}"</div>
+  <div><strong>isOrgOwner():</strong> {{ isOrgOwner() }} (orgId: {{ task.orgId }})</div>
+  <div><strong>isAssignedVolunteer():</strong> {{ isAssignedVolunteer() }}</div>
 </div>

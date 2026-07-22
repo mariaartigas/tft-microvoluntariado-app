@@ -88,32 +88,48 @@ async recordAbandonedTask(volunteerId: string): Promise<void> {
   await this.recalculateReliability(volunteerId);
 }
 
+async recordCompletedTask(volunteerId: string): Promise<void> {
+ 
+    try {
+      // 1. Actualizamos estadísticas, XP y la Reputación que faltaba
+      await this.update(volunteerId, {
+        'statistics.tasksCompleted': increment(1),
+        xp: increment(100),
+        reputation: increment(10), // <-- ¡Añadido para que sume 10 puntos por tarea!
+        isVisible: true
+      }as any);
+
+      // 2. Recalculamos la fiabilidad
+      await this.recalculateReliability(volunteerId);
+
+    } catch (error) {
+      console.error('Error crítico en recordCompletedTask:', error);
+    }
+  }
+
 //calcular reliability ! 
 
 private async recalculateReliability(volunteerId: string): Promise<void> {
-  const userRef = this.getUserRef(volunteerId);
-  const snap = await getDoc(userRef);
+ const snap = await getDoc(this.getUserRef(volunteerId));
+    if (!snap.exists()) return;
 
-  if (!snap.exists()) return;
+    const user = snap.data();
+    const stats = user.statistics || { tasksCompleted: 0, tasksAbandoned: 0, tasksExpired: 0 };
 
-  const user = snap.data(); // usermodel
-  const stats = user.statistics;
+    const completed = stats.tasksCompleted || 0;
+    const abandoned = stats.tasksAbandoned || 0;
+    const expired = stats.tasksExpired || 0;
 
-  const completed = stats.tasksCompleted || 0;
-  const abandoned = stats.tasksAbandoned || 0;
-  const expired = stats.tasksExpired || 0;
+    // Fórmula del Algoritmo Heurístico de Fiabilidad
+    const totalWeighted = completed + (abandoned * 1.5) + (expired * 2.0);
+    
+    let reliability = 100;
+    if (totalWeighted > 0) {
+      reliability = Math.round((completed / totalWeighted) * 100);
+    }
 
-  // Fórmula del Algoritmo Heurístico de Fiabilidad
-  const totalWeighted = completed + (abandoned * 1.5) + (expired * 2.0);
-  
-  let reliability = 100;
-  if (totalWeighted > 0) {
-    reliability = Math.round((completed / totalWeighted) * 100);
+    await this.update(volunteerId, { reliability });
   }
-
-  // Actualizamos el campo 'reliability' en la raíz del documento
-  await this.update(volunteerId, { reliability });
-}
 
 
 }

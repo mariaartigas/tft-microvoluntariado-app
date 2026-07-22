@@ -11,17 +11,15 @@
   </div>
 
   <div class="modal-body">
-    <form (ngSubmit)="save()">
+    <form [formGroup]="taskForm" (ngSubmit)="save()">
       
       <div class="form-group">
         <label class="form-label">Título de la tarea *</label>
         <input 
           type="text" 
           class="custom-input" 
-          [(ngModel)]="title" 
-          name="title" 
+          formControlName="title"
           placeholder="Ej: Traducir documento al inglés" 
-          required 
         />
       </div>
 
@@ -31,10 +29,8 @@
           <input 
             type="text" 
             class="custom-input" 
-            [(ngModel)]="estimatedTime" 
-            name="estimatedTime" 
+            formControlName="estimatedTime"
             placeholder="Ej: 30 mins" 
-            required 
           />
         </div>
 
@@ -43,9 +39,7 @@
           <input 
             type="date" 
             class="custom-input" 
-            [(ngModel)]="deadline" 
-            name="deadline" 
-            required 
+            formControlName="deadline"
           />
         </div>
       </div>
@@ -54,8 +48,7 @@
         <label class="form-label"><i class="hn hn-align-left"></i> Descripción breve</label>
         <textarea 
           class="custom-textarea" 
-          [(ngModel)]="description" 
-          name="description" 
+          formControlName="description"
           rows="4" 
           placeholder="Explica detalladamente en qué consiste el apoyo requerido..."
         ></textarea>
@@ -66,13 +59,24 @@
           Cancelar
         </button>
 
-        <button type="submit" class="btn-primary" [disabled]="isSaving()">
-          @if (isSaving()) {
-            <ion-spinner name="crescent"></ion-spinner>
-          } @else {
-            <span>{{ taskData ? 'Guardar Cambios' : 'Publicar Tarea' }}</span>
-          }
-        </button>
+        <!-- Botón condicional si es modo edición/creación (ONG) o si el voluntario va a reclamar -->
+        @if (isOrgMode) {
+          <button type="submit" class="btn-primary" [disabled]="isSaving() || taskForm.invalid">
+            @if (isSaving()) {
+              <ion-spinner name="crescent"></ion-spinner>
+            } @else {
+              <span>{{ taskData ? 'Guardar Cambios' : 'Publicar Tarea' }}</span>
+            }
+          </button>
+        } @else {
+          <button type="button" class="btn-primary" (click)="claimTask()" [disabled]="isSaving()">
+            @if (isSaving()) {
+              <ion-spinner name="crescent"></ion-spinner>
+            } @else {
+              <span>Apuntarse a la Tarea</span>
+            }
+          </button>
+        }
       </div>
 
     </form>

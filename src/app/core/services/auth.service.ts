@@ -65,24 +65,9 @@ export class AuthService {
     await reauthenticateWithPopup(user, provider);
   }
 
-  //Métodos de registro de usuarios
- 
-  async register (email: string, password: string, role: UserRole) {
-    try {
-      const credential = await createUserWithEmailAndPassword(this.auth, email, password);
-      
-      await firstValueFrom(this.userService.ensureUserProfile$(credential.user, role));
-
-      return credential.user;
-    } catch (e) {
-      console.error('Error en el registro:', e);
-      throw e;
-    }
-  }
-
   //cierre de sesión
   async logout() {
-    const result = await signOut(this.auth).then(() => this.router.navigate(['/login']));
+    await signOut(this.auth).then(() => this.router.navigate(['/login']));
   }
 
   //delete

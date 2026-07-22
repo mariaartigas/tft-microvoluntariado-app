@@ -175,4 +175,28 @@ i.hn {
       }
     }
   }
+  .feedback-banner {
+  background: rgba(255, 152, 0, 0.12);
+  border: 1px solid rgba(255, 152, 0, 0.4);
+  padding: 12px 16px;
+  border-radius: 10px;
+  margin-bottom: 12px;
+
+  .feedback-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #ffb74d;
+    font-weight: 600;
+    font-size: 14px;
+    margin-bottom: 6px;
+  }
+
+  .feedback-text {
+    color: #e0e0e0;
+    font-size: 13px;
+    margin: 0;
+    line-height: 1.4;
+  }
+}
 }

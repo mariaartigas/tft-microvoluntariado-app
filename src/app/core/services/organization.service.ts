@@ -72,30 +72,33 @@ export class OrganizationService {
 }
 
 //ENSURE organización -> crea la organización ligada de entrada ya con el USUARIO CREADOR
-  async ensureOrganization(orgName: string,  contactEmail: string, owner: { uid: string; displayName: string; email: string } ): Promise<OrganizationModel> {
-    try {
-    //generar slug 
-      const slug = generateSlug(orgName);
+ async ensureOrganization(orgName: string, contactEmail: string, owner: { uid: string; displayName: string; email: string }): Promise<OrganizationModel> {
+  try {
+    const slug = generateSlug(orgName);
     
-      //verificación rápida
-      const q = query(this.getOrgs, where('slug', '==', slug));
-      const snapshot = await getDocs(q);
-      
-      if (!snapshot.empty) {
-        return snapshot.docs[0].data();
-      }
-      
-      const newOrgId = this.generateNewId();
-      const newOrg = createDefaultOrganization(newOrgId, orgName, owner); 
+    // Verificamos si ya existe
+    const q = query(this.getOrgs, where('slug', '==', slug));
+    const snapshot = await getDocs(q);
     
-      await this.create(newOrg);
-      
-      return newOrg;
-    } catch (e) {
-      console.error('Error al crear la organización:', e);
-      throw e;
+    if (!snapshot.empty) {
+      // Lanzamos un error controlado para que la vista lo capture y avise al usuario
+      throw new Error('ORGANIZATION_EXISTS');
     }
+    
+    const newOrgId = this.generateNewId();
+    const newOrg = createDefaultOrganization(newOrgId, orgName, owner, contactEmail); 
+    
+    await this.create(newOrg);
+    
+    return newOrg;
+  } catch (e: any) {
+    if (e.message === 'ORGANIZATION_EXISTS') {
+      throw e; // Propagamos el error controlado
+    }
+    console.error('Error al crear la organización:', e);
+    throw e;
   }
+}
 
   //GESTIÓN de tareas MODIFICA RPARA USAR EL PROPIO METODO DE UPDATE ??
 

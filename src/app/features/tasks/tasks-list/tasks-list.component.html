@@ -85,6 +85,12 @@
               
               <!-- ACCIONES PARA EL DUEÑO DE LA ONG -->
               @if (isOwner()) {
+                @if (task.status === 'Pendiente de Revisión') {
+                  <ion-button size="small" color="success" fill="solid" (click)="openTaskDetailModal(task)">
+                    <i class="hn hn-check-circle ion-margin-end"></i> Revisar Entrega
+                  </ion-button>
+                }
+
                 <ion-button size="small" color="danger" fill="outline" (click)="deleteTask(task)">
                   <i class="hn hn-trash ion-margin-end"></i> Eliminar
                 </ion-button>
@@ -92,21 +98,35 @@
               
               <!-- ACCIONES PARA VOLUNTARIOS / VISITANTES -->
               @else {
-                
-                <!-- Si la tarea está activa y libre -> Apuntarse -->
                 @if (task.status === 'Activa') {
                   <ion-button size="small" fill="outline" class="main-button" (click)="openTaskDetailModal(task)">
                     Ver detalles / Apuntarme
                   </ion-button>
                 }
 
-                <!-- Si el voluntario actual es quien tiene la tarea asignada -> Ver o Abandonar -->
                 @if (task.assignedVolunteerId === currentUser()?.uid && task.status === 'En Curso') {
+                  <ion-button size="small" color="primary" fill="solid" (click)="openTaskDetailModal(task)">
+                    Entregar Tarea
+                  </ion-button>
+
                   <ion-button size="small" color="warning" fill="outline" (click)="unclaimTask(task)">
                     Abandonar Tarea
                   </ion-button>
                 }
 
+                @if (task.assignedVolunteerId === currentUser()?.uid && task.status === 'Pendiente de Revisión') {
+                  <span class="status-badge status-revision">
+                    En espera de revisión por la ONG
+                  </span>
+                }
+              }
+
+              <!-- AVISO RÁPIDO DE NOTA DE LA ONG -->
+              @if (task.feedbackNote) {
+                <div class="card-feedback-alert ion-margin-top">
+                  <i class="hn hn-info-circle"></i>
+                  <span><strong>Nota de la ONG:</strong> {{ task.feedbackNote }}</span>
+                </div>
               }
 
             </div>

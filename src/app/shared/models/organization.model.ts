@@ -1,15 +1,14 @@
 //MODELO de gestión de organizaciones
 
 import { DocumentData, FirestoreDataConverter, QueryDocumentSnapshot, SnapshotOptions, Timestamp } from "@angular/fire/firestore";
-import { TaskStatus } from "./task.model";
 import { TaskSummary } from './task.model';
 
 //información de contacto
 export interface OrganizationContacts {
   email: string;              
-  phone: string | null;
+  phone?: string | null;
   website: string | null;
-  instagram: string | null;
+  instagram?: string | null;
 }
 
 //estadísticas de la organización
@@ -60,7 +59,7 @@ export const isOrganizationValid = (name: string): boolean => {
 };
 
 //creación por defecto ! 
-export function createDefaultOrganization( orgId: string, name: string, owner: { uid: string; displayName: string; email: string }): OrganizationModel {
+export function createDefaultOrganization( orgId: string, name: string, owner: { uid: string; displayName: string; email: string }, contactEmail: string): OrganizationModel {
   return {
   uid: orgId,
   slug: generateSlug(name),
@@ -77,12 +76,11 @@ export function createDefaultOrganization( orgId: string, name: string, owner: {
       role: 'org_admin' // creador guardamos su información
     }
   ],
-  email: "",
+  email: contactEmail,
   contacts: {
-    email: owner.email,
+    email: contactEmail,
     phone:"",
     website: "",
-    instagram: "",
     },
     createdAt: new Date(),    //marcar el tiempo actual
     updatedAt: new Date()

@@ -134,9 +134,15 @@
             @if (isOrgMode()) {
               <p class="about-paragraph">{{ profileData()?.description }}</p>
             } @else {
-              <div class="review-item">
-                <p class="review-text">"Excelente desempeño en las jornadas de voluntariado, muy proactivo."</p>
-                <span class="review-author">- Coordinación de Impacto</span>
+              <div class="reviews-container">
+                @for (review of profileData()?.reviews; track review) {
+                  <div class="review-item">
+                    <p class="review-text">"{{ review }}"</p>
+                    <span class="review-author">- Validación de ONG</span>
+                  </div>
+                } @empty {
+                  <p class="empty-text">No hay reseñas registradas todavía.</p>
+                }
               </div>
             }
           </div>
@@ -147,9 +153,39 @@
               <i class="hn hn-chart-bar"></i>
               <span>Estadísticas de Impacto</span>
             </h4>
-            <div class="empty-stats-placeholder">
-              <p>Las métricas operativas y gráficas de rendimiento se activarán próximamente.</p>
-            </div>
+            @if (isOrgMode()) {
+              <div class="empty-stats-placeholder">
+                <p>Las métricas operativas de la organización se activarán próximamente.</p>
+              </div>
+            } @else {
+              <div class="stats-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; text-align: center; margin-top: 15px;">
+                
+                <!-- XP -->
+                <div class="stat-item" style="background: rgba(255,255,255,0.03); padding: 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);">
+                  <span style="display: block; font-size: 22px; font-weight: bold; color: var(--ion-color-primary, #3880ff);">
+                    {{ profileData()?.xp || 0 }}
+                  </span>
+                  <span style="font-size: 11px; color: #aaa5bb; text-transform: uppercase; letter-spacing: 0.5px;">XP</span>
+                </div>
+
+                <!-- Reputación -->
+                <div class="stat-item" style="background: rgba(255,255,255,0.03); padding: 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);">
+                  <span style="display: block; font-size: 22px; font-weight: bold; color: #2dd36f;">
+                    {{ profileData()?.reputation || 0 }}
+                  </span>
+                  <span style="font-size: 11px; color: #aaa5bb; text-transform: uppercase; letter-spacing: 0.5px;">Reputación</span>
+                </div>
+
+                <!-- Fiabilidad -->
+                <div class="stat-item" style="background: rgba(255,255,255,0.03); padding: 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);">
+                  <span style="display: block; font-size: 22px; font-weight: bold; color: #ffc409;">
+                    {{ profileData()?.reliability ?? 100 }}%
+                  </span>
+                  <span style="font-size: 11px; color: #aaa5bb; text-transform: uppercase; letter-spacing: 0.5px;">Fiabilidad</span>
+                </div>
+
+              </div>
+            }
           </div>
 
         </ion-col>

@@ -29,6 +29,10 @@ export interface ProfileState {
   badges: string[];
   tasks: TaskSummary[];
   extraContent: string[];
+  reviews?: string[];
+  xp?: number;        
+  reputation?: number;
+  reliability?: number; 
 }
 
 //---
@@ -43,56 +47,53 @@ export interface ProfileState {
 
 export class ProfileDashboardPageComponent {
 
-  private route = inject(ActivatedRoute);
-  private router = inject(Router); 
-  private orgService = inject(OrganizationService);
-  private userService = inject(UserService);
-  private taskService = inject(TaskService);
-  private orchestrator = inject(OrchestratorService); // <--- Inyectado
-  private auth = inject(AuthService);
-  private modalCtrl = inject(ModalController);
-  private alertCtrl = inject(AlertController); // <--- Para confirmación de borrado
+  private  route = inject(ActivatedRoute);
+  private  router = inject(Router); 
+  private  orgService = inject(OrganizationService);
+  private  userService = inject(UserService);
+  private  taskService = inject(TaskService);
+  private  orchestrator = inject(OrchestratorService); // <--- Inyectado
+  private  auth = inject(AuthService);
+  private  modalCtrl = inject(ModalController);
+  private  alertCtrl = inject(AlertController); // <--- Para confirmación de borrado
 
   //gestión de refresh de pantalla por cambios
-  private refreshTrigger$ = new BehaviorSubject<void>(undefined);
+  private  refreshTrigger$ = new BehaviorSubject<void>(undefined);
 
   isOrgMode = computed(() => this.profileType() === 'org');
 
-  profileType = toSignal(
+  readonly  profileType = toSignal(
     this.route.url.pipe(map(segments => segments.some(s => s.path === 'user') ? 'user' : 'org')),
     { initialValue: 'user' as 'user' | 'org' }
   );
 
-  tasksTitle = computed(() => {
+   readonly tasksTitle = computed(() => {
     return this.isOrgMode() ? 'Tareas bajo Gestión / Solicitadas' : 'Mis Tareas en Progreso';
   });
 
-  aboutTitle = computed(() => {
+  readonly  aboutTitle = computed(() => {
     return this.isOrgMode() ? 'Sobre la Empresa' : 'Reseñas de mis Tareas';
   });
 
   //flujo de perfil mostrado
-  private profileStream$ = combineLatest([this.route.paramMap, this.refreshTrigger$]).pipe(
+  private  profileStream$ = combineLatest([this.route.paramMap, this.refreshTrigger$]).pipe(
     switchMap(([params]) => { 
       const paramValue = params.get('username') || params.get('slug');
       if (!paramValue) return of(null);
-
+      //modo organización
       if (this.isOrgMode()) {
         return this.orgService.getBySlug$(paramValue).pipe(
           switchMap(org => {
             if (!org) return of(null);
 
             // Consulta dinámica de tareas creadas por la ONG en Firestore
-            const queryScope: TaskQueryScope = { 
-              type: 'org', 
-              orgId: org.uid 
-            };
+            const queryScope: TaskQueryScope = {type: 'org',  orgId: org.uid };
 
             return this.taskService.getTasks$(queryScope).pipe(
               distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)),
               map(tasks => this.mapOrgToProfile(org, tasks.map(t => toTaskSummary(t)))),
               catchError(err => {
-                console.error('[ProfileDashboard] Error al cargar tareas de la organización:', err);
+                console.error('Error al cargar tareas de la organización:', err);
                 return of(this.mapOrgToProfile(org, org.recentTasks || []));
               })
             );
@@ -107,24 +108,27 @@ export class ProfileDashboardPageComponent {
           switchMap(user => {
             if (!user) return of(null);
 
-            const queryScope: TaskQueryScope = { 
-              type: 'user', 
-              volunteerId: user.uid, 
-              status: 'En Curso' 
-            };
-            
-            return this.taskService.getTasks$(queryScope).pipe(
-              distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)),
-              map(tasks => this.mapUserToProfile(user, tasks.map(t => toTaskSummary(t)))),
-              catchError(err => {
-                console.error('[ProfileDashboard] Error al cargar tareas del usuario:', err);
-                return of(this.mapUserToProfile(user, []));
+            // Consulta combinada y reactiva para tareas en curso y tareas completadas (reseñas)
+            const inProgressScope: TaskQueryScope = { type: 'user', volunteerId: user.uid, status: 'En Curso' };
+            const completedScope: TaskQueryScope = { type: 'user', volunteerId: user.uid, status: 'Completada' };
+
+            return combineLatest([ this.taskService.getTasks$(inProgressScope), this.taskService.getTasks$(completedScope)]).pipe(
+              distinctUntilChanged(([prevIn, prevComp], [currIn, currComp]) => 
+                JSON.stringify(prevIn) === JSON.stringify(currIn) && JSON.stringify(prevComp) === JSON.stringify(currComp)
+              ),
+              map(([inProgressTasks, completedTasks]) => {
+                // Extraemos las notas de feedback de las tareas completadas que tengan reseña
+                const reviews = completedTasks
+                  .filter(t => t.feedbackNote && t.feedbackNote.trim() !== '')
+                  .map(t => t.feedbackNote!);
+
+                return this.mapUserToProfile(user, inProgressTasks.map(t => toTaskSummary(t)), reviews);
+              }),
+      catchError(err => {
+        console.error('[ProfileDashboard] Error al cargar datos del usuario:', err);
+                return of(this.mapUserToProfile(user, [], []));
               })
             );
-          }),
-          catchError(err => {
-            console.error('Error al cargar el usuario:', err);
-            return of(null);
           })
         );
       }
@@ -132,10 +136,10 @@ export class ProfileDashboardPageComponent {
   );
 
   //signal de dicho perfil
-  profileData = toSignal(this.profileStream$, { initialValue: null });
+   profileData = toSignal(this.profileStream$, { initialValue: null });
 
   //revisa si el perfil visible es editable
-  isEditable = computed(() => {
+   isEditable = computed(() => {
     const loggedUser = this.auth.currentUser();
     const profile = this.profileData();
 
@@ -155,14 +159,7 @@ export class ProfileDashboardPageComponent {
     const currentProfile = this.profileData();
     if (!currentProfile) return;
 
-    const modal = await this.modalCtrl.create({
-      component: EditProfileModalComponent,
-      cssClass: 'custom-edit-modal',
-      componentProps: {
-        profileData: currentProfile,
-        isOrgMode: this.isOrgMode()
-      }
-    });
+    const modal = await this.modalCtrl.create({component: EditProfileModalComponent,   cssClass: 'custom-edit-modal',   componentProps: {  profileData: currentProfile, isOrgMode: this.isOrgMode() } });
 
     await modal.present();
 
@@ -202,19 +199,23 @@ export class ProfileDashboardPageComponent {
 
   //mapeos de profileState
 
-  private mapUserToProfile(user: UserModel, tasks: TaskSummary[] = []): ProfileState {
-    return {
-      uid: user.uid,
-      displayName: user.displayName || user.username,
-      logoURL: user.photoURL,
-      username: user.username,
-      description: user.bio || 'Sin descripción personal introducida.',
-      email: user.email,
-      badges: user.badges || [`Fiabilidad: ${user.reliability ?? 100}%`, `Reputación: ${user.reputation || 0}`],
-      tasks: tasks,
-      extraContent: user.interests || []
-    };
-  }
+ private mapUserToProfile(user: UserModel, tasks: TaskSummary[] = [], reviews: string[] = []): ProfileState {
+  return {
+    uid: user.uid,
+    displayName: user.displayName || user.username,
+    logoURL: user.photoURL,
+    username: user.username,
+    description: user.bio || 'Sin descripción personal introducida.',
+    email: user.email,
+    badges: user.badges || [`Fiabilidad: ${user.reliability ?? 100}%`, `Reputación: ${user.reputation || 0}`],
+    tasks: tasks,
+    reviews: reviews.length > 0 ? reviews : ['No hay reseñas registradas todavía.'],
+    extraContent: user.interests || [],
+    xp: user.xp ?? 0,                     
+    reputation: user.reputation ?? 0,     
+    reliability: user.reliability ?? 100 // por defecto en todo el mundo empieza al 100% !
+  };
+}
 
   private mapOrgToProfile(org: OrganizationModel, tasks: TaskSummary[] = []): ProfileState {
     return {

@@ -24,7 +24,7 @@ export class EditProfileModalComponent implements OnInit {
   @Input() isOrgMode: boolean = false;
 
   // Estado del formulario con Signals
-  isSaving = signal<boolean>(false);
+  readonly isSaving = signal<boolean>(false);
   displayName = '';
   description = '';
 
@@ -61,13 +61,12 @@ export class EditProfileModalComponent implements OnInit {
         });
       }
 
-      await this.showToast('Perfil actualizado con éxito', 'success');
-      this.modalCtrl.dismiss(true, 'confirm');
+        await this.showToast('Perfil actualizado con éxito', 'success');
+        this.modalCtrl.dismiss(true, 'confirm');
     } catch (error) {
-      console.error('[EditProfileModal] Error al actualizar perfil:', error);
-      await this.showToast('Error al guardar los cambios', 'danger');
+        await this.showToast('Error al guardar los cambios', 'danger');
     } finally {
-      this.isSaving.set(false);
+        this.isSaving.set(false);
     }
   }
 
