@@ -30,6 +30,7 @@ export class LoginComponent {
   async loginWithGoogle() {
     const userProfile = await this.auth.loginWithGoogle();
     if (userProfile?.username) {
+      (document.activeElement as HTMLElement)?.blur();
       await this.router.navigate(['/user', userProfile.username]);
     }
   }

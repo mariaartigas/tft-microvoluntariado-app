@@ -4,7 +4,6 @@
       <ion-grid class="ion-no-padding">
         <ion-row>
 
-          <!-- ================= COLUMNA IZQUIERDA ================= -->
           <ion-col size="12" size-md="4" class="column-spacing">
             
             <!-- IDENTIDAD DE PERFIL -->
@@ -113,8 +112,16 @@
             <!-- TAREAS Y COLABORACIONES -->
             <ion-card class="cozy-card dashboard-card sage-card ion-margin-top-large">
               <div class="card-sticker sticker-bookmark gold sticker-tilt-right" aria-hidden="true"></div>
-              <ion-card-header>
-                <ion-card-title class="card-headline">{{ tasksTitle() }}</ion-card-title>
+              <ion-card-header class="tasks-card-header">
+    <ion-card-title class="card-headline">{{ tasksTitle() }}</ion-card-title>
+                <ion-button 
+                  fill="clear" 
+                  size="small" 
+                  color="light"
+                  [routerLink]="isOrgMode() ? ['/organization', profile.slug, 'tasks'] : ['/user', profile.username, 'tasks']">
+                  Ver todas
+                  <i class="hn hn-arrow-right ion-margin-start" aria-hidden="true"></i>
+                </ion-button>
               </ion-card-header>
               <ion-card-content>
                 <div class="active-tasks-scroll-box">
@@ -146,9 +153,6 @@
                     <div class="reviews-section ion-margin-top" *ngIf="profile.reviews && profile.reviews.length > 0">
                       <h4 class="sub-headline">Reseñas / Comentarios</h4>
                       <ion-item lines="none" class="transparent-list-item" *ngFor="let review of profile.reviews">
-                        <ion-avatar slot="start" class="mini-avatar">
-                          <img src="assets/default-avatar.png" alt="Avatar" />
-                        </ion-avatar>
                         <ion-label>
                           <p class="review-text">{{ review }}</p>
                         </ion-label>

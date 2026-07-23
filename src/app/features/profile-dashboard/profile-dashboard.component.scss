@@ -8,7 +8,7 @@
   }
 }
 
-/* ================= USER PROFILE BLOCKS ================= */
+
 .profile-sidebar {
   padding-top: 20px;
   
@@ -61,8 +61,6 @@
     display: inline-block;
   }
 }
-
-/* ================= UNIFIED BADGES / ACHIEVEMENTS ================= */
 .achievements-container {
   display: flex; 
   gap: 15px; 
@@ -106,7 +104,6 @@
   }
 }
 
-/* ================= TASKS LISTS AND GRIDS ================= */
 .active-tasks-scroll-box { 
   max-height: 220px; 
   overflow-y: auto; 
@@ -157,7 +154,48 @@
   }
 }
 
-/* ================= STATS & ANALYTICS ================= */
+.tasks-card-header {
+  display: flex !important;
+  flex-direction: row !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  padding-right: 48px !important; /* Espacio para no solapar con el sticker dorado */
+
+  .card-headline {
+    margin: 0;
+    text-align: left;
+    font-size: 1.1rem;
+    color: #FFFFFF;
+  }
+
+  .see-all-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: #FFFFFF;
+    text-decoration: none;
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 6px 14px;
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.18); /* Píldora suave translúcida */
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    white-space: nowrap;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.3);
+      transform: translateX(2px);
+    }
+
+    i {
+      font-size: 0.85rem;
+    }
+  }
+}
+
 .stats-container {
   display: flex; 
   flex-direction: column; 
@@ -186,7 +224,7 @@
   }
 }
 
-/* ================= LISTS (Reviews) ================= */
+
 .transparent-list-item {
   --background: transparent !important; 
   --padding-start: 0; 
@@ -248,7 +286,7 @@
   }
 }
 
-/* ================= UTILITIES ================= */
+
 .ion-margin-top-large { 
   margin-top: 35px !important; 
 }

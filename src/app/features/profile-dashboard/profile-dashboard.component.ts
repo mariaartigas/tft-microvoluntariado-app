@@ -226,6 +226,7 @@ export class ProfileDashboardPageComponent {
       displayName: org.displayName,
       logoURL: org.logoURL,
       slug: org.slug,
+      xp: org.xp ?? 0,    
       description: org.description || 'Sin descripción corporativa disponible.',
       email: org.email,
       badges: ['Organización Verificada'],

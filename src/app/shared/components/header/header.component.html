@@ -19,16 +19,22 @@
 
     <!-- Accesos rápidos e iconos de usuario -->
     <div class="right-icon-dock" slot="end">
-      <button class="icon-circle-btn bg-white" routerLink="/notifications" aria-label="Notifications">
-        <i class="hn hn-bell-solid"></i>
-      </button>
-      <button class="icon-circle-btn bg-sage" routerLink="/profile-dashboard" aria-label="My Profile">
+      <button 
+        class="icon-circle-btn bg-sage" 
+        [routerLink]="profileRoute()" 
+        aria-label="Mi Perfil">
         <i class="hn hn-user-solid"></i>
       </button>
-      <button class="icon-circle-btn bg-terracotta" routerLink="/login" aria-label="Login">
-        <i class="hn hn-login"></i>
-      </button>
-    </div>
+
+          @if (authService.isAuthenticated()) {
+            <button 
+              class="icon-circle-btn bg-terracotta" 
+              (click)="authService.logout()" 
+              aria-label="Cerrar sesión">
+              <i class="hn hn-login"></i>
+            </button>
+          }
+        </div>
 
   </ion-toolbar>
   

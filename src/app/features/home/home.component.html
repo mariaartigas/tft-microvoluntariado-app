@@ -1,34 +1,40 @@
-<app-header title="INICIO"></app-header>
 
-<ion-content class="ion-padding">
 
-  @if (currentUser(); as user) {
-    <div class="user-welcome-container">
-      <ion-avatar>
-        @if (user.photoURL) {
-          <img [src]="user.photoURL" 
-              referrerpolicy="no-referrer"
-              (error)="onImageError($event)" 
-              alt="User avatar" />
-        } @else {
-          <div class="avatar-fallback">
-            {{ getInitials(user.displayName) }}
-          </div>
-        }
-      </ion-avatar>
+<ion-content class="cozy-star-grid ion-padding-horizontal">
+  <div class="css-masonry-container">
 
-      <h2>¡Hola, {{ user.displayName || 'Usuario' }}!</h2>
-      <p>{{ user.email }}</p>
-
-      @if (userProfile(); as profile) {
-        <div class="profile-badge">
-          <p>Rol: <strong>{{ profile.role === 'volunteer' ? 'Voluntario' : 'Organización' }}</strong></p>
-          <p>Puntos de XP: <strong>{{ profile.xp || 0 }} ⭐</strong></p>
+    <!-- bucle para renderizar cada tarjeta del feed en formato masonry -->
+    <div *ngFor="let item of feedItems; let i = index" 
+         class="masonry-item" 
+         [style.animation-delay]="i * 0.1 + 's'"> 
+      
+      <div class="card-wrapper" (click)="goToNews(item)">
+        
+        <!-- pegatina decorativa flotante sobre la tarjeta -->
+        <div class="card-sticker" *ngIf="item.sticker" [ngClass]="[item.stickerColor, item.tiltClass]">
+          <i [ngClass]="item.sticker"></i>
         </div>
-      }
+          
+        <!-- contenedor principal de la tarjeta -->
+        <ion-card class="cozy-card dashboard-card" [ngClass]="[item.bgClass]">
+          <img *ngIf="item.image" [src]="item.image" class="card-cover-image" alt="Card Cover Image" />
+          <ion-card-header>
+            <ion-card-title class="card-headline">{{ item.title }}</ion-card-title>
+          </ion-card-header>
+          
+          <ion-card-content class="card-body">
+            <p>{{ item.description }}</p>
+            <div class="fake-search-input" *ngIf="item.hasInput">
+              <span class="input-placeholder-text">{{ item.inputPlaceholder }}</span>
+              <i class="hn hn-arrow-right input-icon-right" aria-hidden="true"></i>
+            </div>
+          </ion-card-content>
+        </ion-card>
+        
+      </div>
     </div>
-  }
-
+  </div>
+  <div class="footers-wrapper ion-margin-top">
+    <app-footer></app-footer>
+  </div>
 </ion-content>
-
-<app-footer></app-footer>

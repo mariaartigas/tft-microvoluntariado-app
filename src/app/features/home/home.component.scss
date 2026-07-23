@@ -1,0 +1,120 @@
+@import '@hackernoon/pixel-icon-library/fonts/iconfont.css';
+.css-masonry-container {
+  width: 80%;
+  max-width: 1400px;
+  margin: 20px auto 60px auto; 
+  column-count: 3;
+  column-gap: 24px;
+}
+
+.masonry-item {
+  break-inside: avoid;
+  page-break-inside: avoid;
+  -webkit-column-break-inside: avoid;
+  display: inline-block; 
+  width: 100%;
+  margin-bottom: 24px; 
+  opacity: 0;
+  animation: fadeInUp 0.6s ease-out forwards;
+}
+
+@keyframes fadeInUp {
+  0% { 
+    opacity: 0; 
+    transform: translateY(30px); 
+  }
+  100% { 
+    opacity: 1; 
+    transform: translateY(0); 
+  }
+}
+
+.card-wrapper {
+  position: relative;
+  z-index: 1;
+  cursor: pointer; 
+  transition: transform 0.15s ease;
+  
+  &:active {
+    transform: scale(0.97);
+  }
+}
+
+/* tarjetas y estilos internos del tablero */
+.dashboard-card {
+  margin: 0 !important; 
+  display: flex;
+  flex-direction: column;
+
+  .card-cover-image {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    display: block;
+  }
+
+  ion-card-header { 
+    padding: 25px 25px 10px 25px; 
+  }
+
+  ion-card-content { 
+    padding: 0 25px 25px 25px; 
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  .card-body {
+    p { 
+      font-size: 1rem; 
+      line-height: 1.6; 
+      font-weight: 500; 
+      margin-bottom: 20px; 
+    }
+  }
+
+  .fake-search-input { 
+    display: flex; 
+    align-items: center; 
+    justify-content: space-between; 
+    padding: 12px 20px; 
+    border-radius: 30px; 
+    cursor: pointer; 
+    font-weight: 700; 
+    font-size: 0.95rem; 
+    transition: transform 0.2s ease; 
+    margin-top: auto;
+
+    &:hover { 
+      transform: translateX(5px); 
+    }
+  }
+
+  /* temas de color personalizados para las tarjetas */
+  &.terracotta-card, &.sage-card { 
+    .fake-search-input { 
+      background-color: rgba(255, 255, 255, 0.2); 
+      color: #FFF; 
+    } 
+  }
+
+  &.cream-card { 
+    .fake-search-input { 
+      background-color: rgba(74, 63, 53, 0.05); 
+      color: var(--color-espresso); 
+    } 
+  }
+}
+
+/* ajustes de adaptabilidad para pantallas medianas y pequenas */
+@media (max-width: 1024px) {
+  .css-masonry-container { 
+    column-count: 2; 
+  }
+}
+
+@media (max-width: 768px) {
+  .css-masonry-container { 
+    column-count: 1; 
+  }
+}
