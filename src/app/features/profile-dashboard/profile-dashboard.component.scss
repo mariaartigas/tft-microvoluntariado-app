@@ -1,316 +1,263 @@
-@import '@hackernoon/pixel-icon-library/fonts/iconfont.css';
-
-/* Ajuste global para que los iconos pixelados se vean ultra nítidos */
-i.hn {
-  display: inline-block;
-  line-height: 1;
-  image-rendering: pixelated;
-}
-
-.dashboard-wrapper {
-  // 🌌 El fondo ultra oscuro de tu Login Page
-  --background: #100e1a; 
-
-  .dashboard-box {
-    // Login Card Styling
-    background: #1e1c27;
-    border: 1px solid #353141;
-    border-radius: 18px; 
-    padding: 24px;
-    margin-bottom: 20px;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2); 
-    
-    // Títulos principales en blanco puro
-    .box-title, h3, h4 {
-      margin-top: 0;
-      margin-bottom: 16px;
-      font-size: 1.2rem;
-      font-weight: 700;
-      color: #ffffff !important;
-    }
-
-    .box-title {
-  display: flex;
-  align-items: center;
-  gap: 8px; /* Espacio uniforme entre el icono de Pixel y el texto */
-  margin-bottom: 12px;
-
-  i.hn {
-    font-size: 1.2rem;
-    color: var(--ion-color-primary, #6200ee); /* Puedes personalizar el color del icono */
+.cozy-progress {
+  height: 10px; 
+  border-radius: 5px;
+  --background: rgba(74, 63, 53, 0.1);
+  
+  &.progress-sage { 
+    --progress-background: var(--color-sage); 
   }
 }
 
-    // Subtítulos y párrafos con lila/gris
-    p, .contact-item, .status-text, .about-paragraph, .empty-stats-placeholder p, .empty-text {
-      color: #aaa5bb !important;
-      font-size: 0.95rem;
-      line-height: 1.5;
-    }
-  }
-}
-
-// =========================================================
-// IZQUIERDA
-// =========================================================
-
-.identity-box {
-  position: relative !important; 
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding-top: 28px;
-
-  /* Contenedor flotante para los botones de edición y eliminación */
-  .profile-actions-container {
-    position: absolute;
-    top: 12px;
-    right: 12px;
-    z-index: 20;
-    display: flex;
-    gap: 8px;
-  }
-
-  /* Estilos base compartidos para botones de acción */
-  .custom-edit-btn, .custom-delete-btn {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    border-radius: 8px;
-    padding: 6px 12px;
-    font-size: 0.85rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s ease-in-out;
-
-    i.hn {
-      font-size: 1rem;
-    }
-  }
-
-  /* Estilo Editar */
-  .custom-edit-btn {
-    background: rgba(128, 100, 255, 0.15);
-    border: 1px solid #8064ff;
-    color: #8064ff;
-
-    &:hover {
-      background: #8064ff;
-      color: #ffffff;
-    }
-  }
-
-  /* Estilo Eliminar Cuenta (Alerta) */
-  .custom-delete-btn {
-    background: rgba(255, 75, 75, 0.15);
-    border: 1px solid #ff4b4b;
-    color: #ff4b4b;
-
-    &:hover {
-      background: rgb(255, 75, 75);
-      background: #ff4b4b;
-      color: #ffffff;
-    }
-  }
-
+/* ================= USER PROFILE BLOCKS ================= */
+.profile-sidebar {
+  padding-top: 20px;
+  
   .profile-avatar {
+    width: 130px; 
+    height: 130px; 
     margin: 0 auto;
-    width: 90px;
-    height: 90px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
-    background: #17151f; 
-    border: 1px solid #353141;
-
-    .avatar-placeholder {
-      width: 100%;
-      height: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-
-      i.hn {
-        font-size: 2.8rem;
-        color: #8064ff; 
-      }
-    }
-  }
-
-  h3 {
-    font-size: 1.4rem;
-    margin-bottom: 6px;
-  }
-
-  ion-badge {
-    --background: #6d4aff;
-    --color: white;
-    padding: 6px 16px;
-    font-weight: 600;
-    border-radius: 20px;
-  }
-}
-
-.contact-box {
-  .contact-item {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 14px;
+    border: 6px solid #FFFFFF; 
+    box-shadow: 0 8px 24px rgba(74, 63, 53, 0.15); 
+    border-radius: 50%; 
+    transition: transform 0.3s ease;
     
-    i.hn {
-      font-size: 1.25rem;
-      color: #8064ff; 
+    &:hover { 
+      transform: scale(1.05) rotate(2deg); 
     }
   }
-}
-
-.dynamic-left-box {
-  min-height: 280px;
-
-  .feed-post-card {
-    background: #17151f; 
-    padding: 14px;
-    border-radius: 10px;
-    margin-bottom: 12px;
-    border: 1px solid #353141;
-    border-left: 4px solid #6d4aff; 
-    
-    p {
-      color: #ffffff !important; 
-      font-size: 0.9rem;
-    }
+  
+  .role-text { 
+    font-size: 0.95rem; 
+    color: var(--color-sage); 
+    font-weight: 700; 
+    margin: 5px 0 20px 0; 
   }
-
-  .tags-container {
+  
+  .contact-info {
+    margin-top: 20px; 
+    padding-top: 20px; 
+    border-top: 1px dashed rgba(74, 63, 53, 0.15);
     display: flex;
-    flex-wrap: wrap;
+    flex-direction: column;
     gap: 8px;
-
-    ion-chip {
-      --background: #17151f;
-      --color: #aaa5bb;
-      border: 1px solid #4a4459;
-      margin: 0;
-      
-      ion-label { color: #aaa5bb; }
-    }
-  }
-}
-
-// =========================================================
-// DERECHA
-// =========================================================
-
-.badges-box {
-  .badges-flex-row {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-
-    .custom-badge-pill {
-      background: rgba(109, 74, 255, 0.15); 
-      color: #ffffff;
-      border: 1px solid #6d4aff;
-      padding: 6px 14px;
-      border-radius: 20px;
-      font-size: 0.85rem;
-      font-weight: 600;
-    }
-  }
-}
-
-.tasks-box {
-  .box-header-flex {
-    display: flex;
     align-items: center;
-    justify-content: space-between;
-    margin-bottom: 12px;
-
-    .box-title {
-      margin-bottom: 0;
-    }
-
-    .add-task-btn {
-      background: rgba(109, 74, 255, 0.2);
-      border: 1px solid #6d4aff;
-      color: #8064ff;
-      border-radius: 8px;
-      width: 32px;
-      height: 32px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      transition: all 0.2s ease;
-
-      i.hn {
-        font-size: 1.1rem;
-      }
-
-      &:hover {
-        background: #6d4aff;
-        color: #ffffff;
-      }
+    
+    .email-text { 
+      font-size: 0.9rem; 
+      color: rgba(74, 63, 53, 0.6); 
+      margin-top: 5px; 
+      font-weight: 600; 
     }
   }
+  
+  .cozy-badge {
+    background: var(--color-bg); 
+    color: var(--color-espresso); 
+    padding: 6px 14px; 
+    border-radius: 20px;
+    font-size: 0.85rem; 
+    font-weight: 700; 
+    border: 1px solid rgba(74, 63, 53, 0.1);
+    display: inline-block;
+  }
+}
 
-  .task-row-item {
-    display: flex;
+/* ================= UNIFIED BADGES / ACHIEVEMENTS ================= */
+.achievements-container {
+  display: flex; 
+  gap: 15px; 
+  flex-wrap: wrap;
+  
+  .medal-wrapper {
+    min-width: 65px;
+    padding: 8px 12px;
+    height: 65px; 
+    border-radius: 18px; 
+    display: flex; 
+    flex-direction: column; 
+    align-items: center; 
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(74, 63, 53, 0.12); 
+    border: 3px solid rgba(255, 255, 255, 0.8); 
+    transition: transform 0.2s ease; 
+    cursor: pointer;
+    
+    &:hover { 
+      transform: translateY(-4px) scale(1.08); 
+    }
+    
+    .pixel-medal-icon { 
+      font-size: 1.4rem; 
+      color: #FFFFFF; 
+    }
+    
+    .medal-label { 
+      font-size: 0.65rem; 
+      font-weight: 800; 
+      color: #FFFFFF; 
+      margin-top: 2px; 
+      text-align: center;
+      white-space: nowrap;
+    }
+    
+    &.sage-bg { 
+      background-color: var(--color-sage); 
+    }
+  }
+}
+
+/* ================= TASKS LISTS AND GRIDS ================= */
+.active-tasks-scroll-box { 
+  max-height: 220px; 
+  overflow-y: auto; 
+  padding-right: 5px; 
+}
+
+.company-task-item {
+  background: rgba(255, 255, 255, 0.14); 
+  border: 1px solid rgba(255, 255, 255, 0.22); 
+  border-radius: 16px; 
+  padding: 16px; 
+  margin: 6px;
+  display: flex; 
+  flex-direction: column; 
+  justify-content: space-between; 
+  min-height: 110px; 
+  transition: all 0.2s ease;
+  
+  &.clickable { 
+    cursor: pointer; 
+    
+    &:hover { 
+      background: rgba(255, 255, 255, 0.25); 
+      transform: translateY(-2px); 
+    } 
+  }
+  
+  .task-title { 
+    font-size: 0.98rem; 
+    font-weight: 800; 
+    color: #FFFFFF; 
+    margin: 0 0 14px 0; 
+  }
+  
+  .task-footer { 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+  }
+  
+  .price-tag { 
+    font-size: 0.8rem; 
+    font-weight: 850; 
+    padding: 4px 10px; 
+    border-radius: 10px; 
+    background-color: var(--color-gold); 
+    color: var(--color-espresso); 
+  }
+}
+
+/* ================= STATS & ANALYTICS ================= */
+.stats-container {
+  display: flex; 
+  flex-direction: column; 
+  gap: 14px;
+  
+  .stat-item {
+    background: var(--color-bg); 
+    border: 1px dashed rgba(74, 63, 53, 0.15); 
+    padding: 12px 18px; 
+    border-radius: 14px;
+    display: flex; 
+    justify-content: space-between; 
     align-items: center;
-    gap: 12px;
-    background: #17151f; 
-    padding: 16px;
-    border-radius: 12px;
-    margin-bottom: 10px;
-    border: 1px solid #353141;
     
-    i.task-icon {
-      font-size: 1.4rem;
-      color: #6d4aff; 
+    .stat-value { 
+      font-size: 1.15rem; 
+      font-weight: 850; 
+      color: var(--color-terracotta); 
     }
     
-    h2 {
-      font-size: 1.05rem;
-      margin: 0;
-      font-weight: 600;
-      color: #ffffff;
-    }
-    
-    .status-text {
-      margin: 4px 0 0 0;
-      font-size: 0.8rem;
-      color: #aaa5bb !important;
+    .stat-label { 
+      font-size: 0.9rem; 
+      font-weight: 700; 
+      color: rgba(74, 63, 53, 0.7); 
     }
   }
 }
 
-.about-reviews-box {
-  .review-item {
-    background: #17151f;
-    border-radius: 12px;
-    padding: 16px;
-    border: 1px solid #353141;
-    font-style: italic;
-    
-    .review-text { color: #ffffff !important; }
-    .review-author { font-size: 0.85rem; color: #8064ff !important; font-style: normal; font-weight: 600; }
+/* ================= LISTS (Reviews) ================= */
+.transparent-list-item {
+  --background: transparent !important; 
+  --padding-start: 0; 
+  --inner-padding-end: 0; 
+  align-items: flex-start;
+  
+  .mini-avatar { 
+    width: 40px; 
+    height: 40px; 
+    border: 2px solid white; 
+    margin-top: 5px; 
+  }
+  
+  .review-text { 
+    font-size: 0.9rem; 
+    line-height: 1.4; 
+    font-style: italic; 
+    color: rgba(74, 63, 53, 0.8); 
+    white-space: normal; 
   }
 }
 
-.stats-box {
-  .empty-stats-placeholder {
+.sub-headline {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: var(--color-espresso);
+  margin-bottom: 10px;
+}
+.profile-avatar {
+  width: 130px; 
+  height: 130px; 
+  margin: 0 auto;
+  border: 6px solid #FFFFFF; 
+  box-shadow: 0 8px 24px rgba(74, 63, 53, 0.15); 
+  border-radius: 50%; 
+  transition: transform 0.3s ease;
+  background-color: var(--color-sage); /* Círculo verde por defecto */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  
+  &:hover { 
+    transform: scale(1.05) rotate(2deg); 
+  }
+  
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .avatar-fallback {
+    color: #FFFFFF;
+    font-size: 2.5rem;
     display: flex;
     align-items: center;
     justify-content: center;
-    min-height: 140px;
-    border: 2px dashed #4a4459; 
-    border-radius: 12px;
-    padding: 20px;
-    background: rgba(23, 21, 31, 0.4); 
-    
-    p {
-      margin: 0;
-      text-align: center;
-      color: #aaa5bb !important;
-    }
+  }
+}
+
+/* ================= UTILITIES ================= */
+.ion-margin-top-large { 
+  margin-top: 35px !important; 
+}
+
+@media (max-width: 767px) {
+  .ion-margin-top-so-mobile { 
+    margin-top: 25px !important; 
+  }
+  .ion-margin-top-large { 
+    margin-top: 25px !important; 
   }
 }

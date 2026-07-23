@@ -1,201 +1,179 @@
-<ion-content class="ion-padding dashboard-wrapper">
-  @if (profileData()) {
-    <ion-grid fixed>
-      <ion-row>
-        
-        <!-- COLUMNA IZQUIERDA -->
-        <ion-col size="12" size-md="4">
-          
-          <!-- Identidad visual Básica -->
-          <div class="dashboard-box identity-box ion-text-center">
-            @if (isEditable()) {
-              <div class="profile-actions-container ion-margin-bottom">
-                <button type="button" (click)="openEditModal()" class="custom-edit-btn">
-                  <i class="hn hn-edit"></i>
-                  <span>Editar</span>
-                </button>
-                <button type="button" (click)="confirmDeleteAccount()" class="custom-delete-btn">
-                  <i class="hn hn-trash"></i>
-                  <span>Eliminar Cuenta</span>
-                </button>
-              </div>
-            }
+<ion-content class="cozy-star-grid" *ngIf="profileData() as profile">
+  <div class="cozy-wrapper">
+    <div class="dashboard-grid-container">
+      <ion-grid class="ion-no-padding">
+        <ion-row>
 
-            <ion-avatar class="profile-avatar">
-              @if (profileData()?.logoURL) {
-                <img [src]="profileData()?.logoURL" alt="Profile Picture" />
-              } @else {
-                <div class="avatar-placeholder">
-                  <i class="hn" [ngClass]="isOrgMode() ? 'hn-building' : 'hn-user'"></i>
-                </div>
-              }
-            </ion-avatar>
-
-            <h3 class="font-bold ion-margin-top">{{ profileData()?.displayName }}</h3>
-            <ion-badge mode="ios" class="ion-margin-top">
-              {{ isOrgMode() ? 'Organización' : 'Voluntario' }}
-            </ion-badge>
-          </div>
-
-          <!-- Información de Contacto -->
-          @if (isOrgMode()) {
-            <div class="dashboard-box contact-box">
-              <h4 class="box-title">
-                <i class="hn hn-mail"></i>
-                <span>Contacto Institucional</span>
-              </h4>
-              <p class="contact-item">
-                <i class="hn hn-envelope"></i>
-                <span>{{ profileData()?.email }}</span>
-              </p>
-            </div>
-          }
-
-          <!-- Feed de Publicaciones / Listado de Intereses -->
-          <div class="dashboard-box dynamic-left-box">
-            <h4 class="box-title">
-              <i class="hn" [ngClass]="isOrgMode() ? 'hn-megaphone' : 'hn-target'"></i>
-              <span>{{ isOrgMode() ? 'Noticias & Publicaciones' : 'Sobre mí' }}</span>
-            </h4>
+          <!-- ================= COLUMNA IZQUIERDA ================= -->
+          <ion-col size="12" size-md="4" class="column-spacing">
             
-            @if (isOrgMode()) {
-              <div class="feed-container">
-                @for (post of profileData()?.extraContent; track post) {
-                  <div class="feed-post-card">
-                    <p>{{ post }}</p>
-                  </div>
-                } @empty {
-                  <p class="empty-text">No hay publicaciones recientes.</p>
-                }
-              </div>
-            } @else {
-              <div class="tags-container">
-                <p class="about-paragraph">{{ profileData()?.description }}</p>
-              </div>
-            }
-          </div>
-
-        </ion-col>
-
-        <!-- COLUMNA DERECHA -->
-        <ion-col size="12" size-md="8">
-          
-          <!-- Badges / Medallas -->
-          <div class="dashboard-box badges-box">
-            <h4 class="box-title">
-              <i class="hn hn-trophy"></i>
-              <span>Logros & Reconocimientos</span>
-            </h4>
-            <div class="badges-flex-row">
-              @for (badge of profileData()?.badges; track badge) {
-                <span class="custom-badge-pill">{{ badge }}</span>
-              }
-            </div>
-          </div>
-
-          <!-- Tareas Dinámicas -->
-          <div class="dashboard-box tasks-box">
-            <div class="box-header-flex">
-              <h4 class="box-title">
-                <i class="hn" [ngClass]="isOrgMode() ? 'hn-briefcase' : 'hn-history'"></i>
-                <span>{{ tasksTitle() }}</span>
-              </h4>
-
-              @if (isOrgMode()) { 
-                <ion-button [routerLink]="['/organization', profileData()?.slug, 'tasks']" fill="clear">
-                  <i class="hn hn-list ion-margin-end"></i>
-                  <span>Ver tareas</span>
-                </ion-button>
-              } @else {
-                <ion-button [routerLink]="['/user', profileData()?.username, 'tasks']" expand="block" fill="outline">
-                  VER TAREAS
-                </ion-button>
-              }
-            </div>
-
-            <div class="tasks-list-wrapper">
-              @for (task of profileData()?.tasks; track task.taskId) {
-                <div class="task-card">
-                  {{ task.title }}
-                </div>
-              } @empty {
-                <p class="empty-text">No hay actividades registradas en este perfil.</p>
-              }
-            </div>
-          </div>
-
-          <!-- About Section / Muro de Reseñas -->
-          <div class="dashboard-box about-reviews-box">
-            <h4 class="box-title">
-              <i class="hn" [ngClass]="isOrgMode() ? 'hn-info-circle' : 'hn-star'"></i>
-              <span>{{ aboutTitle() }}</span>
-            </h4>
-            
-            @if (isOrgMode()) {
-              <p class="about-paragraph">{{ profileData()?.description }}</p>
-            } @else {
-              <div class="reviews-container">
-                @for (review of profileData()?.reviews; track review) {
-                  <div class="review-item">
-                    <p class="review-text">"{{ review }}"</p>
-                    <span class="review-author">- Validación de ONG</span>
-                  </div>
-                } @empty {
-                  <p class="empty-text">No hay reseñas registradas todavía.</p>
-                }
-              </div>
-            }
-          </div>
-
-          <!-- Área Estática Vacía -->
-          <div class="dashboard-box stats-box">
-            <h4 class="box-title">
-              <i class="hn hn-chart-bar"></i>
-              <span>Estadísticas de Impacto</span>
-            </h4>
-            @if (isOrgMode()) {
-              <div class="empty-stats-placeholder">
-                <p>Las métricas operativas de la organización se activarán próximamente.</p>
-              </div>
-            } @else {
-              <div class="stats-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; text-align: center; margin-top: 15px;">
+            <!-- IDENTIDAD DE PERFIL -->
+            <ion-card class="cozy-card dashboard-card cream-card profile-sidebar">
+              <div class="card-sticker sticker-bookmark sage sticker-tilt-left" aria-hidden="true"></div>
+              <ion-card-content class="ion-text-center">
                 
-                <!-- XP -->
-                <div class="stat-item" style="background: rgba(255,255,255,0.03); padding: 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);">
-                  <span style="display: block; font-size: 22px; font-weight: bold; color: var(--ion-color-primary, #3880ff);">
-                    {{ profileData()?.xp || 0 }}
-                  </span>
-                  <span style="font-size: 11px; color: #aaa5bb; text-transform: uppercase; letter-spacing: 0.5px;">XP</span>
+                <ion-button *ngIf="isEditable()" fill="outline" size="small" shape="round" class="ion-margin-bottom" (click)="openEditModal()">
+                  <i class="hn hn-edit-solid" slot="start" aria-hidden="true"></i> 
+                  Editar Perfil
+                </ion-button>
+
+                <ion-avatar class="profile-avatar">
+                 @if (profile.logoURL) {
+                    <img [src]="profile.logoURL" alt="Avatar" />
+                  } @if (profile.photoURL) {
+                    <img [src]="profile.photoURL" alt="Avatar" />
+                  } 
+                  @else {
+                    <div class="avatar-fallback">
+                      <i class="hn hn-user" aria-hidden="true"></i>
+                    </div>
+                  }
+                </ion-avatar>
+
+                <h2 class="ion-margin-top card-headline">{{ profile.displayName }}</h2>
+                <p class="role-text">{{ isOrgMode() ? 'Organización' : 'Voluntario' }}</p>
+                
+                <div class="contact-info">
+                  <span class="cozy-badge" *ngIf="!isOrgMode() && profile.username">&#64;{{ profile.username }}</span>
+                  <span class="cozy-badge" *ngIf="isOrgMode() && profile.slug">&#64;{{ profile.slug }}</span>
+                  <p class="email-text" *ngIf="isOrgMode() && profile.email">{{ profile.email }}</p>
                 </div>
 
-                <!-- Reputación -->
-                <div class="stat-item" style="background: rgba(255,255,255,0.03); padding: 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);">
-                  <span style="display: block; font-size: 22px; font-weight: bold; color: #2dd36f;">
-                    {{ profileData()?.reputation || 0 }}
-                  </span>
-                  <span style="font-size: 11px; color: #aaa5bb; text-transform: uppercase; letter-spacing: 0.5px;">Reputación</span>
+              </ion-card-content>
+            </ion-card>
+
+            <!-- NOTICIAS (Si es Org) / MÉTRICAS & ESTADO (Si es Usuario) -->
+            <ion-card class="cozy-card dashboard-card terracotta-card ion-margin-top-large">
+              <div class="card-sticker sticker-bookmark sage sticker-tilt-right" aria-hidden="true"></div>
+              <ion-card-header>
+                <ion-card-title class="card-headline">{{ isOrgMode() ? 'Noticias' : 'Nivel' }}</ion-card-title>
+              </ion-card-header>
+              <ion-card-content class="card-body">
+                <div class="stats-container">
+                  @if (isOrgMode()) {
+                    <div class="stat-item">
+                      <span class="stat-label">Sin noticias recientes publicadas</span>
+                    </div>
+                  } @else {
+                    <div class="stat-item">
+                      <span class="stat-value">{{ profile.reliability ?? 100 }}%</span> 
+                      <span class="stat-label">Fiabilidad</span>
+                    </div>
+                    <div class="stat-item">
+                      <span class="stat-value">{{ profile.xp ?? 0 }} XP</span> 
+                      <span class="stat-label">Experiencia</span>
+                    </div>
+                    <div class="stat-item">
+                      <span class="stat-value">{{ profile.reputation ?? 0 }}</span> 
+                      <span class="stat-label">Reputación</span>
+                    </div>
+                  }
                 </div>
+              </ion-card-content>
+            </ion-card>
 
-                <!-- Fiabilidad -->
-                <div class="stat-item" style="background: rgba(255,255,255,0.03); padding: 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);">
-                  <span style="display: block; font-size: 22px; font-weight: bold; color: #ffc409;">
-                    {{ profileData()?.reliability ?? 100 }}%
-                  </span>
-                  <span style="font-size: 11px; color: #aaa5bb; text-transform: uppercase; letter-spacing: 0.5px;">Fiabilidad</span>
+            <!-- BOTÓN DE ELIMINAR CUENTA -->
+            <div class="ion-margin-top ion-text-center" *ngIf="isEditable()">
+              <ion-button fill="clear" color="danger" size="small" (click)="confirmDeleteAccount()">
+                <i class="hn hn-trash" slot="start" aria-hidden="true"></i>
+                Eliminar cuenta
+              </ion-button>
+            </div>
+
+          </ion-col>
+
+          <!-- ================= COLUMNA DERECHA ================= -->
+          <ion-col size="12" size-md="8" class="column-spacing pl-md-2 ion-margin-top-so-mobile">
+            
+            <!-- INSIGNIAS (Usuario) / MÉTRICAS DE XP (Organización) -->
+            <ion-card class="cozy-card dashboard-card cream-card">
+              <div class="card-sticker sticker-bookmark terracotta sticker-tilt-left" aria-hidden="true"></div>
+              <ion-card-header>
+                <ion-card-title class="card-headline">{{ isOrgMode() ? 'Métrica de Experiencia' : 'Nivel' }}</ion-card-title>
+              </ion-card-header>
+              <ion-card-content class="card-body">
+                @if (isOrgMode()) {
+                  <div class="stats-container">
+                    <div class="stat-item">
+                      <span class="stat-value">{{ profile.xp ?? 0 }} XP</span>
+                      <span class="stat-label">Experiencia</span>
+                    </div>
+                  </div>
+                } @else {
+                  <div class="achievements-container">
+                    <div *ngFor="let badge of profile.badges" class="medal-wrapper sage-bg">
+                      <i class="hn hn-award pixel-medal-icon" aria-hidden="true"></i>
+                      <span class="medal-label">{{ badge }}</span>
+                    </div>
+                  </div>
+                }
+              </ion-card-content>
+            </ion-card>
+
+            <!-- TAREAS Y COLABORACIONES -->
+            <ion-card class="cozy-card dashboard-card sage-card ion-margin-top-large">
+              <div class="card-sticker sticker-bookmark gold sticker-tilt-right" aria-hidden="true"></div>
+              <ion-card-header>
+                <ion-card-title class="card-headline">{{ tasksTitle() }}</ion-card-title>
+              </ion-card-header>
+              <ion-card-content>
+                <div class="active-tasks-scroll-box">
+                  <ion-row class="tasks-grid ion-no-padding">
+                    <ion-col size="12" size-md="6" *ngFor="let task of profile.tasks">
+                      <div class="company-task-item soft-sage-item clickable">
+                        <h3 class="task-title">{{ task.title }}</h3>
+                        <div class="task-footer">
+                          <span class="price-tag gold-tag">{{ task.status || 'Activa' }}</span>
+                        </div>
+                      </div>
+                    </ion-col>
+                  </ion-row>
                 </div>
+              </ion-card-content>
+            </ion-card>
 
-              </div>
-            }
-          </div>
+            <!-- SECCIÓN INFERIOR DE INFORMACIÓN -->
+            <ion-row class="ion-margin-top-large">
+              <ion-col size="12" size-md="12" class="ion-no-padding">
+                <ion-card class="cozy-card dashboard-card cream-card h-100">
+                  <div class="card-sticker sticker-bookmark terracotta sticker-tilt-left" aria-hidden="true"></div>
+                  <ion-card-header>
+                    <ion-card-title class="card-headline">{{ aboutTitle() }}</ion-card-title>
+                  </ion-card-header>
+                  <ion-card-content class="card-body">
+                    <p class="reading-text">{{ profile.description }}</p>
+                    
+                    <div class="reviews-section ion-margin-top" *ngIf="profile.reviews && profile.reviews.length > 0">
+                      <h4 class="sub-headline">Reseñas / Comentarios</h4>
+                      <ion-item lines="none" class="transparent-list-item" *ngFor="let review of profile.reviews">
+                        <ion-avatar slot="start" class="mini-avatar">
+                          <img src="assets/default-avatar.png" alt="Avatar" />
+                        </ion-avatar>
+                        <ion-label>
+                          <p class="review-text">{{ review }}</p>
+                        </ion-label>
+                      </ion-item>
+                    </div>
 
-        </ion-col>
+                    <div class="extra-content-section ion-margin-top" *ngIf="profile.extraContent && profile.extraContent.length > 0">
+                      <h4 class="sub-headline">Intereses</h4>
+                      <div class="ion-margin-top-small" style="display: flex; flex-wrap: wrap; gap: 8px;">
+                        <span class="cozy-badge" *ngFor="let interest of profile.extraContent">{{ interest }}</span>
+                      </div>
+                    </div>
 
-      </ion-row>
-    </ion-grid>
-  } @else {
-    <div class="loading-state ion-text-center" style="margin-top: 100px;">
-      <ion-spinner name="crescent" color="primary"></ion-spinner>
-      <p style="color: #aaa5bb; margin-top: 15px;">Sincronizando panel reactivo...</p>
+                  </ion-card-content>
+                </ion-card>
+              </ion-col>
+            </ion-row>
+
+          </ion-col>
+        </ion-row>
+      </ion-grid>
     </div>
-  }
+  </div>
+
+  <div class="footers-wrapper ion-margin-top">
+    <app-footer></app-footer>
+  </div>
 </ion-content>

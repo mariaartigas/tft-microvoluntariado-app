@@ -43,7 +43,7 @@
 
         <!-- Email de Contacto de la ONG -->
         <ion-input
-          label="Email de contacto de la ONG*"
+          label="Email de contacto de la ONG* Puede ser diferente a tu cuenta de Google"
           labelPlacement="stacked"
           fill="outline"
           type="email"
@@ -53,7 +53,7 @@
         </ion-input>
         
         @if (registerForm.get('orgEmail')?.touched && registerForm.get('orgEmail')?.invalid) {
-          <span class="error-text">Introduce un correo electrónico válido para la organización. Puede ser diferente a tu cuenta de Google</span>
+          <span class="error-text">Introduce un correo electrónico válido para la organización.</span>
         }
 
         <!-- Botón de Registro -->

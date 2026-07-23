@@ -14,6 +14,7 @@ import { UserModel } from '../../shared/models/user.model';
 import { AuthService } from '../../core/services/auth.service';
 import { EditProfileModalComponent } from './components/edit-profile-modal/edit-profile-modal.component';
 import { TaskSummary, toTaskSummary } from '../../shared/models/task.model';
+import { FooterComponent } from "../../shared/components/footer/footer.component";
 
 //interfaz utilizada para pantalla de USERS y ORGs
 
@@ -21,7 +22,8 @@ export interface ProfileState {
   uid: string;
   displayName: string;
   organizationOwnerId?: string;
-  logoURL: string | null;
+  logoURL?: string;
+  photoURL?: string | null;
   description: string;
   email: string;
   slug?: string;
@@ -42,7 +44,7 @@ export interface ProfileState {
   templateUrl: './profile-dashboard.component.html',
   styleUrls: ['./profile-dashboard.component.scss'],
   standalone: true,
-  imports: [IonicModule, CommonModule, FormsModule, RouterLink]
+  imports: [IonicModule, CommonModule, FormsModule, RouterLink, FooterComponent]
 })
 
 export class ProfileDashboardPageComponent {
@@ -68,11 +70,11 @@ export class ProfileDashboardPageComponent {
   );
 
    readonly tasksTitle = computed(() => {
-    return this.isOrgMode() ? 'Tareas bajo Gestión / Solicitadas' : 'Mis Tareas en Progreso';
+    return this.isOrgMode() ? 'Tareas bajo Gestión / Solicitadas' : 'Mis Tareas';
   });
 
   readonly  aboutTitle = computed(() => {
-    return this.isOrgMode() ? 'Sobre la Empresa' : 'Reseñas de mis Tareas';
+    return this.isOrgMode() ? 'Sobre la Empresa' : 'Sobre mí';
   });
 
   //flujo de perfil mostrado
@@ -203,7 +205,7 @@ export class ProfileDashboardPageComponent {
   return {
     uid: user.uid,
     displayName: user.displayName || user.username,
-    logoURL: user.photoURL,
+    photoURL: user.photoURL,
     username: user.username,
     description: user.bio || 'Sin descripción personal introducida.',
     email: user.email,
