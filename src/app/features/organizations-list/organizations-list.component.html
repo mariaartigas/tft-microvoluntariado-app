@@ -1,0 +1,53 @@
+<ion-content class="cozy-star-grid ion-padding">
+  
+  <div class="task-container">
+    
+    <!-- Spinner de carga inicial -->
+    @if (isLoading()) {
+      <div class="loading-container">
+        <ion-spinner name="crescent"></ion-spinner>
+      </div>
+    } @else {
+
+      <div class="tasks-vertical-list">
+        <h3 class="section-title">Listado de organizaciones</h3>
+
+        @if (organizations().length === 0) {
+          <p class="empty-state">No hay organizaciones disponibles en este momento.</p>
+        } @else {
+          <div class="org-list-items">
+            @for (org of organizations(); track org.uid) {
+              <ion-card class="cozy-card dashboard-card cream-card ion-margin-bottom">
+                <div class="card-sticker sage sticker-tilt-right" aria-hidden="true"></div>
+                <ion-card-content>
+                  
+                  <!-- Nombre con enlace al perfil de la organización -->
+                  <h4 class="card-headline">
+                    <a [routerLink]="['/organization', org.slug]" class="org-profile-link">
+                      {{ org.displayName }}
+                    </a>
+                  </h4>
+
+                  <!-- Descripción de la organización -->
+                  @if (org.description) {
+                    <p class="reading-text ion-margin-top-small">{{ org.description }}</p>
+                  } @else {
+                    <p class="empty-state">La organización no ha proporcionado una descripción.</p>
+                  }
+
+                </ion-card-content>
+              </ion-card>
+            }
+          </div>
+        }
+
+      </div>
+
+    }
+
+  </div>
+<ion-footer class="ion-no-border">
+  <app-footer></app-footer>
+</ion-footer>
+</ion-content>
+

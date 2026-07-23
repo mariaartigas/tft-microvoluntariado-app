@@ -12,7 +12,10 @@
     <div class="pills-navigation-container">
       <div class="pills-pillbox">
         <a routerLink="/home" routerLinkActive="active" class="nav-pill">Home</a>
-        <a routerLink="/tasks-list" routerLinkActive="active" class="nav-pill">Mis Tareas</a>
+        <a routerLink="/organizations" routerLinkActive="active" class="nav-pill">Organizaciones</a>
+        @if (user(); as currentUser) {
+          <a [routerLink]="tasksLink" (click)="$any($event.currentTarget).blur()" routerDirection="root" lines="none" routerLinkActive="active" class="nav-pill">Mis Tareas</a>
+         }
         <a routerLink="/about" routerLinkActive="active" class="nav-pill">Sobre Nosotros</a>
       </div>
     </div>

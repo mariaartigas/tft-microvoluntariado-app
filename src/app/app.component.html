@@ -1,5 +1,9 @@
-<ion-menu type="overlay" contentId="main-content">
-  <app-side-menu></app-side-menu>
-</ion-menu>
+<ion-app>
+  
+  <app-header></app-header>
 
-<ion-router-outlet id="main-content"></ion-router-outlet>
+  <app-side-menu></app-side-menu>
+
+  <!-- Contenedor principal de vistas de la aplicación -->
+  <ion-router-outlet id="main-content"></ion-router-outlet>
+</ion-app>

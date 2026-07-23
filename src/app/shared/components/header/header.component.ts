@@ -24,6 +24,8 @@ import { AuthService } from '../../../core/services/auth.service';
 export class HeaderComponent {
   readonly authService = inject(AuthService);
 
+  user = this.authService.currentUser;
+
   readonly profileRoute = computed(() => {
     const profile = this.authService.currentUserProfile() as any;
 
@@ -37,6 +39,20 @@ export class HeaderComponent {
     return ['/login'];
   });
 
+   //ir a las tareas
+  get tasksLink(): string[] {
+    const currentUser = this.user() as any; 
+
+    const identifier = currentUser.email?.split('@')[0];
+
+    if (identifier) {
+    return ['/user', identifier, 'tasks'];
+    }
+    
+    return ['/login'];
+  }
+
+  //cerrar sesión
   logout(): void {
     this.authService.logout();
   }

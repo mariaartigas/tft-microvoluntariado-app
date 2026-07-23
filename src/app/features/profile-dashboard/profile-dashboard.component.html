@@ -118,7 +118,7 @@
                   fill="clear" 
                   size="small" 
                   color="light"
-                  [routerLink]="isOrgMode() ? ['/organization', profile.slug, 'tasks'] : ['/user', profile.username, 'tasks']">
+                  [routerLink]=" isOrgMode() ? ['/organization', profile.slug, 'tasks'] : ['/user', profile.username, 'tasks']">
                   Ver todas
                   <i class="hn hn-arrow-right ion-margin-start" aria-hidden="true"></i>
                 </ion-button>
