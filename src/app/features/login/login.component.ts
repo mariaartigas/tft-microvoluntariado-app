@@ -5,10 +5,11 @@ import { SideMenuComponent } from "../../shared/components/side-menu/side-menu.c
 import { Router, RouterLink } from '@angular/router';
 import { IonInput, IonButton, IonContent, IonCheckbox } from "@ionic/angular/standalone";
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule  } from '@angular/forms';
+import { FooterComponent } from "../../shared/components/footer/footer.component";
 
 @Component({
   standalone: true,
-  imports: [RouterLink, AsyncPipe, SideMenuComponent, IonCheckbox, IonInput, IonButton, ReactiveFormsModule, IonContent, IonCheckbox],
+  imports: [RouterLink, AsyncPipe, SideMenuComponent, IonCheckbox, IonInput, IonButton, ReactiveFormsModule, IonContent, IonCheckbox, FooterComponent],
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss']
 })
@@ -25,10 +26,6 @@ export class LoginComponent {
   });
 
   public user$ = this.auth.currentUser;
-
-  login() {
-    //funcionalidad solo visual !
-  }
 
   async loginWithGoogle() {
     const userProfile = await this.auth.loginWithGoogle();

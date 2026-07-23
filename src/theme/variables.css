@@ -1,31 +1,254 @@
-/**
- * Ionic Dark Theme
- * -----------------------------------------------------
- * For more info, please see:
- * https://ionicframework.com/docs/theming/dark-mode
- */
+/* estilos globales de la aplicación */
+/* aquí definimos las reglas mágicas que dan vida y consistencia a todo el proyecto */
 
-/* @import "@ionic/angular/css/palettes/dark.always.css"; */
-/* @import "@ionic/angular/css/palettes/dark.class.css"; */
-@import "@ionic/angular/css/palettes/dark.system.css";
+/* núcleo esencial de ionic */
+@import "@ionic/angular/css/core.css";
 
-ion-modal.custom-edit-modal {
-  --border-radius: 18px;
-  --background: #1e1c27;
-  --box-shadow: 0 12px 32px rgba(0, 0, 0, 0.6);
+/* estilos básicos para que la app respire y se estructure bien */
+@import "@ionic/angular/css/normalize.css";
+@import "@ionic/angular/css/structure.css";
+@import "@ionic/angular/css/typography.css";
+@import "@ionic/angular/css/display.css";
 
-  /* Fuerza el redondeo del contenedor nativo de Ionic */
-  &::part(content) {
-    border-radius: 18px;
-    border: 1px solid #353141;
-    overflow: hidden;
+/* utilidades opcionales de espaciado y alineación */
+@import "@ionic/angular/css/padding.css";
+@import "@ionic/angular/css/float-elements.css";
+@import "@ionic/angular/css/text-alignment.css";
+@import "@ionic/angular/css/text-transformation.css";
+@import "@ionic/angular/css/flex-utils.css";
+
+/* modo oscuro del sistema nativo */
+@import '@ionic/angular/css/palettes/dark.system.css';
+
+@import '@hackernoon/pixel-icon-library/fonts/iconfont.css';
+
+/* variables del sistema de diseño acogedor */
+:root {
+  --color-bg: #F9F6F0;        /* fondo general cálido y orgánico */
+  --color-espresso: #4A3F35;    /* texto principal y detalles con buena legibilidad */
+  --color-sage: #7B9E87;        /* verde suave estilo naturaleza */
+  --color-terracotta: #D98A6C;  /* naranja arcilla apagado */
+  --color-gold: #E8C37C;        /* amarillo mostaza cálido para destacar */
+  --ion-background-color: transparent; 
+  
+  /* bordes sutiles y sombras difusas para dar ese toque de pegatina táctil */
+  --cozy-border: 1px solid rgba(74, 63, 53, 0.12);
+  --cozy-shadow: 0 10px 25px rgba(74, 63, 53, 0.05), 0 4px 10px rgba(74, 63, 53, 0.03);
+  --cozy-shadow-hover: 0 15px 30px rgba(74, 63, 53, 0.08), 0 6px 15px rgba(74, 63, 53, 0.05);
+  --cozy-shadow-active: 0 4px 8px rgba(74, 63, 53, 0.04);
+}
+
+/* fondo estrellado base para toda la aplicación */
+.cozy-star-grid {
+  --background: var(--color-bg) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Cpath d='M40 37v6M37 40h6' stroke='%234A3F35' stroke-width='1.5' opacity='0.12'/%3E%3Ccircle cx='10' cy='10' r='1' fill='%234A3F35' opacity='0.12'/%3E%3C/svg%3E") repeat !important;
+}
+
+/* envoltorios de diseño globales */
+/* usamos esto en lugar de contenedores específicos por página para mantener la armonía */
+.cozy-wrapper {
+  width: 80%;
+  max-width: 1200px;
+  margin: 10px auto 20px auto;
+  padding-bottom: 20px;
+  
+  /* modificador ideal para el muro de noticias o tableros expansivos */
+  &.wide { max-width: 1400px; } 
+  
+  @media (max-width: 768px) {
+    width: 92%;
+    margin-top: 20px;
   }
 }
 
-ion-modal.custom-task-modal {
-  --width: 90%;
-  --max-width: 520px;
-  --height: 560px; /* 👈 Cambiamos 'auto' por una altura concreta */
-  --border-radius: 16px;
-  --box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+.footers-wrapper {
+  width: 80%;
+  max-width: 1200px;
+  margin: 40px auto 20px auto;
+  @media (max-width: 767px) { width: 92%; }
+}
+
+/* tipografía global */
+.reading-text {
+  font-size: 1.05rem;
+  color: rgba(74, 63, 53, 0.85);
+  line-height: 1.6;
+  margin: 0;
+}
+
+.sub-headline {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: var(--color-espresso);
+  border-bottom: 1px solid rgba(74, 63, 53, 0.1);
+  padding-bottom: 8px;
+  margin-bottom: 15px;
+  display: flex; 
+  align-items: center; 
+  gap: 8px;
+
+  &.sage-title { color: var(--color-sage); border-color: rgba(123, 158, 135, 0.2); ion-icon { color: var(--color-sage); } }
+  &.terracotta-title { color: var(--color-terracotta); border-color: rgba(217, 138, 108, 0.2); ion-icon { color: var(--color-terracotta); } }
+}
+
+/* tarjetas globales */
+.cozy-card {
+  background: #FFFFFF;
+  border: var(--cozy-border);
+  border-radius: 24px;
+  box-shadow: var(--cozy-shadow);
+  color: var(--color-espresso);
+  transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.15), box-shadow 0.25s ease;
+  overflow: visible;
+  position: relative;
+  margin: 0;
+
+  .card-headline {
+    font-size: 1.4rem;
+    font-weight: 850;
+    margin: 0;
+    color: inherit;
+  }
+
+  /* estado interactivo fluido para cuando la tarjeta es un botón o enlace */
+  &.clickable {
+    cursor: pointer;
+    &:hover { transform: translateY(-3px); box-shadow: var(--cozy-shadow-hover); }
+    &:active { transform: scale(0.97); box-shadow: var(--cozy-shadow-active); }
+  }
+
+  /* temas de colores para las tarjetas */
+  &.sage-card {
+    background-color: var(--color-sage);
+    color: #FFFFFF;
+    border-color: rgba(0,0,0,0.05);
+
+    .card-headline {
+      color: #FFFFFF !important;
+      text-shadow: 0 2px 4px rgba(74, 63, 53, 0.2);
+    }
+  }
+
+  &.terracotta-card {
+    background-color: var(--color-terracotta);
+    color: #FFFFFF;
+    border-color: rgba(0,0,0,0.05);
+
+    .card-headline {
+      color: #FFFFFF !important;
+      text-shadow: 0 2px 4px rgba(74, 63, 53, 0.2);
+    }
+  }
+  
+  &.cream-card {
+    background-color: #FFFFFF;
+    color: var(--color-espresso);
+  }
+}
+
+/* pegatinas decorativas y marcas */
+.card-sticker {
+  position: absolute; 
+  top: -15px; 
+  right: -12px; 
+  width: 48px; 
+  height: 48px; 
+  border-radius: 50%; /* circular por defecto */
+  border: 4px solid var(--color-bg); 
+  display: flex; 
+  align-items: center; 
+  justify-content: center; 
+  box-shadow: 0 4px 12px rgba(74, 63, 53, 0.15); 
+  z-index: 10; 
+  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  
+  ion-icon { font-size: 1.4rem; color: white; }
+  
+  &:hover { transform: scale(1.15) rotate(10deg); }
+
+  /* formas alternativas de pegatinas */
+  &.square { border-radius: 12px; width: 38px; height: 38px; }
+  &.large { width: 60px; height: 60px; ion-icon { font-size: 1.8rem; } }
+
+  /* estilo marcapáginas para alinearlo perfectamente con el diseño de la tarea actual */
+  &.sticker-bookmark {
+    top: -12px;
+    right: 20px;
+    width: 38px;
+    height: 38px;
+    border-radius: 12px;
+    border: 4px solid #FFFFFF; /* borde blanco nítido a juego con las tarjetas */
+  }
+
+  /* paleta de colores para las pegatinas */
+  &.sage { background: var(--color-sage); } 
+  &.gold { background: var(--color-gold); ion-icon { color: var(--color-espresso); } } 
+  &.terracotta { background: var(--color-terracotta); } 
+  &.cream { background: var(--color-bg); ion-icon { color: var(--color-espresso); } }
+  
+  /* rotaciones dinámicas de las pegatinas */
+  &.sticker-tilt-left { transform: rotate(-8deg) !important; } 
+  &.sticker-tilt-right { transform: rotate(8deg) !important; }
+}
+
+/* utilidades y clases auxiliares */
+.cozy-progress {
+  --background: rgba(255, 255, 255, 0.3);
+  --progress-background: #FFFFFF;
+  border-radius: 10px;
+  height: 8px;
+  box-shadow: inset 0 1px 3px rgba(0,0,0,0.15);
+}
+
+.h-100 { height: 100%; }
+
+@media (min-width: 768px) {
+  .pr-md-2 { padding-right: 12px !important; }
+  .pl-md-2 { padding-left: 12px !important; }
+}
+
+/* ajustes de la barra de desplazamiento y márgenes */
+ion-content {
+  &::part(scroll) {
+    /* soporte de diseño para firefox */
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-sage) #EFE8DF;
+
+    /* estilos visuales amigables para webkit */
+    &::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: #EFE8DF;
+      border-radius: 4px;
+      /* truco de espaciado para empujar visualmente la pista hacia abajo sin mover el contenido del diseño */
+      margin-top: 65px;
+      background-clip: padding-box;
+      border-top: 65px solid transparent; 
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: var(--color-sage);
+      border-radius: 4px;
+      border: 2px solid #EFE8DF;
+    }
+
+    &::-webkit-scrollbar-thumb:hover {
+      background: var(--color-terracotta);
+    }
+  }
+}
+
+/* eliminamos el padding inferior del contenido nativo de ionic para evitar vacíos */
+ion-content {
+  --padding-bottom: 0px !important;
+}
+
+/* aseguramos que el contenedor del pie de página quede fijo abajo de forma limpia */
+.footers-wrapper {
+  margin-top: 40px;
+  margin-bottom: 0 !important;
+  padding-bottom: 0 !important;
+  display: block;
+  line-height: 0; /* previene espacios vacíos indeseados */
 }

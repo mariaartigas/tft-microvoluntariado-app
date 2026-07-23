@@ -1,29 +1,23 @@
 import { Component, inject } from '@angular/core';
 import { AuthService } from '../../../core/services/auth.service';
-import { IonMenu, IonContent, IonList, IonItem, IonLabel } from '@ionic/angular/standalone';
-import { AsyncPipe } from '@angular/common';
+import { AsyncPipe, CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
+import { IonicModule } from "@ionic/angular";
 @Component({
   selector: 'app-side-menu',
   standalone: true,
   templateUrl: './side-menu.component.html',
-  imports: [
-    IonMenu,
-    IonContent,
-    IonList,
-    IonItem,
-    AsyncPipe,
-    RouterLink,
-    IonLabel
+  imports: [ 
+    RouterLink, AsyncPipe,
+
+    IonicModule
 ],
   styleUrls: ['./side-menu.component.scss'],
 })
 export class SideMenuComponent{
 
-  auth = inject(AuthService);
+  private authService = inject(AuthService);
 
-  constructor() { }
-
-  ngOnInit() {}
+  user = this.authService.currentUser;
 
 }

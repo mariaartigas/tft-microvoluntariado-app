@@ -1,46 +1,18 @@
-<ion-content class="login-page">
+<ion-content class="cozy-star-grid login-page">
+  <!-- Barra superior minimalista: solo el nombre de la app a la izquierda -->
+  <div class="login-header-bar">
+    <span class="app-logo-text">Impacto en Momentos</span>
+  </div>
+
+  <!-- Contenedor principal expandido y centrado -->
   <div class="login-container">
-    <div class="login-card">
-      <h1>Iniciar sesión</h1>
-      <p class="subtitle">
-        Accede a tu cuenta de Impacto en Momentos
+    <div class="cozy-card login-card">
+      <h1 class="main-title">Impacto en Momentos</h1>
+      <p class="subtitle reading-text">
+        Actualmente solo permitimos el acceso mediante Google para garantizar una autenticación rápida y segura.
       </p>
 
-      <form [formGroup]="logInForm">
-        <ion-input
-          label="Email"
-          labelPlacement="stacked"
-          fill="outline"
-          type="email"
-          formControlName="email">
-        </ion-input>
-
-        <ion-input
-          label="Contraseña"
-          labelPlacement="stacked"
-          fill="outline"
-          type="password"
-          formControlName="password">
-        </ion-input>
-
-        <div class="remember">
-          <ion-checkbox></ion-checkbox>
-          <span>Mantener sesión iniciada</span>
-        </div>
-
-        <ion-button
-          expand="block"
-          class="main-button"
-          (click)="login()">
-          Iniciar sesión
-        </ion-button>
-
-        <div class="separator">
-          <span></span>
-          <p>o</p>
-          <span></span>
-        </div>
-
+      <div class="login-actions">
         <ion-button
           expand="block"
           fill="outline"
@@ -48,19 +20,26 @@
           (click)="loginWithGoogle()">
           Continuar con Google
         </ion-button>
+      </div>
 
-        <!-- ─── NUEVA SECCIÓN: ENTRADA PARA ORGANIZACIONES ─── -->
-        <div class="org-divider"></div>
-        <p class="register org-section">
-  ¿Representas a una ONG?
+      <!-- Separador sutil -->
+      <div class="org-divider"></div>
+      
+      <!-- Sección para registro de ONGs -->
+      <p class="register org-section">
+        ¿Representas a una ONG?
         <ion-button
           fill="clear" 
           routerLink="/register-organization" 
           class="org-link-btn">
           Registra tu organización
         </ion-button>
-        </p>
-      </form>
+      </p>
     </div>
+  </div>
+
+  <!-- Footer integrado al final con el contenedor global -->
+  <div class="footers-wrapper">
+    <app-footer></app-footer>
   </div>
 </ion-content>

@@ -1,21 +1,27 @@
 import { Component } from '@angular/core';
-import { IonFooter, IonToolbar, IonTitle } from '@ionic/angular/standalone';
+import { CommonModule } from '@angular/common';
+import { RouterLink } from '@angular/router';
+import { 
+  IonGrid, 
+  IonRow, 
+  IonCol, 
+  IonIcon 
+} from '@ionic/angular/standalone';
 
 @Component({
   selector: 'app-footer',
-  standalone: true,
-  imports: [IonFooter, IonToolbar, IonTitle],
-  template: `
-    <ion-footer>
-      <ion-toolbar color="light">
-        <ion-title class="ion-text-center" size="small">
-          © 2026 
-        </ion-title>
-      </ion-toolbar>
-    </ion-footer>
-  `,
+  templateUrl: './footer.component.html',
   styleUrls: ['./footer.component.scss'],
+  standalone: true,
+  imports: [
+    CommonModule, 
+    RouterLink, 
+    IonGrid, 
+    IonRow, 
+    IonCol, 
+    IonIcon
+  ]
 })
-
 export class FooterComponent {
+  constructor() {}
 }

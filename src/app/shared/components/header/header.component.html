@@ -1,0 +1,37 @@
+<ion-header class="ion-no-border cozy-solid-header cozy-star-grid">
+  <ion-toolbar class="cozy-navbar">
+    
+    <!-- Botón de apertura para el menú lateral -->
+    <div class="left-nav-section" slot="start">
+      <ion-buttons>
+        <ion-menu-button></ion-menu-button>
+      </ion-buttons>
+    </div>
+
+    <!-- Contenedor central de navegación en pastillas -->
+    <div class="pills-navigation-container">
+      <div class="pills-pillbox">
+        <a routerLink="/home" routerLinkActive="active" class="nav-pill">Home</a>
+        <a routerLink="/tasks-list" routerLinkActive="active" class="nav-pill">Mis Tareas</a>
+        <a routerLink="/about" routerLinkActive="active" class="nav-pill">Sobre Nosotros</a>
+      </div>
+    </div>
+
+    <!-- Accesos rápidos e iconos de usuario -->
+    <div class="right-icon-dock" slot="end">
+      <button class="icon-circle-btn bg-white" routerLink="/notifications" aria-label="Notifications">
+        <i class="hn hn-bell-solid"></i>
+      </button>
+      <button class="icon-circle-btn bg-sage" routerLink="/profile-dashboard" aria-label="My Profile">
+        <i class="hn hn-user-solid"></i>
+      </button>
+      <button class="icon-circle-btn bg-terracotta" routerLink="/login" aria-label="Login">
+        <i class="hn hn-login"></i>
+      </button>
+    </div>
+
+  </ion-toolbar>
+  
+  <!-- Línea divisoria decorativa del encabezado -->
+  <div class="header-divider-line"></div>
+</ion-header>

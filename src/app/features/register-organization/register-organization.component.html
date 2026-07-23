@@ -1,15 +1,21 @@
-<ion-content class="login-page">
+<ion-content class="cozy-star-grid login-page">
+  <!-- Barra superior minimalista: solo el nombre de la app a la izquierda -->
+  <div class="login-header-bar">
+    <span class="app-logo-text">Impacto en Momentos</span>
+  </div>
+
+  <!-- Contenedor principal centrado y expandido -->
   <div class="login-container">
-    <div class="login-card">
+    <div class="cozy-card login-card">
       
       <ion-button fill="clear" routerLink="/login" class="back-btn" [disabled]="isLoading()">
         <ion-icon name="arrow-back-outline" slot="start"></ion-icon>
         Volver
       </ion-button>
 
-      <h1>Registra tu ONG</h1>
-      <p class="subtitle">
-        Crea el perfil de tu organización y vincúlala a tu cuenta de Google en un solo paso.
+      <h1 class="main-title">Registra tu ONG</h1>
+      <p class="subtitle reading-text">
+        Crea el perfil de tu organización y vincula tu cuenta de Google en un solo paso.
       </p>
 
       @if (errorMessage()) {
@@ -22,7 +28,7 @@
         
         <!-- Nombre de la Organización -->
         <ion-input
-          label="Nombre de la Organización"
+          label="Nombre de la Organización*"
           labelPlacement="stacked"
           fill="outline"
           type="text"
@@ -37,22 +43,23 @@
 
         <!-- Email de Contacto de la ONG -->
         <ion-input
-          label="Email de Contacto de la ONG"
+          label="Email de contacto de la ONG*"
           labelPlacement="stacked"
           fill="outline"
           type="email"
-          placeholder="contacto@tuong.org"
+          placeholder="contacto@tuONG.org"
           formControlName="orgEmail"
           [disabled]="isLoading()">
         </ion-input>
         
         @if (registerForm.get('orgEmail')?.touched && registerForm.get('orgEmail')?.invalid) {
-          <span class="error-text">Introduce un correo electrónico válido para la organización.</span>
+          <span class="error-text">Introduce un correo electrónico válido para la organización. Puede ser diferente a tu cuenta de Google</span>
         }
 
         <!-- Botón de Registro -->
         <ion-button
           expand="block"
+          fill="outline"
           class="main-button google-auth-btn"
           [disabled]="registerForm.invalid || isLoading()"
           (click)="registerWithGoogle()">
@@ -79,5 +86,10 @@
       </form>
 
     </div>
+  </div>
+
+  <!-- Footer integrado al final con el contenedor global -->
+  <div class="footers-wrapper">
+    <app-footer></app-footer>
   </div>
 </ion-content>

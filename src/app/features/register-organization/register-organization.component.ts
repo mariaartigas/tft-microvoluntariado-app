@@ -11,10 +11,11 @@ import { Router, RouterLink } from '@angular/router';
 
 import { OrganizationService } from '../../core/services/organization.service';
 import { UserService } from '../../core/services/user.service';
+import { FooterComponent } from "../../shared/components/footer/footer.component";
 
 @Component({
   standalone: true,
-  imports: [RouterLink, AsyncPipe, SideMenuComponent, IonInput, IonButton, ReactiveFormsModule, IonContent, IonIcon, IonSpinner],
+  imports: [RouterLink, AsyncPipe, SideMenuComponent, IonInput, IonButton, ReactiveFormsModule, IonContent, IonIcon, IonSpinner, FooterComponent],
   selector: 'app-register',
   templateUrl: './register-organization.component.html',
   styleUrls: ['./register-organization.component.scss'],

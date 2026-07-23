@@ -1,6 +1,61 @@
-<ion-item (click)="auth.logout()">
-  <ion-label>Log out</ion-label>
-</ion-item>
-<ion-item (click)="auth.loginWithGoogle()">
-  <ion-label>Log in</ion-label>
-</ion-item>
+<ion-menu contentId="main-content" type="overlay">
+  <ion-header class="ion-no-border cozy-solid-header">
+    <ion-toolbar class="cozy-navbar">
+      <div class="menu-profile-container" slot="start">
+        
+        <!-- Si el usuario está dado de alta, mostramos su foto redonda -->
+        @if (user(); as currentUser) {
+          <div class="round-avatar-wrapper" routerLink="/profile-dashboard">
+            <img 
+              [src]="currentUser.photoURL || 'assets/default-avatar.png'" 
+              alt="Foto de perfil" 
+              class="profile-img" />
+          </div>
+        }
+
+      </div>
+    </ion-toolbar>
+    <div class="header-divider-line"></div>
+  </ion-header>
+  
+  <ion-content class="cozy-star-grid">
+    <ion-list class="cozy-clean-list ion-padding">
+      
+      <ion-menu-toggle auto-hide="false">
+        <ion-item routerLink="/home" routerDirection="root" lines="none" routerLinkActive="active">
+          <i class="hn hn-newspaper menu-icon" slot="start" aria-hidden="true"></i>
+          <ion-label>Home</ion-label>
+        </ion-item>
+      </ion-menu-toggle>
+
+      <ion-menu-toggle auto-hide="false">
+        <ion-item routerLink="/profile-dashboard" routerDirection="root" lines="none" routerLinkActive="active">
+          <i class="hn hn-user menu-icon" slot="start" aria-hidden="true"></i>
+          <ion-label>Mi Perfil</ion-label>
+        </ion-item>
+      </ion-menu-toggle>
+
+      <ion-menu-toggle auto-hide="false">
+        <ion-item routerLink="/tasks-list" routerDirection="root" lines="none" routerLinkActive="active">
+          <i class="hn hn-check-circle menu-icon" slot="start" aria-hidden="true"></i>
+          <ion-label>Mis Tareas</ion-label>
+        </ion-item>
+      </ion-menu-toggle>
+
+      <ion-menu-toggle auto-hide="false">
+        <ion-item routerLink="/notifications" routerDirection="root" lines="none" routerLinkActive="active">
+          <i class="hn hn-bell menu-icon" slot="start" aria-hidden="true"></i>
+          <ion-label>Notificaciones</ion-label>
+        </ion-item>
+      </ion-menu-toggle>
+
+      <ion-menu-toggle auto-hide="false">
+        <ion-item routerLink="/about" routerDirection="root" lines="none" routerLinkActive="active">
+          <i class="hn hn-info-circle menu-icon" slot="start" aria-hidden="true"></i>
+          <ion-label>Sobre Nosotros</ion-label>
+        </ion-item>
+      </ion-menu-toggle>
+
+    </ion-list>
+  </ion-content>
+</ion-menu>

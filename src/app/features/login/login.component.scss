@@ -1,180 +1,127 @@
 .login-page {
-  --background: #100e1a;
-}
-
-
-.login-container {
-
-  position: absolute;
-
-  inset: 0;
-
   display: flex;
-
-  justify-content: center;
-
-  align-items: center;
-
-  padding: 20px;
-
+  flex-direction: column;
+  min-height: 100vh;
 }
 
-
-.login-card {
-
+/* Barra superior limpia solo con el nombre de la app a la izquierda */
+.login-header-bar {
+  padding: 24px 40px;
   width: 100%;
-
-  max-width: 420px;
-
-  background: #1e1c27;
-
-  border: 1px solid #353141;
-
-  border-radius: 18px;
-
-  padding: 45px 50px;
-
+  
+  .app-logo-text {
+    font-size: 1.15rem;
+    font-weight: 850;
+    color: var(--color-espresso);
+    letter-spacing: -0.5px;
+  }
 }
 
-
-h1 {
-
-  color: white;
-
-  font-size: 32px;
-
-  margin: 0 0 8px;
-
-  font-weight: 700;
-
+/* Contenedor flexible para dar mayor presencia y centrado absoluto */
+.login-container {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  width: 100%;
 }
 
+/* Tarjeta principal aprovechando las clases y variables globales .cozy-card */
+.login-card {
+  width: 100%;
+  max-width: 580px; /* Ocupa más espacio horizontal en pantalla */
+  padding: 55px 60px; /* Mayor respiro interior */
+  text-align: center;
+  background: #FFFFFF;
+  border: var(--cozy-border);
+  border-radius: 28px;
+  box-shadow: var(--cozy-shadow);
+
+  @media (max-width: 768px) {
+    padding: 35px 25px;
+  }
+}
+
+.main-title {
+  color: var(--color-espresso);
+  font-size: 36px;
+  margin: 0 0 16px;
+  font-weight: 850;
+  letter-spacing: -0.5px;
+
+  @media (max-width: 768px) {
+    font-size: 28px;
+  }
+}
 
 .subtitle {
-
-  color: #aaa5bb;
-
+  color: rgba(74, 63, 53, 0.85);
   margin-bottom: 35px;
-
+  font-size: 1.05rem;
+  line-height: 1.6;
+  max-width: 440px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
-
-ion-input {
-
-  margin-bottom: 20px;
-
-  --background: #17151f;
-
-  --color: white;
-
-  --border-color: #4a4459;
-
-  --highlight-color-focused: #6d4aff;
-
+.login-actions {
+  margin-bottom: 30px;
+  max-width: 420px;
+  margin-left: auto;
+  margin-right: auto;
 }
-
-
-.remember {
-
-  display: flex;
-
-  align-items: center;
-
-  gap: 10px;
-
-  margin-bottom: 20px;
-
-  color: #aaa5bb;
-
-
-  ion-checkbox {
-
-    --size: 18px;
-
-    --checkbox-background-checked: #6d4aff;
-
-  }
-
-}
-
-
-.main-button {
-
-  margin-top: 10px;
-
-  height: 48px;
-
-  --background: #6d4aff;
-
-  --border-radius: 8px;
-
-}
-
 
 .google-button {
+  height: 52px;
+  --border-color: var(--color-espresso);
+  --color: var(--color-espresso);
+  --border-radius: 30px;
+  font-weight: 700;
+  font-size: 1rem;
+  transition: transform 0.2s ease, background-color 0.2s ease;
 
-  height: 48px;
-
-  --border-color: #6d4aff;
-
-  --color: white;
-
-  --border-radius: 8px;
-
+  &:hover {
+    --background: rgba(74, 63, 53, 0.04);
+  }
 }
 
-
-.separator {
-
-  display: flex;
-
-  align-items: center;
-
-  gap: 12px;
-
-  margin: 25px 0;
-
-
-  span {
-
-    flex: 1;
-
-    height: 1px;
-
-    background: #454052;
-
-  }
-
-
-  p {
-
-    color: #aaa5bb;
-
-    margin: 0;
-
-  }
-
+.org-divider {
+  height: 1px;
+  background: rgba(74, 63, 53, 0.08);
+  margin: 30px auto 20px auto;
+  max-width: 420px;
 }
-
 
 .register {
-
   text-align: center;
+  color: rgba(74, 63, 53, 0.85);
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  font-size: 1rem;
 
-  color: #aaa5bb;
+  .org-link-btn {
+    --color: var(--color-terracotta); /* Usa el tono terracota de tus variables */
+    text-transform: none;
+    font-weight: 700;
+    margin: 0;
+    height: auto;
+    padding: 0;
 
-  margin-top: 25px;
-
-
-  a {
-
-    color: #8064ff;
-
-    text-decoration: none;
-
+    &:hover {
+      opacity: 0.8;
+    }
   }
+}
 
-
-  
-
+.footers-wrapper {
+  width: 100%;
+  margin-top: auto;
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 0 20px;
 }
