@@ -9,9 +9,8 @@ import { SideMenuComponent } from "./shared/components/side-menu/side-menu.compo
   imports: [
     IonRouterOutlet,
     HeaderComponent,
-    IonRouterOutlet,
     IonApp,
-    SideMenuComponent
+    SideMenuComponent,
 ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'
