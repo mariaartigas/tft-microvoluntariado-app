@@ -1,14 +1,9 @@
 
-import { AsyncPipe } from '@angular/common';
 import { AuthService } from '../../core/services/auth.service';
-import { SideMenuComponent } from "../../shared/components/side-menu/side-menu.component";
 import { IonInput, IonButton, IonContent, IonIcon, IonSpinner, ToastController } from "@ionic/angular/standalone";
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule  } from '@angular/forms';
 import { Component, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
-
 import { Router, RouterLink } from '@angular/router';
-
 import { OrganizationService } from '../../core/services/organization.service';
 import { UserService } from '../../core/services/user.service';
 import { FooterComponent } from "../../shared/components/footer/footer.component";
@@ -16,7 +11,7 @@ import { firstValueFrom } from 'rxjs';
 
 @Component({
   standalone: true,
-  imports: [RouterLink, AsyncPipe, SideMenuComponent, IonInput, IonButton, ReactiveFormsModule, IonContent, IonIcon, IonSpinner, FooterComponent],
+  imports: [RouterLink, IonInput, IonButton, ReactiveFormsModule, IonContent, IonIcon, IonSpinner, FooterComponent],
   selector: 'app-register',
   templateUrl: './register-organization.component.html',
   styleUrls: ['./register-organization.component.scss'],

@@ -1,6 +1,6 @@
 import { Component, Input, OnInit, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { IonHeader, IonToolbar, IonTitle, IonButtons, IonButton, IonContent, IonItem, IonInput, IonTextarea, IonSpinner, ModalController, ToastController, IonCard, IonCardContent } from '@ionic/angular/standalone';
+import { IonHeader, IonToolbar, IonTitle, IonButtons, IonButton, IonContent, IonItem, IonInput, IonTextarea, IonSpinner, ModalController, ToastController, } from '@ionic/angular/standalone';
 import { UserService } from '../../../../core/services/user.service';
 import { OrganizationService } from '../../../../core/services/organization.service';
 import { ProfileState } from '../../profile-dashboard.component';
@@ -10,7 +10,7 @@ import { ProfileState } from '../../profile-dashboard.component';
   templateUrl: './edit-profile-modal.component.html',
   styleUrls: ['./edit-profile-modal.component.scss'],
   standalone: true,
-  imports: [FormsModule, IonHeader, IonToolbar, IonTitle, IonButtons, IonButton, IonContent, IonItem, IonInput, IonTextarea, IonSpinner, IonCard, IonCardContent]
+  imports: [FormsModule, IonHeader, IonToolbar, IonTitle, IonButtons, IonButton, IonContent, IonItem, IonInput, IonTextarea, IonSpinner]
 })
 
 export class EditProfileModalComponent implements OnInit {

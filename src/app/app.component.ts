@@ -1,6 +1,5 @@
 import { Component } from '@angular/core';
-import { RouterLink, RouterLinkActive } from '@angular/router';
-import { IonApp, IonRouterOutlet, IonMenu, IonContent, IonList, IonHeader, IonLabel, IonMenuToggle, IonToolbar } from '@ionic/angular/standalone';
+import { IonApp, IonRouterOutlet} from '@ionic/angular/standalone';
 import { HeaderComponent } from "./shared/components/header/header.component";
 import { SideMenuComponent } from "./shared/components/side-menu/side-menu.component";
 
@@ -9,16 +8,8 @@ import { SideMenuComponent } from "./shared/components/side-menu/side-menu.compo
   standalone: true,
   imports: [
     IonRouterOutlet,
-    IonMenu, HeaderComponent, RouterLink,
-    RouterLinkActive,
-    IonMenu,
-    IonHeader,
-    IonToolbar,
-    IonLabel,
-    IonMenuToggle,
+    HeaderComponent,
     IonRouterOutlet,
-    IonContent,
-    IonList,
     IonApp,
     SideMenuComponent
 ],

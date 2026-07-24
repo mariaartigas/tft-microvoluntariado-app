@@ -1,10 +1,8 @@
 import { Component, inject } from '@angular/core';
 import { AuthService } from '../../core/services/auth.service';
 import { CommonModule } from '@angular/common';
-import { SideMenuComponent } from "../../shared/components/side-menu/side-menu.component";
-import { IonMenuButton, IonHeader, IonButtons, IonToolbar, IonContent, IonTitle, IonAvatar, IonButton, IonCardContent, IonCardTitle, IonCardHeader, IonCard } from "@ionic/angular/standalone";
-import { Router, RouterLink } from '@angular/router';
-import { HeaderComponent } from "../../shared/components/header/header.component";
+import { IonContent,IonCardContent, IonCardTitle, IonCardHeader, IonCard } from "@ionic/angular/standalone";
+import { Router} from '@angular/router';
 import { FooterComponent } from "../../shared/components/footer/footer.component";
 
 
@@ -22,12 +20,10 @@ interface FeedItem {
   inputPlaceholder?: string;
 }
 
-
-
 @Component({
   selector: 'app-home',
   standalone : true, 
-  imports: [CommonModule, SideMenuComponent, IonMenuButton, IonHeader, IonButtons, IonToolbar, IonContent, IonTitle, IonAvatar, IonButton, RouterLink, HeaderComponent, FooterComponent, IonCardContent, IonCardTitle, IonCardHeader, IonCard],
+  imports: [CommonModule, IonContent, FooterComponent, IonCardContent, IonCardTitle, IonCardHeader, IonCard],
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss']
 })
