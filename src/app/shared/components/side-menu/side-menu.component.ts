@@ -1,15 +1,13 @@
 import { Component, inject } from '@angular/core';
 import { AuthService } from '../../../core/services/auth.service';
-import { AsyncPipe, CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { IonicModule } from "@ionic/angular";
 @Component({
   selector: 'app-side-menu',
   standalone: true,
   templateUrl: './side-menu.component.html',
-  imports: [ 
-    RouterLink, AsyncPipe,
-
+  imports: [
+    RouterLink,
     IonicModule
 ],
   styleUrls: ['./side-menu.component.scss'],
@@ -18,14 +16,20 @@ export class SideMenuComponent{
 
   private authService = inject(AuthService);
 
-  user = this.authService.currentUser;
+  userProfile = this.authService.currentUserProfile;
+
+  get isOrganization(): boolean {
+    return this.currentUser?.role === 'organization';
+  }
+
+  private get currentUser(): any {
+    return this.userProfile();
+  }
 
   //ir a las tareas
 
  get tasksLink(): string[] {
-  const currentUser = this.user() as any; 
-
-    const identifier = currentUser.email?.split('@')[0];
+    const identifier = this.currentUser?.email?.split('@')[0];
 
     if (identifier) {
     return ['/user', identifier, 'tasks'];
@@ -37,9 +41,7 @@ export class SideMenuComponent{
   //perfil
 
   get profileLink(): string[] {
-      const currentUser = this.user() as any; 
-
-      const identifier = currentUser.email?.split('@')[0];
+      const identifier = this.currentUser?.email?.split('@')[0];
 
       if (identifier) {
       return ['/user', identifier];
@@ -48,13 +50,23 @@ export class SideMenuComponent{
       return ['/login'];
     }
 
+  //cerrar sesión
 
+  logout() {
+    (document.activeElement as HTMLElement)?.blur();
+    this.authService.logout();
+  }
 
-//cerrar sesión
+  //vista organizaciones
 
-logout() {
-  (document.activeElement as HTMLElement)?.blur();
-  this.authService.logout();
-}
+  get organizationProfileLink(): string[] {
+    if (!this.currentUser || this.currentUser.role !== 'organization') return ['/login'];
+    return ['/organization', this.currentUser.organizationSlug ];
+  }
+
+  get organizationTasksLink(): string[] {
+    if (!this.currentUser || this.currentUser.role !== 'organization') return ['/login'];
+    return ['/organization', this.currentUser.organizationSlug , 'tasks'];
+  }
 
 }

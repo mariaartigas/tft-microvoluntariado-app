@@ -30,7 +30,17 @@
                 </ion-avatar>
 
                 <h2 class="ion-margin-top card-headline">{{ profile.displayName }}</h2>
-                <p class="role-text">{{ isOrgMode() ? 'Organización' : 'Voluntario' }}</p>
+                <p class="role-text">
+                  @if (profile.role === 'organization') {
+                    Moderador de Organización Voluntario
+                  } @else {
+                    @if (isOrgMode()) {
+                      Organización
+                    } @else {
+                      Voluntario
+                    } 
+                  }
+                </p>
                 
                 <div class="contact-info">
                   <span class="cozy-badge" *ngIf="!isOrgMode() && profile.username">&#64;{{ profile.username }}</span>
@@ -73,10 +83,17 @@
 
             <!-- BOTÓN DE ELIMINAR CUENTA -->
             <div class="ion-margin-top ion-text-center" *ngIf="isEditable()">
+               @if (isOrgMode()) {
+              <ion-button fill="clear" color="danger" size="small" (click)="confirmDeleteAccount()">
+                <i class="hn hn-trash" slot="start" aria-hidden="true"></i>
+                Desvincular Organización
+              </ion-button>
+            } @else {
               <ion-button fill="clear" color="danger" size="small" (click)="confirmDeleteAccount()">
                 <i class="hn hn-trash" slot="start" aria-hidden="true"></i>
                 Eliminar cuenta
               </ion-button>
+            }
             </div>
 
           </ion-col>

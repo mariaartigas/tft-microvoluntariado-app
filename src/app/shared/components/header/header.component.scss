@@ -15,18 +15,32 @@
   align-items: center;
   justify-content: space-between;
 
-  /* seccion del boton de menu lateral */
+  /* Seccion del boton de menu lateral y titulo */
   .left-nav-section {
     display: flex;
     align-items: center;
+    gap: 12px;
 
     ion-menu-button {
       color: var(--color-espresso);
       --color: var(--color-espresso);
     }
+
+    .brand-title {
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: var(--color-espresso);
+      text-decoration: none;
+      white-space: nowrap;
+      transition: opacity 0.2s ease;
+
+      &:hover {
+        opacity: 0.8;
+      }
+    }
   }
 
-  /* contenedor de navegacion central fluida con pastillas */
+  /* Contenedor de navegacion central fluida con pastillas */
   .pills-navigation-container {
     display: flex;
     justify-content: flex-start;
@@ -85,11 +99,25 @@
     }
   }
 
-  /* zona de iconos de accion rapida */
+  /* Zona de iconos de accion rapida */
   .right-icon-dock {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 15px;
+
+    .profile-dock-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+
+      .dock-label {
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: var(--color-espresso);
+        opacity: 0.8;
+      }
+    }
 
     .icon-circle-btn {
       width: 40px;
@@ -147,9 +175,13 @@
   z-index: 1000;
 }
 
-/* ajustes adaptativos para dispositivos moviles */
+/* Ajustes adaptativos para dispositivos moviles */
 @media (max-width: 767px) {
   .pills-navigation-container {
     display: none !important;
+  }
+  
+  .left-nav-section .brand-title {
+    font-size: 0.95rem; /* Se ajusta un poco en pantallas muy pequeñas si es necesario */
   }
 }

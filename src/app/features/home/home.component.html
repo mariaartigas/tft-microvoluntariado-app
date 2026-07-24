@@ -8,8 +8,6 @@
          class="masonry-item" 
          [style.animation-delay]="i * 0.1 + 's'"> 
       
-      <div class="card-wrapper" (click)="goToNews(item)">
-        
         <!-- pegatina decorativa flotante sobre la tarjeta -->
         <div class="card-sticker" *ngIf="item.sticker" [ngClass]="[item.stickerColor, item.tiltClass]">
           <i [ngClass]="item.sticker"></i>
@@ -30,8 +28,6 @@
             </div>
           </ion-card-content>
         </ion-card>
-        
-      </div>
     </div>
   </div>
   <div class="footers-wrapper ion-margin-top">

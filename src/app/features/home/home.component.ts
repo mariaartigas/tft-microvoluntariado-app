@@ -39,74 +39,74 @@ export class HomeComponent {
  readonly currentUser = this.authService.currentUser;        //firebase
  userProfile = this.authService.currentUserProfile; //información
 
-  // listado principal de elementos del feed en formato masonry traducido al espanol
+  // listado principal de elementos del feed en formato masonry traducido al español
   feedItems: FeedItem[] = [
     {
-      id: 'news-001',
+      id: 'mvp-001',
       image: 'https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&w=1200&auto=format&fit=crop',
-      title: 'Actualización de la plataforma v2.0 disponible',
-      description: 'Experimenta el nuevo panel interactivo con animaciones fluidas y diseños orgánicos.',
+      title: 'Traduce un artículo corto para una ONG local',
+      description: 'Ayuda a difundir recursos educativos traduciendo 3 párrafos del inglés al español. ¡Solo te tomará 15 minutos!',
       bgClass: 'terracotta-card',
-      sticker: 'hn hn-bookmark',
+      sticker: 'hn hn-globe',
       stickerColor: 'sage',
-      tiltClass: 'sticker-tilt-left',
+      tiltClass: '',
       hasInput: true,
-      inputPlaceholder: 'Leer registro de cambios completo'
+      inputPlaceholder: 'Noticia Placeholder ! MVP'
     },
     {
-      id: 'news-002',
-      image: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80&w=600&auto=format&fit=crop',
-      title: 'Enfoque: Equipo de UI/UX y Sistemas de Diseño',
-      description: 'El equipo de diseño publicó un artículo detallado sobre cómo crear paletas de colores orgánicas y accesibles que evocan calidez y comodidad para los flujos de trabajo digitales cotidianos.',
+      id: 'mvp-002',
+      image: 'https://images.unsplash.com/photo-1544717305-2782549b5136?q=80&w=600&auto=format&fit=crop',
+      title: 'Diseña una tarjeta de adopción rápida',
+      description: 'Crea una plantilla visual sencilla para difundir animales rescatados en redes sociales y ayudarles a encontrar hogar.',
       bgClass: 'sage-card',
-      sticker: 'hn hn-star-solid',
+      sticker: 'hn hn-heart',
       stickerColor: 'gold',
-      tiltClass: 'sticker-tilt-right'
+      tiltClass: 'sticker-tilt-right',
+      inputPlaceholder: 'Noticia Placeholder ! MVP'
     },
     {
-      id: 'news-003',
-      title: 'Protocolos de seguridad',
-      description: 'La autenticación de dos factores (2FA) será obligatoria para todas las cuentas administrativas a partir de esta semana para proteger los datos de los usuarios.',
+      id: 'mvp-003',
+      title: 'Revisión ortográfica de guías comunitarias',
+      description: 'Lee y valida las normas de convivencia de nuestro nuevo jardín vecinal digital para asegurar una lectura cálida y clara.',
       bgClass: 'cream-card',
-      sticker: 'hn hn-calendar-alt',
+      sticker: 'hn hn-check-circle',
       stickerColor: 'terracotta',
-      tiltClass: 'sticker-tilt-left'
+      tiltClass: 'sticker-tilt-left',
+      inputPlaceholder: 'Noticia Placeholder ! MVP'
     },
     {
-      id: 'news-004',
-      image: 'https://images.unsplash.com/photo-1552664730-d307ca884978?q=80&w=600&auto=format&fit=crop',
-      title: 'Ganadores del hackatón mensual',
-      description: '¡Felicitaciones al Equipo Alfa por construir una herramienta comunitaria increíble durante nuestro evento de sprint de 48 horas!',
+      id: 'mvp-004',
+      image: 'https://images.unsplash.com/photo-1517486808906-6ca8b3f04846?q=80&w=600&auto=format&fit=crop',
+      title: '¡Primeros pasos como microvoluntario!',
+      description: 'Descubre cómo una sola acción de 5 minutos al día puede sumar un gran impacto en proyectos sociales de tu entorno.',
       bgClass: 'cream-card',
-      sticker: 'hn hn-trophy-solid',
+      sticker: 'hn hn-star-solid',
       stickerColor: 'sage',
       tiltClass: 'sticker-tilt-right',
       hasInput: true,
-      inputPlaceholder: 'Ver repositorio'
+      inputPlaceholder: 'Noticia Placeholder ! MVP'
     },
     {
-      id: 'news-005',
-      title: 'Optimiza tu flujo de trabajo',
-      description: 'Descubre nuestras 5 principales herramientas integradas diseñadas para automatizar tareas administrativas repetitivas.',
+      id: 'mvp-005',
+      title: 'Clasificación de datos para banco de alimentos',
+      description: 'Ayuda a digitalizar el inventario de productos donados desde casa en bloques de solo 10 minutos.',
       bgClass: 'terracotta-card',
-      sticker: 'hn hn-graduation-cap',
+      sticker: 'hn hn-box',
       stickerColor: 'gold',
-      tiltClass: 'sticker-tilt-left'
+      tiltClass: 'sticker-tilt-left',
+      inputPlaceholder: 'Noticia Placeholder ! MVP'
     },
     {
-      id: 'news-006',
-      image: 'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?q=80&w=600&auto=format&fit=crop',
-      title: 'Puntos clave de la sesión de preguntas y respuestas',
-      description: '¿Te perdiste la sesión de AMA del viernes? Hemos recopilado las preguntas más frecuentes sobre nuestras próximas funciones y la expansión de la hoja de ruta.',
+      id: 'mvp-006',
+      image: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=600&auto=format&fit=crop',
+      title: 'Comparte tu talento con una causa',
+      description: '¿Tienes habilidades de redacción, diseño o traducción? Explora cómo puedes colaborar puntualmente sin comprometer tu agenda.',
       bgClass: 'sage-card',
-      sticker: 'hn hn-analytics',
+      sticker: 'hn hn-people-carry',
       stickerColor: 'terracotta',
-      tiltClass: 'sticker-tilt-right'
+      tiltClass: 'sticker-tilt-right',
+      inputPlaceholder: 'Noticia Placeholder ! MVP'
     }
   ];
-
-  goToNews(item: FeedItem) {
-    this.router.navigate(['/newsfeed'], { queryParams: { id: item.id } });
-  }
 
 }

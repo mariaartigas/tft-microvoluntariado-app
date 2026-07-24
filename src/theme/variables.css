@@ -1,10 +1,8 @@
 /* estilos globales de la aplicación */
-/* aquí definimos las reglas mágicas que dan vida y consistencia a todo el proyecto */
 
 /* núcleo esencial de ionic */
 @import "@ionic/angular/css/core.css";
 
-/* estilos básicos para que la app respire y se estructure bien */
 @import "@ionic/angular/css/normalize.css";
 @import "@ionic/angular/css/structure.css";
 @import "@ionic/angular/css/typography.css";
@@ -22,16 +20,14 @@
 
 @import '@hackernoon/pixel-icon-library/fonts/iconfont.css';
 
-/* variables del sistema de diseño acogedor */
 :root {
-  --color-bg: #F9F6F0;        /* fondo general cálido y orgánico */
-  --color-espresso: #4A3F35;    /* texto principal y detalles con buena legibilidad */
-  --color-sage: #7B9E87;        /* verde suave estilo naturaleza */
-  --color-terracotta: #D98A6C;  /* naranja arcilla apagado */
-  --color-gold: #E8C37C;        /* amarillo mostaza cálido para destacar */
+  --color-bg: #F9F6F0;        
+  --color-espresso: #4A3F35;   
+  --color-sage: #7B9E87;        
+  --color-terracotta: #D98A6C;  
+  --color-gold: #E8C37C;        
   --ion-background-color: transparent; 
   
-  /* bordes sutiles y sombras difusas para dar ese toque de pegatina táctil */
   --cozy-border: 1px solid rgba(74, 63, 53, 0.12);
   --cozy-shadow: 0 10px 25px rgba(74, 63, 53, 0.05), 0 4px 10px rgba(74, 63, 53, 0.03);
   --cozy-shadow-hover: 0 15px 30px rgba(74, 63, 53, 0.08), 0 6px 15px rgba(74, 63, 53, 0.05);
@@ -43,15 +39,12 @@
   --background: var(--color-bg) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Cpath d='M40 37v6M37 40h6' stroke='%234A3F35' stroke-width='1.5' opacity='0.12'/%3E%3Ccircle cx='10' cy='10' r='1' fill='%234A3F35' opacity='0.12'/%3E%3C/svg%3E") repeat !important;
 }
 
-/* envoltorios de diseño globales */
-/* usamos esto en lugar de contenedores específicos por página para mantener la armonía */
 .cozy-wrapper {
   width: 80%;
   max-width: 1200px;
   margin: 10px auto 20px auto;
   padding-bottom: 20px;
   
-  /* modificador ideal para el muro de noticias o tableros expansivos */
   &.wide { max-width: 1400px; } 
   
   @media (max-width: 768px) {
@@ -109,7 +102,6 @@
     color: inherit;
   }
 
-  /* estado interactivo fluido para cuando la tarjeta es un botón o enlace */
   &.clickable {
     cursor: pointer;
     &:hover { transform: translateY(-3px); box-shadow: var(--cozy-shadow-hover); }
@@ -221,8 +213,7 @@ ion-content {
     &::-webkit-scrollbar-track {
       background: #EFE8DF;
       border-radius: 4px;
-      /* truco de espaciado para empujar visualmente la pista hacia abajo sin mover el contenido del diseño */
-      margin-top: 65px;
+     margin-top: 65px;
       background-clip: padding-box;
       border-top: 65px solid transparent; 
     }
@@ -239,16 +230,19 @@ ion-content {
   }
 }
 
-/* eliminamos el padding inferior del contenido nativo de ionic para evitar vacíos */
+
 ion-content {
   --padding-bottom: 0px !important;
 }
 
-/* aseguramos que el contenedor del pie de página quede fijo abajo de forma limpia */
 .footers-wrapper {
   margin-top: 40px;
   margin-bottom: 0 !important;
   padding-bottom: 0 !important;
   display: block;
   line-height: 0; /* previene espacios vacíos indeseados */
+}
+
+ion-content {
+  --padding-top: 85px; 
 }

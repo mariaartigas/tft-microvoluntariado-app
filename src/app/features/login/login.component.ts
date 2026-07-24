@@ -9,7 +9,7 @@ import { FooterComponent } from "../../shared/components/footer/footer.component
 
 @Component({
   standalone: true,
-  imports: [RouterLink, AsyncPipe, SideMenuComponent, IonCheckbox, IonInput, IonButton, ReactiveFormsModule, IonContent, IonCheckbox, FooterComponent],
+  imports: [RouterLink, IonButton, ReactiveFormsModule, IonContent, FooterComponent],
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss']
 })

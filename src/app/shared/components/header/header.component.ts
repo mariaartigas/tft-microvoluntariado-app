@@ -17,9 +17,8 @@ import { AuthService } from '../../../core/services/auth.service';
     IonHeader,
     IonToolbar,
     IonButtons,
-    IonMenuButton,
-    IonIcon
-  ]
+    IonMenuButton
+]
 })
 export class HeaderComponent {
   readonly authService = inject(AuthService);

@@ -22,7 +22,8 @@ export interface ProfileState {
   uid: string;
   displayName: string;
   organizationOwnerId?: string;
-  logoURL?: string;
+  role?: string;
+  logoURL?: string | null;
   photoURL?: string | null;
   description: string;
   email: string;
@@ -206,6 +207,7 @@ export class ProfileDashboardPageComponent {
     uid: user.uid,
     displayName: user.displayName || user.username,
     photoURL: user.photoURL,
+    role: user.role,
     username: user.username,
     description: user.bio || 'Sin descripción personal introducida.',
     email: user.email,

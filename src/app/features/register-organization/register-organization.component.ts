@@ -12,6 +12,7 @@ import { Router, RouterLink } from '@angular/router';
 import { OrganizationService } from '../../core/services/organization.service';
 import { UserService } from '../../core/services/user.service';
 import { FooterComponent } from "../../shared/components/footer/footer.component";
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   standalone: true,
@@ -40,50 +41,53 @@ export class RegisterOrganizationComponent {
 
   //FUNCIÓN
   async registerWithGoogle() {
+     const { orgName, orgEmail } = this.registerForm.getRawValue();
+    try {
+    this.isLoading.set(true);
+    const firebaseUser = await this.authService.loginWithGoogle();
 
-    if (this.registerForm.invalid) {
-      this.registerForm.markAllAsTouched();
+    if (!firebaseUser) {
+      this.isLoading.set(false);
       return;
     }
-    const { orgName, orgEmail } = this.registerForm.getRawValue();
-
-    this.isLoading.set(true);
-    this.errorMessage.set(null);
-
-    try {
-      const userProfile = await this.authService.loginWithGoogle();
-      if (!userProfile) {
-        this.isLoading.set(false);
-        return;
-      }
-
-      //construimos los datos del usuario a pasar a la organización
-      const ownerData = {uid: userProfile.uid, displayName: userProfile.displayName || '', email: userProfile.email || ''};
-
-      // crear la org  de forma AISLADA CON SU SERVICIO
-     const org = await this.orgService.ensureOrganization(orgName, orgEmail, ownerData);
-      // vinculamos con el usuario IMPORTANT
-      // Como userProfile ya vino listo del login, usamos su UID directamente
-      await this.userService.update(userProfile.uid, {organizationId: org.uid,role: 'organization'});
-
-      // redirección ...
-      await this.router.navigate(['/organization', org.slug]);
-
-    } catch (e: any) {
-
-        if (e.message === 'ORGANIZATION_EXISTS') {
-          const message = 'Ya existe una organización registrada con ese nombre.';
-          this.errorMessage.set(message);
-          await this.showToast(message, 'danger'); // Toast rojo de alerta
-      } else {
-          const genericMessage = 'No se pudo completar el registro. Inténtalo de nuevo.';
-          this.errorMessage.set(genericMessage);
-          await this.showToast(genericMessage, 'danger');
-      }
-
-    } finally {
-      this.isLoading.set(false);
+    const userProfile = await firstValueFrom(this.userService.ensureUserProfile$(firebaseUser));
+    
+    if (!userProfile) {
+      throw new Error('USER_PROFILE_FAILED');
     }
+  
+    const ownerData = {
+      uid: userProfile.uid, 
+      displayName: userProfile.displayName || '', 
+      email: userProfile.email || ''
+    };
+
+    const org = await this.orgService.ensureOrganization(orgName, orgEmail, ownerData);
+
+    await this.userService.update(userProfile.uid, {
+      organizationId: org.uid,
+      role: 'organization', 
+      organizationSlug: org.slug
+    });
+
+    await this.router.navigate(['/organization', org.slug]);
+
+  } catch (e: any) {
+
+    if (e.message === 'ORGANIZATION_EXISTS') {
+      const message = 'Ya existe una organización registrada con ese nombre.';
+      this.errorMessage.set(message);
+      await this.showToast(message, 'danger'); 
+    } else {
+      const genericMessage = 'No se pudo completar el registro. Inténtalo de nuevo.';
+      this.errorMessage.set(genericMessage);
+      await this.showToast(genericMessage, 'danger');
+    }
+
+  } finally {
+    this.isLoading.set(false);
+   
+  }
   }
 
 

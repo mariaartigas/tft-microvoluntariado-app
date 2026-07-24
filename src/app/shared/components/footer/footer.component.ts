@@ -1,12 +1,7 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { 
-  IonGrid, 
-  IonRow, 
-  IonCol, 
-  IonIcon 
-} from '@ionic/angular/standalone';
+import { IonGrid, IonRow, IonCol} from '@ionic/angular/standalone';
 
 @Component({
   selector: 'app-footer',
@@ -14,13 +9,12 @@ import {
   styleUrls: ['./footer.component.scss'],
   standalone: true,
   imports: [
-    CommonModule, 
-    RouterLink, 
-    IonGrid, 
-    IonRow, 
-    IonCol, 
-    IonIcon
-  ]
+    CommonModule,
+    RouterLink,
+    IonGrid,
+    IonRow,
+    IonCol
+]
 })
 export class FooterComponent {
   constructor() {}

@@ -351,6 +351,21 @@ ion-accordion-group.task-list-items {
   margin-top: 16px !important;
 }
 
+ion-content::part(scroll) {
+  display: flex;
+  flex-direction: column;
+}
+
+
+.cozy-wrapper {
+  flex: 1;
+}
+
+.footers-wrapper {
+  margin-top: auto;
+  width: 100%;
+}
+
 @media (max-width: 767px) {
   .task-container {
     width: 92%; 

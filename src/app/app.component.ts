@@ -1,18 +1,27 @@
 import { Component } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
-import { IonApp, IonRouterOutlet, IonMenu, IonContent, IonList, IonItem } from '@ionic/angular/standalone';
+import { RouterLink, RouterLinkActive } from '@angular/router';
+import { IonApp, IonRouterOutlet, IonMenu, IonContent, IonList, IonHeader, IonLabel, IonMenuToggle, IonToolbar } from '@ionic/angular/standalone';
+import { HeaderComponent } from "./shared/components/header/header.component";
 import { SideMenuComponent } from "./shared/components/side-menu/side-menu.component";
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet,
-    IonApp,
+  imports: [
     IonRouterOutlet,
+    IonMenu, HeaderComponent, RouterLink,
+    RouterLinkActive,
     IonMenu,
+    IonHeader,
+    IonToolbar,
+    IonLabel,
+    IonMenuToggle,
+    IonRouterOutlet,
     IonContent,
     IonList,
-    IonItem, SideMenuComponent],
+    IonApp,
+    SideMenuComponent
+],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'
 })

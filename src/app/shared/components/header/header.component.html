@@ -1,11 +1,12 @@
 <ion-header class="ion-no-border cozy-solid-header cozy-star-grid">
   <ion-toolbar class="cozy-navbar">
     
-    <!-- Botón de apertura para el menú lateral -->
+    <!-- Botón de menú e Impacto en Momentos a la izquierda -->
     <div class="left-nav-section" slot="start">
       <ion-buttons>
         <ion-menu-button></ion-menu-button>
       </ion-buttons>
+      <a routerLink="/home" class="brand-title">Impacto en Momentos</a>
     </div>
 
     <!-- Contenedor central de navegación en pastillas -->
@@ -20,24 +21,30 @@
       </div>
     </div>
 
-    <!-- Accesos rápidos e iconos de usuario -->
+    <!-- Accesos rápidos y etiqueta de Cuenta a la derecha -->
     <div class="right-icon-dock" slot="end">
-      <button 
-        class="icon-circle-btn bg-sage" 
-        [routerLink]="profileRoute()" 
-        aria-label="Mi Perfil">
-        <i class="hn hn-user-solid"></i>
-      </button>
+      <div class="profile-dock-item">
+        <button 
+          class="icon-circle-btn bg-sage" 
+          [routerLink]="profileRoute()" 
+          aria-label="Mi Perfil">
+          <i class="hn hn-user-solid"></i>
+        </button>
+        <span class="dock-label">Cuenta</span>
+      </div>
 
-          @if (authService.isAuthenticated()) {
-            <button 
-              class="icon-circle-btn bg-terracotta" 
-              (click)="authService.logout()" 
-              aria-label="Cerrar sesión">
-              <i class="hn hn-login"></i>
-            </button>
-          }
+      @if (authService.isAuthenticated()) {
+        <div class="profile-dock-item">
+          <button 
+            class="icon-circle-btn bg-terracotta" 
+            (click)="authService.logout()" 
+            aria-label="Cerrar sesión">
+            <i class="hn hn-login"></i>
+          </button>
+          <span class="dock-label">Salir</span>
         </div>
+      }
+    </div>
 
   </ion-toolbar>
   

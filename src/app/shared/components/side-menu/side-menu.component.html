@@ -4,7 +4,7 @@
       <div class="menu-profile-container" slot="start">
         
         <!-- Foto de perfil sin botón/click -->
-        @if (user(); as currentUser) {
+        @if (userProfile(); as currentUser) {
           <div class="round-avatar-wrapper">
             <img 
               [src]="currentUser.photoURL || 'assets/default-avatar.png'" 
@@ -30,14 +30,46 @@
       </ion-menu-toggle>
 
       <!-- Ir al perfil -->
-      @if (user(); as currentUser) {
+      @if (userProfile(); as currentUser) {
         <ion-menu-toggle auto-hide="false">
           <ion-item [routerLink]="profileLink" (click)="$any($event.currentTarget).blur()" routerDirection="root" lines="none" routerLinkActive="active">
            <i class="hn hn-user menu-icon" slot="start" aria-hidden="true"></i>
             <ion-label>Mi Perfil</ion-label>
           </ion-item>
         </ion-menu-toggle>
-      }
+
+         <!-- Mis Tareas: Solo si el usuario está logueado -->
+        <ion-menu-toggle auto-hide="false">
+          <ion-item [routerLink]="tasksLink" (click)="$any($event.currentTarget).blur()" routerDirection="root" lines="none" routerLinkActive="active">
+            <i class="hn hn-check-circle menu-icon" slot="start" aria-hidden="true"></i>
+            <ion-label>Mis Tareas</ion-label>
+          </ion-item>
+        </ion-menu-toggle>
+
+        @if (isOrganization) {
+          <ion-menu-toggle auto-hide="false">
+            <ion-item [routerLink]="organizationProfileLink" (click)="$any($event.currentTarget).blur()" routerDirection="root" lines="none" routerLinkActive="active">
+              <i class="hn hn-user menu-icon" slot="start" aria-hidden="true"></i>
+              <ion-label>Perfil Organización</ion-label>
+            </ion-item>
+          </ion-menu-toggle>
+
+          <ion-menu-toggle auto-hide="false">
+            <ion-item [routerLink]="organizationTasksLink" (click)="$any($event.currentTarget).blur()" routerDirection="root" lines="none" routerLinkActive="active">
+               <i class="hn hn-check-circle menu-icon" slot="start" aria-hidden="true"></i>
+              <ion-label>Tareas de Organización</ion-label>
+            </ion-item>
+          </ion-menu-toggle>
+        }
+
+        <ion-menu-toggle auto-hide="false">
+        <ion-item (click)="logout()" >
+          <i class="hn hn-info-circle menu-icon" slot="start" aria-hidden="true"></i>
+          <ion-label>Cerrar Sesión </ion-label>
+        </ion-item>
+      </ion-menu-toggle>
+
+        }
 
        <ion-menu-toggle auto-hide="false">
         <ion-item routerLink="/organizations" (click)="$any($event.currentTarget).blur()" routerDirection="root" lines="none" routerLinkActive="active">
@@ -45,17 +77,6 @@
           <ion-label>Organizaciones</ion-label>
         </ion-item>
       </ion-menu-toggle>
-
-
-      <!-- Mis Tareas: Solo si el usuario está logueado -->
-      @if (user(); as currentUser) {
-        <ion-menu-toggle auto-hide="false">
-          <ion-item [routerLink]="tasksLink" (click)="$any($event.currentTarget).blur()" routerDirection="root" lines="none" routerLinkActive="active">
-            <i class="hn hn-check-circle menu-icon" slot="start" aria-hidden="true"></i>
-            <ion-label>Mis Tareas</ion-label>
-          </ion-item>
-        </ion-menu-toggle>
-      }
 
       <!-- Sobre Nosotros -->
       <ion-menu-toggle auto-hide="false">
@@ -65,12 +86,6 @@
         </ion-item>
       </ion-menu-toggle>
 
-       <ion-menu-toggle auto-hide="false">
-        <ion-item (click)="logout()" >
-          <i class="hn hn-info-circle menu-icon" slot="start" aria-hidden="true"></i>
-          <ion-label>Cerrar Sesión </ion-label>
-        </ion-item>
-      </ion-menu-toggle>
 
     </ion-list>
   </ion-content>

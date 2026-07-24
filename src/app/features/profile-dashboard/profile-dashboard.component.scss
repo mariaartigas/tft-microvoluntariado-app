@@ -291,6 +291,21 @@
   margin-top: 35px !important; 
 }
 
+ion-content::part(scroll) {
+  display: flex;
+  flex-direction: column;
+}
+
+
+.cozy-wrapper {
+  flex: 1;
+}
+
+.footers-wrapper {
+  margin-top: auto;
+  width: 100%;
+}
+
 @media (max-width: 767px) {
   .ion-margin-top-so-mobile { 
     margin-top: 25px !important; 

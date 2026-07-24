@@ -3,7 +3,7 @@
 {
   "compileOnSave": false,
   "compilerOptions": {
-    "rootDir": "./src", //tuve que añadir esto para que no saltara un warning de archivos a compilar o no
+    "rootDir": "./src", 
     "outDir": "./dist/out-tsc",
     "strict": true,
     "noImplicitOverride": true,
