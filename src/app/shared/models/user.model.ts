@@ -10,9 +10,6 @@ export type UserRole = 'volunteer' | 'organization' | 'moderator';
 export interface UserStats {
   tasksCompleted: number;
   tasksAbandoned: number;
-  tasksExpired: number;
-  organizationsHelped: number;
-  totalHours: number;
 }
 
 export interface UserModel {
@@ -24,6 +21,7 @@ export interface UserModel {
   role: UserRole;
   isVisible: boolean;
   organizationId: string | null;
+  organizationSlug?: string;
   isVerified: boolean;
   xp: number;
   reputation: number; //
@@ -52,7 +50,7 @@ export function createDefaultUser(firebaseUser: { uid: string, email: string | n
     photoURL: firebaseUser.photoURL,
     role,
     isVisible: isOrg, // Los voluntarios serán solo visibles en cuanto completen su priemra TAREA
-    organizationId: null, // solo si está finalmente verificado, y es de org
+    organizationId: null, // solo si es de org
     isVerified: !isOrg,   // Los voluntarios entran activos, las orgs requieren verificación --> replantear cómo hacerlo? con moderadores?
     xp: 0,
     reputation: 0,      // Empiezan con reputación 0, lo máximo es 100
@@ -60,9 +58,6 @@ export function createDefaultUser(firebaseUser: { uid: string, email: string | n
     statistics: {
       tasksCompleted: 0,
       tasksAbandoned: 0,
-      tasksExpired: 0,
-      organizationsHelped: 0,
-      totalHours: 0,
     },
     createdAt: new Date(),
     updatedAt: new Date()
@@ -81,9 +76,6 @@ export const userConverter: FirestoreDataConverter<UserModel> = {
     const statistics: UserStats = {
       tasksCompleted: rawStats['tasksCompleted'] ?? 0,
       tasksAbandoned: rawStats['tasksAbandoned'] ?? 0,
-      tasksExpired: rawStats['tasksExpired'] ?? 0,
-      organizationsHelped: rawStats['organizationsHelped'] ?? 0,
-      totalHours: rawStats['totalHours'] ?? 0,
     };
     return {
       uid: snapshot.id,
@@ -94,6 +86,7 @@ export const userConverter: FirestoreDataConverter<UserModel> = {
       role: data['role'],
       isVisible: data['isVisible'],
       organizationId: data['organizationId'],
+      organizationSlug: data['organizationSlug'],
       isVerified: data['isVerified'],
       xp: data['xp'] ?? 0,
       reputation: data['reputation'] ?? 100,

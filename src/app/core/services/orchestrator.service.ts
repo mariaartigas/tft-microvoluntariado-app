@@ -39,7 +39,7 @@ export class OrchestratorService {
 
   // asignación de la tarea
   async claimTaskForVolunteer(taskId: string, volunteer: { uid: string; displayName: string }): Promise<void> {
-    // Actualizamos la tarea asignándola al voluntario
+    
     await this.taskService.claimTask(taskId, volunteer);
   }
 
@@ -60,21 +60,22 @@ export class OrchestratorService {
     await this.taskService.submitTaskForReview(taskId, proofNote, proofUrl);
   }
 
-  // 2. La ONG aprueba la entrega -> Marca completada y actualiza el perfil del voluntario 
+  // La ONG aprueba la entrega -> Marca completada y actualiza el perfil del voluntario 
   async approveTaskCompletion(taskId: string, volunteerId?: string, feedbackReview?: string): Promise<void> {
  
     await this.taskService.approveTask(taskId, feedbackReview);
-    let targetVolunteerId = volunteerId; //esto es para asegurarnos de que se actualizan los datos
+    const task = await firstValueFrom(this.taskService.getById$(taskId));
+    let targetVolunteerId = task?.assignedVolunteerId || (task as any)?.assignedVolunteer?.uid; //esto es para asegurarnos de que se actualizan los datos
+    const orgId = task?.orgId || (task as any)?.org?.uid;
 
-    if (!targetVolunteerId) {
-      // Si no nos llegó por parámetro, lo leemos directamente de la tarea en Firestore
-      const task = await firstValueFrom(this.taskService.getById$(taskId));
-      targetVolunteerId = task?.assignedVolunteerId || (task as any)?.assignedVolunteer?.uid;
-    }
-
-    // 3. Si encontramos al voluntario, actualizamos sus métricas atómicamente
     if (targetVolunteerId) {
       await this.userService.recordCompletedTask(targetVolunteerId);
+    } else {
+      console.warn(' No se pudo actualizar XP: La tarea no tiene un voluntario asignado válido.');
+    }
+
+    if (targetVolunteerId) {
+      await this.orgService.recordCompletedTask(orgId);
     } else {
       console.warn(' No se pudo actualizar XP: La tarea no tiene un voluntario asignado válido.');
     }
@@ -103,16 +104,20 @@ export class OrchestratorService {
     if (!currentUser) return;
 
     const uid = currentUser.uid;
+    const profile = this.authService.currentUserProfile();
 
     try {
-      // 1. Aseguramos la sesión reautenticando con Google primero (si salta la popup y el usuario cancela, no se borrará nada en Firestore)
-      await this.authService.reauthenticateWithGoogle();
+     await this.authService.reauthenticateWithGoogle();
 
-      // 2. Limpiamos y borramos en Firestore mientras la sesión está recién renovada
+  
       await this.taskService.unassignVolunteerFromTasks(uid);
+      if (profile?.role === 'organization') {
+        const orgId = profile.organizationId || uid;
+        await this.orgService.delete(orgId);
+      }
       await this.userService.delete(uid);
 
-      // 3. Borramos de Firebase Auth definitivamente
+
       await this.authService.deleteAuthAccount();
 
     } catch (error: any) {
@@ -126,19 +131,19 @@ export class OrchestratorService {
     const currentUser = this.authService.currentUser();
     if (!currentUser) throw new Error('No hay usuario autenticado');
 
-    const orgId = currentUser.uid;
-
+    const uid = currentUser.uid;
+    const profile = this.authService.currentUserProfile();
+   
     try {
-      // 1. Aseguramos la sesión reautenticando con Google
+       const orgId = profile?.organizationId || uid;
+
       await this.authService.reauthenticateWithGoogle();
 
-      // 2. Eliminación de datos en Firestore
       await this.taskService.deleteTasksByOrganization(orgId);
       await this.orgService.delete(orgId);
-      await this.userService.delete(orgId);
+      await this.userService.update(uid, {role: 'volunteer', organizationId: '', organizationSlug: ''});
 
-      // 3. Borramos de Firebase Auth
-      await this.authService.deleteAuthAccount();
+      //await this.authService.deleteAuthAccount();
 
     } catch (error: any) {
       console.error('Error durante la eliminación de la organización:', error);

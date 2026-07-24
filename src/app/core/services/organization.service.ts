@@ -1,8 +1,8 @@
-import { Injectable, inject} from '@angular/core';
-import {Firestore, doc, setDoc, getDoc, serverTimestamp, updateDoc, collection, getDocs, query, where, collectionData, arrayUnion, deleteDoc, arrayRemove} from '@angular/fire/firestore';
+import { Injectable, Injector, inject, runInInjectionContext} from '@angular/core';
+import {Firestore, doc, setDoc, getDoc, serverTimestamp, updateDoc, collection, getDocs, query, where, collectionData, arrayUnion, deleteDoc, arrayRemove, increment} from '@angular/fire/firestore';
 import { OrganizationModel, organizationConverter, createDefaultOrganization, generateSlug  } from '../../shared/models/organization.model';
 import { Observable } from 'rxjs/internal/Observable';
-import { map } from 'rxjs';
+import { async, map } from 'rxjs';
 import { TaskSummary } from '../../shared/models/task.model';
 
 @Injectable({ providedIn: 'root' })
@@ -11,20 +11,24 @@ import { TaskSummary } from '../../shared/models/task.model';
 export class OrganizationService {
 
   private firestore =  inject(Firestore);
+  private injector = inject(Injector);
   
   private getDocRef(orgId: string) {
     return doc(this.firestore, 'organizations', orgId).withConverter(organizationConverter);
   }
 
   getOrganizationBySlugOrId$(param: string): Observable<OrganizationModel | undefined> {
-  // Primero intentamos buscarlo por slug
-  const colRef = collection(this.firestore, 'organizations').withConverter(organizationConverter);
-  const q = query(colRef, where('slug', '==', param));
-  
-  return collectionData(q).pipe(
-    map(orgs => orgs[0] || undefined)
-  );
-}
+
+  return runInInjectionContext(this.injector, () => {
+      const colRef = collection(this.firestore, 'organizations').withConverter(organizationConverter);
+      const q = query(colRef, where('slug', '==', param));
+
+      return (collectionData(q) as Observable<OrganizationModel[]>).pipe(
+        map(orgs => orgs[0] || undefined)
+      );
+    });
+  }
+
 
   //obtener, búsqueda en las organizaciones
   private get getOrgs() { //solo cuesta una lectura we are ok
@@ -60,19 +64,21 @@ export class OrganizationService {
   }
 //rebusca en las organizaciones
   getBySlug$(slug: string): Observable<OrganizationModel | null> {
-  const q = query(this.getOrgs, where('slug', '==', slug));
+  return runInInjectionContext(this.injector, () => {
+      const q = query(this.getOrgs, where('slug', '==', slug));
 
-  // Dejamos la conexión reactiva abierta en tiempo real
-  return collectionData(q, { idField: 'uid' }).pipe(
-    map(orgs => {
-      if (!orgs || orgs.length === 0) return null;
-      return orgs[0] as OrganizationModel;
-    })
-  );
-}
+      // Dejamos la conexión reactiva abierta en tiempo real
+      return (collectionData(q, { idField: 'uid' }) as Observable<OrganizationModel[]>).pipe(
+        map(orgs => {
+          if (!orgs || orgs.length === 0) return null;
+          return orgs[0] as OrganizationModel;
+        })
+      );
+    });
+  }
 
 //ENSURE organización -> crea la organización ligada de entrada ya con el USUARIO CREADOR
- async ensureOrganization(orgName: string, contactEmail: string, owner: { uid: string; displayName: string; email: string }): Promise<OrganizationModel> {
+ async ensureOrganization(orgName: string, contactEmail: string, owner: { uid: string; displayName: string; email: string, photoURL?: string}): Promise<OrganizationModel> {
   try {
     const slug = generateSlug(orgName);
     
@@ -86,7 +92,7 @@ export class OrganizationService {
     }
     
     const newOrgId = this.generateNewId();
-    const newOrg = createDefaultOrganization(newOrgId, orgName, owner, contactEmail); 
+    const newOrg = createDefaultOrganization(newOrgId, orgName, owner, contactEmail, owner.photoURL); 
     
     await this.create(newOrg);
     
@@ -110,21 +116,40 @@ export class OrganizationService {
     });
   }
 
+  //eliminación de la tarea
+
   async removeRecentTask(orgId: string, taskId: string): Promise<void> {
-  const ref = this.getDocRef(orgId);
-  const snap = await getDoc(ref);
+    const ref = this.getDocRef(orgId);
+    const snap = await runInInjectionContext(this.injector, () => getDoc(ref));
 
-  if (!snap.exists()) return;
+    if (!snap.exists()) return;
 
-  const org = snap.data();
-  // Solución al error TS18048: fallback a array vacío si recentTasks es undefined
-  const currentTasks = org.recentTasks ?? [];
-  const updatedTasks = currentTasks.filter(t => t.taskId !== taskId);
+    const org = snap.data();
+    // Solución al error TS18048: fallback a array vacío si recentTasks es undefined
+    const currentTasks = org.recentTasks ?? [];
+    const updatedTasks = currentTasks.filter(t => t.taskId !== taskId);
 
-  await updateDoc(ref, {
-    recentTasks: updatedTasks,
-    updatedAt: serverTimestamp()
-  });
+    await updateDoc(ref, {
+      recentTasks: updatedTasks,
+      updatedAt: serverTimestamp()
+    });
 }
+
+//añadir experiencia !
+
+async recordCompletedTask(orgId: string): Promise<void> {
+ 
+    try {
+      // actualizamos XP
+      await this.update(orgId, {
+        'statistics.tasksCompleted': increment(1),
+        xp: increment(100),
+        updatedAt: serverTimestamp()
+    } as any );
+
+    } catch (error) {
+      console.error('Error crítico en recordCompletedTask:', error);
+    }
+  }
 
 }

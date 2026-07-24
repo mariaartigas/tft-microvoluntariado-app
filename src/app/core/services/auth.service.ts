@@ -67,7 +67,10 @@ export class AuthService {
 
   //cierre de sesión
   async logout() {
-    await signOut(this.auth).then(() => this.router.navigate(['/login']));
+    await this.router.navigate(['/login'], { replaceUrl: true });
+    setTimeout(async () => {
+      await this.auth.signOut();
+    }, 100);
   }
 
   //delete

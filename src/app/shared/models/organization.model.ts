@@ -6,17 +6,11 @@ import { TaskSummary } from './task.model';
 //información de contacto
 export interface OrganizationContacts {
   email: string;              
-  phone?: string | null;
-  website: string | null;
-  instagram?: string | null;
 }
 
 //estadísticas de la organización
 export interface OrganizationStats {
   completedTasks: number;
-  cancelledTasks: number;
-  activeVolunteers: number; 
-  totalHours: number;
 }
 
 //denormalización
@@ -34,7 +28,8 @@ export interface OrganizationModel {
   email: string; 
   contacts: OrganizationContacts;
   slug: string; //para la url de la página como tal
-  logoURL: string | null;
+  logoURL?: string | null;
+  xp?: number;
   description: string;
   ownerId: string;        // el uid del creader usuario de esta org
   members: OrganizationMember[]; // miembros, acualmente en desuso
@@ -59,13 +54,14 @@ export const isOrganizationValid = (name: string): boolean => {
 };
 
 //creación por defecto ! 
-export function createDefaultOrganization( orgId: string, name: string, owner: { uid: string; displayName: string; email: string }, contactEmail: string): OrganizationModel {
+export function createDefaultOrganization( orgId: string, name: string, owner: { uid: string; displayName: string; email: string }, contactEmail: string, photoURL?: string ): OrganizationModel {
   return {
   uid: orgId,
   slug: generateSlug(name),
   verified: false, // por defecto hasta revisión de moderador
   displayName: name,
-  logoURL: null,
+  logoURL: photoURL ?? null,
+  xp: 0,
   description: '',
   ownerId: owner.uid,
   members: [
@@ -79,8 +75,6 @@ export function createDefaultOrganization( orgId: string, name: string, owner: {
   email: contactEmail,
   contacts: {
     email: contactEmail,
-    phone:"",
-    website: "",
     },
     createdAt: new Date(),    //marcar el tiempo actual
     updatedAt: new Date()
@@ -101,6 +95,7 @@ export const organizationConverter: FirestoreDataConverter<OrganizationModel> = 
       slug: data['slug'] ?? '',
       verified: data['verified'] ?? false,
       displayName: data['displayName'] ?? '',
+      xp: data['xp'] ?? 0,
       logoURL: data['logoURL'] ?? null,
       description: data['description'] ?? '',
       createdAt: data['createdAt']?.toDate() ?? new Date(), // Convertimos de vuelta de Timestamp a Date

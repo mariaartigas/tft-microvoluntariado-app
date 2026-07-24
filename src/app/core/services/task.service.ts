@@ -59,7 +59,9 @@ export class TaskService {
   //GETs -------------
 
   getById$(taskId: string): Observable<TaskModel | undefined> {
-    return docData(this.getTaskDocRef(taskId));
+    return runInInjectionContext(this.injector, () => {
+      return docData(this.getTaskDocRef(taskId));
+    });
   }
 
   private getTaskCollectionRef() {
@@ -167,16 +169,16 @@ export class TaskService {
   }
 
   async unassignVolunteerFromTasks(volunteerId: string): Promise<void> {
-  const colRef = collection(this.firestore, 'tasks').withConverter(taskConverter);
-  const q = query(colRef, where('assignedVolunteerId', '==', volunteerId));
-  const snapshot = await getDocs(q);
+    const colRef = collection(this.firestore, 'tasks').withConverter(taskConverter);
+    const q = query(colRef, where('assignedVolunteerId', '==', volunteerId));
+    const snapshot = await getDocs(q);
 
-  // Reutilizamos tu método unclaimTask para cada tarea encontrada
-  const unclaimPromises = snapshot.docs.map(docSnap => 
-    this.unclaimTask(docSnap.id)
-  );
+  
+    const unclaimPromises = snapshot.docs.map(docSnap => 
+      this.unclaimTask(docSnap.id)
+    );
 
-  await Promise.all(unclaimPromises);
+    await Promise.all(unclaimPromises);
 }
 
 //ENTREGA de tarea

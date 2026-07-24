@@ -2,7 +2,7 @@
 
 import { DocumentData, FirestoreDataConverter, QueryDocumentSnapshot, SnapshotOptions } from "@angular/fire/firestore";
 
-export type TaskStatus = 'Activa' | 'Asignada' | 'En Curso' | 'Pendiente de Revisión' | 'Completada' | 'Cancelada';
+export type TaskStatus = 'Activa' |'En Curso' | 'Pendiente de Revisión' | 'Completada';
 
 export interface TaskSummary {
   taskId: string;
@@ -71,6 +71,9 @@ export const taskConverter: FirestoreDataConverter<TaskModel> = {
       status: data['status'] ?? 'Activa',
       estimatedTime: data['estimatedTime'] ?? 'No especificado',
       deadline: data['deadline']?.toDate ? data['deadline'].toDate() : new Date(data['deadline'] ?? Date.now()),
+      proofNote: data['proofNote'] ?? null,
+      proofUrl: data['proofUrl'] ?? null,
+      submittedAt: data['submittedAt']?.toDate ? data['submittedAt'].toDate() : null,
       assignedVolunteerName: data['assignedVolunteerName'],
       hoursCalculated: data['hoursCalculated'] ?? 1,
       assignedVolunteerId: data['assignedVolunteerId'] ?? null,
