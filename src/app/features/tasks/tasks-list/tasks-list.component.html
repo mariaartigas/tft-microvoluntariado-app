@@ -1,173 +1,137 @@
-<ion-content class="tasks-content ion-padding">
-
-  <!-- 1. Estado de Carga -->
-  @if (isLoading()) {
-    <div class="loading-container ion-text-center">
-      <ion-spinner name="crescent"></ion-spinner>
-      <p>Cargando tareas...</p>
-    </div>
-  } @else {
+<ion-content class="cozy-star-grid ion-padding">
+  
+  <div class="task-container">
     
-    <!-- 2. Lista de Tareas en Acordeón -->
-    <ion-accordion-group class="custom-accordion-group">
-      @for (task of tasks(); track task.uid) {
-        <ion-accordion [value]="task.uid" class="custom-accordion">
-          
-          <!-- Cabecera -->
-          <ion-item slot="header" class="accordion-header" lines="none">
-            <div class="header-content">
-              <div class="title-section">
-                <i class="hn hn-file-text task-icon"></i>
-                <h2>{{ task.title }}</h2>
-              </div>
-              
-              <!-- Badge de Estado Dinámico -->
-              <span class="status-badge {{ getStatusClass(task.status) }}">
-                {{ task.status }}
-              </span>
-            </div>
-          </ion-item>
+    <!-- Spinner de carga inicial -->
+    @if (isLoading()) {
+      <div class="loading-container">
+        <ion-spinner name="crescent"></ion-spinner>
+      </div>
+    } @else {
 
-          <!-- Contenido Desplegable -->
-          <div slot="content" class="accordion-content ion-padding">
-            
-            <p class="description-text">
-              {{ task.description || 'Sin descripción detallada.' }}
-            </p>
-            
-            <!-- Grid de Metadatos -->
-            <div class="task-metadata-grid">
-              
-              @if (task.estimatedTime) {
-                <div class="meta-item">
-                  <i class="hn hn-clock"></i>
-                  <div class="meta-text">
-                    <span class="meta-label">Estimación</span>
-                    <span class="meta-value">{{ task.estimatedTime }}</span>
+      <div class="tasks-vertical-list">
+        <h3 class="section-title">listado de tareas</h3>
+
+        @if (tasks().length === 0) {
+          <p class="empty-state">No hay tareas disponibles en este momento.</p>
+        } @else {
+          <ion-accordion-group class="task-list-items">
+            @for (task of tasks(); track task.uid) {
+              <ion-accordion [value]="task.uid" class="cozy-accordion-item">
+                
+                <!-- Encabezado de la tarea en la lista -->
+                <ion-item slot="header" lines="none" class="task-list-item-header">
+                  <div class="task-item-info">
+                    <span class="task-item-title">{{ task.title }}</span>
+                    <span class="task-item-company">{{ task.orgDisplayName || 'Organización' }}</span>
                   </div>
-                </div>
-              }
-
-              @if (task.deadline) {
-                <div class="meta-item">
-                  <i class="hn hn-calendar"></i>
-                  <div class="meta-text">
-                    <span class="meta-label">Fecha Límite</span>
-                    <span class="meta-value">{{ task.deadline | date:'dd/MM/yyyy' }}</span>
+                  <div class="task-item-status-pill" [class]="getStatusClass(task.status)">
+                    <span>{{ task.status }}</span>
                   </div>
+                </ion-item>
+
+                <!-- DETALLES DESPLEGADOS JUSTO DEBAJO -->
+                <div slot="content" class="task-inline-details">
+                  
+                  <!-- Estado e información de la tarea -->
+                  <ion-card class="cozy-card dashboard-card sage-card compact-status-card">
+                    <div class="card-sticker gold sticker-tilt-right" aria-hidden="true"></div>
+                    <ion-card-content class="card-content-split">
+                      
+                      <div class="status-info-area">
+                        <div class="status-row-inline" [class]="getStatusClass(task.status)">
+                          <span class="status-value-main">{{ task.status }}</span>
+                        </div>
+
+                        @if (task.createdAt || task.deadline) {
+                          <div class="task-dates-badge">
+                            @if (task.createdAt) {
+                              <div class="date-item">
+                                <span class="date-label">inicio:</span>
+                                <span class="date-value">{{ task.createdAt | date:'shortDate' }}</span>
+                              </div>
+                            }
+                            @if (task.createdAt) {
+                              <span class="date-separator">—</span>
+                            }
+                            @if (task.deadline) {
+                              <div class="date-item">
+                                <span class="date-label">fin:</span>
+                                <span class="date-value">{{ task.deadline | date:'shortDate' }}</span>
+                              </div>
+                            }
+                          </div>
+                        }
+                      </div>
+
+                      <!-- Acciones con métodos existentes del .ts -->
+                     <div class="status-actions">
+                        <ion-button fill="solid" size="medium" class="action-btn btn-detail" (click)="openTaskDetailModal(task)" title="Ver detalle">
+                          <i class="hn hn-eye-solid"></i>
+                          <span>Ver detalle</span>
+                        </ion-button>
+
+                        @if (isOwner()) {
+                          <ion-button fill="solid" size="medium" class="action-btn btn-delete" (click)="deleteTask(task)" title="Eliminar tarea">
+                            <i class="hn hn-trash-solid"></i>
+                          </ion-button>
+                        } @else {
+                          @if (task.status === 'En Curso' && isAssignedToCurrentVolunteer(task)) {
+                          <button type="button" class="btn-abandon" (click)="unclaimTask(task)">
+                            <i class="hn hn-user-times"></i> Abandonar tarea
+                          </button>
+                        }
+                      }
+                      </div>
+
+                    </ion-card-content>
+                  </ion-card>
+                  
+                  <!-- Descripción de la tarea / nota -->
+                  <ion-card class="cozy-card dashboard-card cream-card h-100 note-card ion-margin-top-small">
+                    <div class="card-sticker terracotta sticker-tilt-left" aria-hidden="true"></div>
+                    <ion-card-header>
+                      <ion-card-title class="card-headline">descripción / nota</ion-card-title>
+                    </ion-card-header>
+                    <ion-card-content class="card-body">
+                      @if (task.description) {
+                        <p class="reading-text">{{ task.description }}</p>
+                      } @else {
+                        <p class="empty-state">La organización no ha proporcionado notas adicionales.</p>
+                      }
+                    </ion-card-content>
+                  </ion-card>
+
                 </div>
-              }
 
-              @if (mode !== 'org' && task.orgDisplayName) {
-                <div class="meta-item">
-                  <i class="hn hn-building"></i>
-                  <div class="meta-text">
-                    <span class="meta-label">Organización</span>
-                    <span class="meta-value">{{ task.orgDisplayName }}</span>
-                  </div>
-                </div>
-              }
+              </ion-accordion>
+            }
+          </ion-accordion-group>
+        }
 
-              @if (task.assignedVolunteerName) {
-                <div class="meta-item">
-                  <i class="hn hn-user"></i>
-                  <div class="meta-text">
-                    <span class="meta-label">Voluntario</span>
-                    <span class="meta-value">{{ task.assignedVolunteerName }}</span>
-                  </div>
-                </div>
-              }
+      </div>
 
-            </div>
+      <!-- Infinite Scroll para paginación -->
+      <ion-infinite-scroll (ionInfinite)="loadTasks($event)">
+        <ion-infinite-scroll-content loadingSpinner="bubbles" loadingText="Cargando más tareas...">
+        </ion-infinite-scroll-content>
+      </ion-infinite-scroll>
 
-            <!-- BOTONES DE ACCIÓN SEGÚN EL ROL -->
-            <div class="ion-margin-top ion-text-end action-buttons-row">
-              
-              <!-- ACCIONES PARA EL DUEÑO DE LA ONG -->
-              @if (isOwner()) {
-                @if (task.status === 'Pendiente de Revisión') {
-                  <ion-button size="small" color="success" fill="solid" (click)="openTaskDetailModal(task)">
-                    <i class="hn hn-check-circle ion-margin-end"></i> Revisar Entrega
-                  </ion-button>
-                }
+    }
 
-                <ion-button size="small" color="danger" fill="outline" (click)="deleteTask(task)">
-                  <i class="hn hn-trash ion-margin-end"></i> Eliminar
-                </ion-button>
-              } 
-              
-              <!-- ACCIONES PARA VOLUNTARIOS / VISITANTES -->
-              @else {
-                @if (task.status === 'Activa') {
-                  <ion-button size="small" fill="outline" class="main-button" (click)="openTaskDetailModal(task)">
-                    Ver detalles / Apuntarme
-                  </ion-button>
-                }
+  </div>
 
-                @if (task.assignedVolunteerId === currentUser()?.uid && task.status === 'En Curso') {
-                  <ion-button size="small" color="primary" fill="solid" (click)="openTaskDetailModal(task)">
-                    Entregar Tarea
-                  </ion-button>
-
-                  <ion-button size="small" color="warning" fill="outline" (click)="unclaimTask(task)">
-                    Abandonar Tarea
-                  </ion-button>
-                }
-
-                @if (task.assignedVolunteerId === currentUser()?.uid && task.status === 'Pendiente de Revisión') {
-                  <span class="status-badge status-revision">
-                    En espera de revisión por la ONG
-                  </span>
-                }
-              }
-
-              <!-- AVISO RÁPIDO DE NOTA DE LA ONG -->
-              @if (task.feedbackNote) {
-                <div class="card-feedback-alert ion-margin-top">
-                  <i class="hn hn-info-circle"></i>
-                  <span><strong>Nota de la ONG:</strong> {{ task.feedbackNote }}</span>
-                </div>
-              }
-
-            </div>
-
-          </div>
-
-        </ion-accordion>
-      } @empty {
-        <!-- Estado Vacío -->
-        <div class="empty-state-box ion-text-center">
-          <i class="hn hn-folder-open empty-icon"></i>
-          <h3>
-            @if (mode === 'user') { Sin tareas asignadas }
-            @else if (mode === 'org') { Sin tareas publicadas }
-            @else { No hay tareas disponibles }
-          </h3>
-          <p>
-            @if (mode === 'user') { Aún no te has apuntado a ninguna tarea. }
-            @else if (mode === 'org') { Esta organización aún no ha creado tareas. }
-            @else { No se encontraron tareas disponibles por el momento. }
-          </p>
-        </div>
-      }
-    </ion-accordion-group>
-
-    <!-- Scroll Infinito -->
-    <ion-infinite-scroll (ionInfinite)="loadTasks($event)">
-      <ion-infinite-scroll-content 
-        loadingSpinner="crescent" 
-        loadingText="Cargando más tareas...">
-      </ion-infinite-scroll-content>
-    </ion-infinite-scroll>
-  }
-
-  <!-- BOTÓN FLOTANTE (FAB): Solo para el dueño de la ONG -->
-  @if (mode === 'org' && isOwner()) {
-    <ion-fab vertical="bottom" horizontal="end" slot="fixed" class="custom-fab">
-      <ion-fab-button (click)="openAddTaskModal()" aria-label="Añadir nueva tarea">
-        <i class="hn hn-plus"></i>
+  <!-- Botón flotante para agregar tarea (solo visible para dueños de ONG) -->
+  @if (isOwner()) {
+    <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+      <ion-fab-button (click)="openAddTaskModal()">
+        +
       </ion-fab-button>
     </ion-fab>
   }
 
 </ion-content>
+
+<ion-footer class="ion-no-border">
+  <app-footer></app-footer>
+</ion-footer>

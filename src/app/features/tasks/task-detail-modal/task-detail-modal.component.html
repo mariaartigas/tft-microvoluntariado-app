@@ -1,6 +1,6 @@
 <div class="modal-container">
   
-  <!-- 1. CABECERA FIJA ARRIBA -->
+  <!-- 1. CABECERA FIJA -->
   <div class="modal-toolbar">
     <div class="modal-title">
       <i class="hn hn-file-text"></i>
@@ -11,37 +11,48 @@
     </button>
   </div>
 
-  <!-- 2. CONTENIDO INTERMEDIO CON SCROLL -->
+  <!-- 2. CONTENIDO SCROLLABLE -->
   <ion-content class="modal-content-scroll">
-    <div class="ion-padding">
+    <div class="modal-body-wrapper">
       
-      <div class="form-group">
+      <!-- TARJETA PRINCIPAL DE INFORMACIÓN -->
+      <div class="cozy-modal-card">
+        <div class="card-sticker gold sticker-tilt-right" aria-hidden="true"></div>
+        
         <h2 class="task-title-heading">{{ task.title }}</h2>
-        <p class="org-subtext">Publicado por <strong>{{ task.orgDisplayName || 'Organización' }}</strong></p>
-      </div>
+        <p class="org-subtext">
+          Publicado por <strong>{{ task.orgDisplayName || 'Organización' }}</strong>
+        </p>
 
-      <div class="form-row ion-margin-top">
-        <div class="form-group half-width">
-          <label class="form-label"><i class="hn hn-clock"></i> Tiempo estimado</label>
-          <p class="detail-value">{{ task.estimatedTime || 'No especificado' }}</p>
+        <div class="details-grid ion-margin-top">
+          <div class="detail-box">
+            <span class="detail-label"><i class="hn hn-clock"></i> Tiempo estimado</span>
+            <span class="detail-value">{{ task.estimatedTime || 'No especificado' }}</span>
+          </div>
+
+          <div class="detail-box">
+            <span class="detail-label"><i class="hn hn-calendar"></i> Fecha límite</span>
+            <span class="detail-value">
+              @if (task.deadline) {
+                {{ task.deadline | date:'dd/MM/yyyy' }}
+              } @else {
+                Sin fecha
+              }
+            </span>
+          </div>
         </div>
 
-        <div class="form-group half-width">
-          <label class="form-label"><i class="hn hn-calendar"></i> Fecha límite</label>
-          <p class="detail-value">{{ task.deadline | date:'dd/MM/yyyy' }}</p>
+        <div class="description-box ion-margin-top">
+          <span class="detail-label"><i class="hn hn-align-left"></i> Descripción</span>
+          <p class="detail-description">{{ task.description || 'Sin descripción detallada.' }}</p>
         </div>
-      </div>
-
-      <div class="form-group ion-margin-top">
-        <label class="form-label"><i class="hn hn-align-left"></i> Descripción</label>
-        <p class="detail-description">{{ task.description || 'Sin descripción detallada.' }}</p>
       </div>
 
       <!-- SECCIÓN DE ENTREGA (VOLUNTARIO) -->
       @if (isAssignedVolunteer() && task.status === 'En Curso') {
-        <div class="submission-box ion-margin-top">
-          <hr class="divider" />
-          <h3>🚀 Entregar Trabajo Realizado</h3>
+        <div class="cozy-modal-card action-section submission-box ion-margin-top">
+          <div class="card-sticker terracotta sticker-tilt-left" aria-hidden="true"></div>
+          <h3 class="section-title">🚀 Entregar Trabajo Realizado</h3>
           
           <div class="form-group ion-margin-top">
             <label class="form-label">Comentarios / Nota de entrega</label>
@@ -64,29 +75,25 @@
           </div>
         </div>
       }
-
+      <!-- Si la tarea tiene un feedback previo de la ONG, se muestra para que el voluntario lo lea -->
+@if (task.feedbackNote && task.status === 'En Curso') {
+  <div class="cozy-modal-card action-section ion-margin-top" style="border-color: rgba(229, 91, 91, 0.3); background: #FFF8F8;">
+    <div class="card-sticker terracotta sticker-tilt-right" aria-hidden="true"></div>
+    <span class="detail-label" style="color: #E55B5B;"><i class="hn hn-exclamation-triangle"></i> Correcciones solicitadas por la ONG:</span>
+    <p class="detail-description" style="margin-top: 6px; color: #4A3F35;">{{ task.feedbackNote }}</p>
+  </div>
+}
       <!-- SECCIÓN DE REVISIÓN (ONG) -->
       @if (task.status === 'Pendiente de Revisión') {
-        <div class="review-box ion-margin-top">
-          <hr class="divider" />
-          <h3>🔍 Revisión de Entrega</h3>
+        <div class="cozy-modal-card action-section review-box ion-margin-top">
+          <div class="card-sticker gold sticker-tilt-right" aria-hidden="true"></div>
+          <h3 class="section-title">🔍 Revisión de Entrega</h3>
           <p class="volunteer-subtext">Voluntario: <strong>{{ task.assignedVolunteerName || 'Voluntario' }}</strong></p>
           
           @if (task.proofNote) {
             <div class="proof-data ion-margin-top">
-              <label class="form-label">Nota enviada:</label>
-              <p class="detail-value">{{ task.proofNote }}</p>
-            </div>
-          }
-
-          @if (task.proofUrl) {
-            <div class="proof-data ion-margin-top">
-              <label class="form-label">Enlace / Entregable:</label>
-              <div>
-                <a [href]="task.proofUrl" target="_blank" rel="noopener noreferrer" class="proof-link">
-                  Ver documento adjunto
-                </a>
-              </div>
+              <span class="detail-label">Nota enviada:</span>
+              <p class="detail-value-box">{{ task.proofNote }}</p>
             </div>
           }
 
@@ -104,17 +111,28 @@
         </div>
       }
 
+      @if (task.proofUrl && ( isOrgOwner() || isAssignedVolunteer()) ) {
+            <div class="proof-data ion-margin-top">
+              <span class="detail-label">Enlace / Entregable:</span>
+              <div>
+                <a [href]="task.proofUrl" target="_blank" rel="noopener noreferrer" class="proof-link-button">
+                  <i class="hn hn-eye-solid"></i> Ver documento adjunto
+                </a>
+              </div>
+            </div>
+      }
+
     </div>
   </ion-content>
 
-  <!-- 3. PIE DE PÁGINA FIJO ABAJO (Siempre visible) -->
+  <!-- 3. PIE DE PÁGINA FIJO -->
   <div class="modal-footer-actions">
     <button type="button" class="btn-secondary" (click)="cancel()" [disabled]="isProcessing()">
       Cerrar
     </button>
 
     @if (task.status === 'Activa' && !isOrgOwner()) {
-      <button type="button" class="btn-primary" (click)="claimTask()" [disabled]="isProcessing()">
+      <button type="button" class="btn-primary btn-gold" (click)="claimTask()" [disabled]="isProcessing()">
         @if (isProcessing()) {
           <ion-spinner name="crescent"></ion-spinner>
         } @else {
@@ -124,7 +142,7 @@
     }
 
     @if (isAssignedVolunteer() && task.status === 'En Curso') {
-      <button type="button" class="btn-primary" (click)="submitTask()" [disabled]="isProcessing()">
+      <button type="button" class="btn-primary btn-terracotta" (click)="submitTask()" [disabled]="isProcessing()">
         @if (isProcessing()) {
           <ion-spinner name="crescent"></ion-spinner>
         } @else {
@@ -134,11 +152,11 @@
     }
 
     @if (task.status === 'Pendiente de Revisión' && isOrgOwner()) {
-      <button type="button" class="btn-secondary" (click)="rejectTask()" [disabled]="isProcessing()">
+      <button type="button" class="btn-secondary btn-outline-danger" (click)="rejectTask()" [disabled]="isProcessing()">
         Solicitar Corrección
       </button>
 
-      <button type="button" class="btn-primary" (click)="approveTask()" [disabled]="isProcessing()">
+      <button type="button" class="btn-primary btn-sage" (click)="approveTask()" [disabled]="isProcessing()">
         @if (isProcessing()) {
           <ion-spinner name="crescent"></ion-spinner>
         } @else {
@@ -148,11 +166,4 @@
     }
   </div>
 
-</div>
-
-<!-- 🔍 CHIVATO TEMPORAL DE DEPURACIÓN -->
-<div style="background: #2a1b3d; border: 1px solid #ff4d4d; color: #ff8080; padding: 8px; font-size: 12px; margin: 10px; border-radius: 6px;">
-  <div><strong>Status real:</strong> "{{ task.status }}"</div>
-  <div><strong>isOrgOwner():</strong> {{ isOrgOwner() }} (orgId: {{ task.orgId }})</div>
-  <div><strong>isAssignedVolunteer():</strong> {{ isAssignedVolunteer() }}</div>
 </div>

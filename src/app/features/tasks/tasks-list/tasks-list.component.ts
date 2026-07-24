@@ -1,7 +1,7 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
-import { IonContent, IonSpinner, IonAccordionGroup, IonAccordion, IonItem, IonInfiniteScroll, IonInfiniteScrollContent, IonFab, IonFabButton, IonButton, ModalController, AlertController, ToastController} from '@ionic/angular/standalone';
+import { IonContent, IonSpinner, IonAccordionGroup, IonAccordion, IonItem, IonInfiniteScroll, IonInfiniteScrollContent, IonFab, IonFabButton, IonButton, ModalController, AlertController, ToastController, IonCard, IonCardHeader, IonCardTitle, IonCardContent, IonFooter } from '@ionic/angular/standalone';
 import { BehaviorSubject, catchError, combineLatest, map, of, switchMap } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { QueryDocumentSnapshot } from '@angular/fire/firestore';
@@ -15,13 +15,14 @@ import { OrganizationModel } from '../../../shared/models/organization.model';
 import { TaskDetailModalComponent } from '../task-detail-modal/task-detail-modal.component';
 import { TaskFormModalComponent } from '../task-form-modal/task-form-modal.component';
 import { UserService } from '../../../core/services/user.service';
+import { FooterComponent } from "../../../shared/components/footer/footer.component";
 
 @Component({
   selector: 'app-tasks-list',
   templateUrl: './tasks-list.component.html',
   styleUrls: ['./tasks-list.component.scss'],
   standalone: true,
-  imports: [ DatePipe,  IonContent,  IonSpinner,  IonAccordionGroup,  IonAccordion,  IonItem,  IonInfiniteScroll,  IonInfiniteScrollContent,  IonFab,  IonFabButton,  IonButton]
+  imports: [DatePipe, IonContent, IonSpinner, IonAccordionGroup, IonAccordion, IonItem, IonInfiniteScroll, IonInfiniteScrollContent, IonFab, IonFabButton, IonButton, IonCard, IonCardHeader, IonCardTitle, IonCardContent, FooterComponent, IonFooter]
 })
 
 export class TasksListComponent {
@@ -185,12 +186,14 @@ export class TasksListComponent {
 
   //abrir la opción de adición de tarea !
   async openAddTaskModal() {
+    (document.activeElement as HTMLElement)?.blur();
     if (!this.targetId || !this.isOwner()) return;
 
     const modal = await this.modalCtrl.create({
       component: TaskFormModalComponent,
       componentProps: {
         orgId: this.targetId,
+        isOrgMode: true,
         orgDisplayName: this.currentOrg()?.displayName || 'Organización',
         orgLogoURL: this.currentOrg()?.logoURL || null
       }
@@ -236,6 +239,7 @@ export class TasksListComponent {
 
   //visualización de detalles !
   async openTaskDetailModal(task: TaskModel) {
+    (document.activeElement as HTMLElement)?.blur();
     const modal = await this.modalCtrl.create({
       component: TaskDetailModalComponent,
       componentProps: { 
@@ -255,15 +259,16 @@ export class TasksListComponent {
       assignedVolunteerId: user?.uid || null,
       assignedVolunteerName: user?.displayName || 'Voluntario'
     });
-  } else if (role === 'submitted') {
-    this.updateLocalTaskStatus(task.uid, 'Pendiente de Revisión');
-  } else if (role === 'approved') {
-    this.updateLocalTaskStatus(task.uid, 'Completada');
-  } else if (role === 'rejected') {
-    this.updateLocalTaskStatus(task.uid, 'En Curso');
+    } else if (role === 'submitted') {
+      this.updateLocalTaskStatus(task.uid, 'Pendiente de Revisión');
+    } else if (role === 'approved') {
+      this.updateLocalTaskStatus(task.uid, 'Completada');
+    } else if (role === 'rejected') {
+      this.updateLocalTaskStatus(task.uid, 'En Curso');
+    }
   }
-  }
-// --- ACCIONES DE VOLUNTARIO ---
+
+// --- VOLUNTARIO ---
   async unclaimTask(task: TaskModel) {
     const alert = await this.alertCtrl.create({
       header: 'Abandonar Tarea',
@@ -300,6 +305,20 @@ export class TasksListComponent {
     await alert.present();
   }
 
+
+  //UTILS
+
+  // solo verificación de asignación
+  isAssignedToCurrentVolunteer(task: any): boolean {
+    const currentUser = this.auth.currentUser();
+    if (!currentUser) return false;
+    
+    return (
+    task.assignedVolunteerId === currentUser.uid ||
+    task.volunteer?.uid === currentUser.uid ||
+    task.assignedTo?.uid === currentUser.uid
+  );
+  }
   //status de tarea
 
   getStatusClass(status: TaskStatus): string {
@@ -308,7 +327,6 @@ export class TasksListComponent {
       case 'En Curso': return 'status-en-curso';
       case 'Pendiente de Revisión': return 'status-revision';
       case 'Completada': return 'status-completada';
-      case 'Cancelada': return 'status-cancelada';
       default: return 'status-default';
     }
   }

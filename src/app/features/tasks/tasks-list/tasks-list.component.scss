@@ -1,6 +1,14 @@
 @import '@hackernoon/pixel-icon-library/fonts/iconfont.css';
 
-/* Renderizado ultra nítido para iconos pixelados */
+/* 1. Previene el recorte superior de stickers/sombras */
+ion-content {
+  --padding-top: 88px; 
+}
+
+.tasks-container, .tasks-list {
+  padding-top: 18px;
+}
+
 i.hn {
   display: inline-block;
   line-height: 1;
@@ -8,293 +16,323 @@ i.hn {
   image-rendering: pixelated;
 }
 
-.tasks-content {
-  --background: #100e1a;
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 200px;
+}
 
-  /* --------------------------------------------------
-   * Estado de Carga
-   * -------------------------------------------------- */
-  .loading-container {
-    padding-top: 60px;
-    
-    ion-spinner {
-      --color: #8064ff;
-      width: 36px;
-      height: 36px;
-    }
+.task-container {
+  width: 80%;
+  max-width: 1200px;
+  margin: 10px auto 20px auto;
+  padding-bottom: 20px;
+}
 
-    p {
-      color: #aaa5bb;
-      font-size: 0.95rem;
-      margin-top: 12px;
-    }
+.tasks-vertical-list {
+  background: #FDFBF8;
+  border: 2px solid rgba(74, 63, 53, 0.1);
+  border-radius: 24px;
+  padding: 20px;
+  box-shadow: 0 8px 24px rgba(74, 63, 53, 0.05);
+
+  .section-title {
+    font-size: 1.15rem;
+    font-weight: 850;
+    color: var(--color-espresso, #4A3F35);
+    margin-top: 0;
+    margin-bottom: 15px;
+    text-transform: lowercase;
   }
+}
 
-  /* --------------------------------------------------
-   * Contenedor de Acordeones
-   * -------------------------------------------------- */
-  .custom-accordion-group {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    max-width: 800px;
-    margin: 0 auto;
-  }
+/* Reset y estilo personalizado para Ionic Accordion */
+ion-accordion-group.task-list-items {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: transparent;
 
-  .custom-accordion {
-    background: #1e1c27;
-    border: 1px solid #353141;
-    border-radius: 12px;
+  ion-accordion.cozy-accordion-item {
+    background: #FFFFFF;
+    border: 1px solid rgba(74, 63, 53, 0.08);
+    border-radius: 16px;
     overflow: hidden;
-    transition: all 0.2s ease-in-out;
+    transition: all 0.2s ease;
 
     &:hover {
-      border-color: #4a4459;
+      border-color: var(--color-terracotta, #D96B43);
+      box-shadow: 0 4px 12px rgba(74, 63, 53, 0.06);
     }
 
-    /* Estilo de la cabecera cuando el acordeón está desplegado */
     &.accordion-expanded {
-      border-color: #8064ff;
-      box-shadow: 0 4px 18px rgba(109, 74, 255, 0.15);
+      background: #FAF6F0;
+      border: 2px solid var(--color-terracotta, #D96B43);
+      box-shadow: 0 4px 14px rgba(74, 63, 53, 0.1);
+
+      .task-item-title {
+        color: var(--color-terracotta, #D96B43);
+        font-weight: 900;
+      }
     }
 
-    /* Cabecera (ion-item) */
-    .accordion-header {
-      --background: #1e1c27;
-      --color: #ffffff;
+    /* Estilizado del Header slot */
+    ion-item.task-list-item-header {
+      --background: transparent;
       --padding-start: 16px;
-      --padding-end: 16px;
+      --inner-padding-end: 16px;
+      --min-height: 60px;
+      cursor: pointer;
 
-      .header-content {
+      .task-item-info {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+
+        .task-item-title {
+          font-size: 1.1rem;
+          font-weight: 800;
+          color: var(--color-espresso, #4A3F35);
+        }
+
+        .task-item-company {
+          font-size: 0.85rem;
+          color: rgba(74, 63, 53, 0.6);
+          font-weight: 500;
+          text-transform: lowercase;
+        }
+      }
+
+      .task-item-status-pill {
         display: flex;
         align-items: center;
-        justify-content: space-between;
-        width: 100%;
-        padding: 8px 0;
-        gap: 12px;
+        gap: 6px;
+        background: #EFE8DF;
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 700;
+        color: var(--color-espresso, #4A3F35);
+        margin-left: auto;
 
-        .title-section {
-          display: flex;
-          align-items: center;
-          gap: 10px;
-
-          i.task-icon {
-            font-size: 1.2rem;
-            color: #8064ff;
-          }
-
-          h2 {
-            margin: 0;
-            font-size: 1rem;
-            font-weight: 600;
-            color: #ffffff;
-          }
+        &.status-activa {
+          background: var(--color-sage, #8A9A86);
+          color: #FFFFFF;
         }
 
-        /* Insignia de Estado en la Cabecera */
-        .status-badge {
-          font-size: 0.75rem;
-          font-weight: 600;
-          padding: 4px 10px;
-          border-radius: 20px;
-          background: rgba(170, 165, 187, 0.1);
-          color: #aaa5bb;
-          border: 1px solid #353141;
-
-          &.active {
-            background: rgba(109, 74, 255, 0.15);
-            color: #a38dff;
-            border-color: rgba(128, 100, 255, 0.4);
-          }
-        }
-      }
-    }
-
-    /* Cuerpo desplegable */
-    .accordion-content {
-      background: #161421;
-      border-top: 1px solid #2a2736;
-
-      .description-text {
-        margin: 0 0 16px 0;
-        font-size: 0.92rem;
-        line-height: 1.5;
-        color: #d1cbdc;
-      }
-
-      /* Rejilla de Metadatos */
-      .task-metadata-grid {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 16px;
-        padding-top: 12px;
-        border-top: 1px dashed rgba(255, 255, 255, 0.08);
-
-        .meta-item {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-
-          i.hn {
-            color: #8064ff;
-            font-size: 1.1rem;
-          }
-
-          .meta-text {
-            display: flex;
-            flex-direction: column;
-
-            .meta-label {
-              font-size: 0.7rem;
-              color: #7a748c;
-              text-transform: uppercase;
-              letter-spacing: 0.5px;
-            }
-
-            .meta-value {
-              font-size: 0.85rem;
-              font-weight: 600;
-              color: #ffffff;
-
-              &.badge-type {
-                color: #38ef7d;
-              }
-            }
-          }
-        }
-      }
-
-      /* 🟢 NUEVO: Fila de Botones de Acción de las Tareas */
-      .action-buttons-row {
-        display: flex;
-        align-items: center;
-        justify-content: flex-end;
-        gap: 10px;
-        flex-wrap: wrap;
-        margin-top: 16px;
-        padding-top: 12px;
-        border-top: 1px solid rgba(255, 255, 255, 0.05);
-
-        ion-button {
-          --border-radius: 8px;
-          font-weight: 600;
-          font-size: 0.82rem;
-          margin: 0; /* Anula márgenes por defecto de Ionic */
-
-          &.main-button {
-            --color: #ffffff;
-            --border-color: #8064ff;
-            --background-hover: rgba(128, 100, 255, 0.1);
-          }
+        &.status-en-curso, &.status-revision {
+          background: var(--color-gold, #E3B04B);
+          color: var(--color-espresso, #4A3F35);
         }
 
-        /* Badge de estado dentro del contenido */
-        .status-badge {
-          font-size: 0.75rem;
-          font-weight: 600;
-          padding: 6px 12px;
-          border-radius: 20px;
-
-          &.status-revision {
-            background: rgba(255, 196, 9, 0.15);
-            color: #ffd534;
-            border: 1px solid rgba(255, 196, 9, 0.3);
-          }
+        &.status-completada {
+          background: #5B8C5A;
+          color: #FFFFFF;
         }
       }
     }
   }
+}
 
-  /* --------------------------------------------------
-   * Estado Vacío
-   * -------------------------------------------------- */
-  .empty-state-box {
-    background: #1e1c27;
-    border: 2px dashed #353141;
-    border-radius: 16px;
-    padding: 40px 20px;
-    max-width: 480px;
-    margin: 40px auto;
+/* Detalle desplegable inline */
+.task-inline-details {
+  background: #FAF6F0;
+  border-top: 1px dashed rgba(74, 63, 53, 0.15);
+  padding: 16px;
+  animation: fadeIn 0.25s ease-in-out;
+}
 
-    .empty-icon {
-      font-size: 2.8rem;
-      color: #8064ff;
-      margin-bottom: 12px;
-    }
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
 
-    h3 {
-      color: #ffffff;
-      font-size: 1.15rem;
-      font-weight: 700;
-      margin: 0 0 6px 0;
-    }
+.cozy-card {
+  position: relative;
+  border-radius: 20px;
+  border: 2px solid rgba(74, 63, 53, 0.1);
+  box-shadow: 0 6px 18px rgba(74, 63, 53, 0.06);
+  margin: 0;
 
-    p {
-      color: #aaa5bb;
-      font-size: 0.88rem;
-      margin: 0;
-    }
+  &.sage-card {
+    background-color: var(--color-sage, #8A9A86);
+    color: white;
   }
 
-  /* --------------------------------------------------
-   * Botón Flotante (FAB)
-   * -------------------------------------------------- */
-  .custom-fab {
-    margin-bottom: 16px;
-    marker-end: 16px;
-
-    ion-fab-button {
-      --background: #6d4aff;
-      --color: #ffffff;
-      --box-shadow: 0 6px 20px rgba(109, 74, 255, 0.4);
-      --border-radius: 50%;
-      width: 56px;
-      height: 56px;
-
-      i.hn {
-        font-size: 1.6rem !important;
-        color: #ffffff !important;
-        display: flex !important;
-        align-items: center;
-        justify-content: center;
-        width: 100%;
-        height: 100%;
-        line-height: 1 !important;
-      }
-
-      &:hover {
-        --background: #8064ff;
-        transform: scale(1.05);
-      }
-    }
+  &.cream-card {
+    background-color: #FFFFFF;
+    color: var(--color-espresso, #4A3F35);
+    .card-headline { color: var(--color-espresso, #4A3F35); }
   }
 
-  .card-feedback-alert {
-  background: rgba(255, 152, 0, 0.08);
-  border-left: 3px solid #ff9800;
-  padding: 8px 12px;
-  border-radius: 4px;
-  font-size: 13px;
-  color: #ffcc80;
+  .card-headline {
+    font-size: 1.1rem;
+    font-weight: 850;
+    margin: 0;
+  }
+}
+
+.compact-status-card {
+  .card-content-split {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 16px !important;
+    gap: 14px;
+  }
+}
+
+.status-info-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.status-row-inline {
   display: flex;
   align-items: center;
+  justify-content: center;
+  gap: 12px;
+  background: rgba(255, 255, 255, 0.15);
+  padding: 8px 16px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  width: 100%;
+
+  .status-value-main {
+    font-size: 1.05rem;
+    font-weight: 850;
+    color: #FFFFFF;
+  }
+}
+
+.task-dates-badge {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  gap: 10px;
+  background: rgba(0, 0, 0, 0.12);
+  padding: 8px 16px;
+  border-radius: 12px;
+  margin-top: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  width: 100%;
+
+  .date-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+
+    .date-label {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      font-weight: 700;
+      color: rgba(255, 255, 255, 0.8);
+    }
+
+    .date-value {
+      font-size: 0.85rem;
+      font-weight: 850;
+      color: #FFFFFF;
+    }
+  }
+
+  .date-separator {
+    color: rgba(255, 255, 255, 0.6);
+    font-weight: bold;
+  }
+}
+
+/* Columna de acciones y botón de Abandonar */
+.status-actions, .card-actions-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: center;
   gap: 8px;
 
-  i {
-    font-size: 16px;
-    flex-shrink: 0;
+  .action-btn {
+    --padding-start: 8px;
+    --padding-end: 8px;
+    i.hn {
+      font-size: 1.25rem;
+    }
+  }
+
+  .btn-abandon {
+    background: transparent;
+    border: none;
+    color: #C0392B;
+    font-size: 0.78rem;
+    font-weight: 800;
+    cursor: pointer;
+    padding: 4px 6px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    text-decoration: underline;
+    transition: opacity 0.2s, transform 0.1s;
+
+    &:hover {
+      opacity: 0.8;
+    }
+
+    &:active {
+      transform: scale(0.95);
+    }
+
+    i.hn {
+      font-size: 0.85rem;
+    }
   }
 }
 
-.modal-footer-actions {
-  flex-shrink: 0;
+.card-sticker {
+  position: absolute;
+  top: -10px;
+  right: 18px;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
   display: flex;
-  justify-content: flex-end;
   align-items: center;
-  gap: 12px;
-  padding: 16px 20px;
-  background: #181625;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-  z-index: 10;
+  justify-content: center;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.12);
+  z-index: 5;
+
+  &.gold { background-color: var(--color-gold, #E3B04B); color: var(--color-espresso, #4A3F35); }
+  &.terracotta { background-color: var(--color-terracotta, #D96B43); color: white; }
+  &.sticker-tilt-right { transform: rotate(8deg); }
+  &.sticker-tilt-left { transform: rotate(-8deg); }
 }
+
+.reading-text {
+  font-size: 0.95rem;
+  color: rgba(74, 63, 53, 0.85);
+  line-height: 1.5;
+  margin: 0;
+}
+
+.empty-state {
+  font-style: italic;
+  color: rgba(74, 63, 53, 0.5);
+  margin: 0;
+}
+
+.ion-margin-top-small {
+  margin-top: 16px !important;
+}
+
+@media (max-width: 767px) {
+  .task-container {
+    width: 92%; 
+  }
 }

@@ -5,6 +5,7 @@ import { IonSpinner, ModalController, ToastController, IonContent } from '@ionic
 import { OrchestratorService } from '../../../core/services/orchestrator.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { TaskModel } from '../../../shared/models/task.model';
+import { AlertController } from '@ionic/angular'; 
 
 @Component({
   selector: 'app-task-detail-modal',
@@ -19,6 +20,7 @@ export class TaskDetailModalComponent {
   private toastCtrl = inject(ToastController);
   private orchestrator = inject(OrchestratorService);
   private auth = inject(AuthService);
+  private alertController = inject(AlertController);
 
   @Input({ required: true }) task!: TaskModel;
 
@@ -53,7 +55,7 @@ export class TaskDetailModalComponent {
     this.modalCtrl.dismiss(null, 'cancel');
   }
 
-  // 1. Apuntarse a la tarea (Voluntario)
+  // Apuntarse a la tarea (Voluntario)
   async claimTask(): Promise<void> {
     const currentUser = this.currentUser();
     if (!currentUser) {
@@ -79,9 +81,16 @@ export class TaskDetailModalComponent {
     }
   }
 
-  // 2. Entregar tarea para revisión (Voluntario)
+  // Entregar tarea para revisión (Voluntario)
   async submitTask(): Promise<void> {
-    this.isProcessing.set(true);
+    // Verificamos si la nota está vacía o solo tiene espacios
+    if (!this.proofNote || this.proofNote.trim() === '') {
+      await this.showAlert(
+        'Falta información', 
+        'Por favor, escribe una breve nota de entrega antes de enviar a revisión.'
+      );
+      return; // Detiene la ejecución para que no se envíe
+    }
     try {
 
       if (this.proofUrl.trim()) {
@@ -107,7 +116,7 @@ export class TaskDetailModalComponent {
     }
   }
 
-  // 3. Aprobar tarea y dar puntos (Organización)
+  // Aprobar tarea y dar puntos (Organización)
   async approveTask(): Promise<void> {
     this.isProcessing.set(true);
     try {
@@ -123,7 +132,7 @@ export class TaskDetailModalComponent {
     }
   }
 
-  // 4. Solicitar corrección / rechazar entrega (Organización)
+  // Solicitar corrección / rechazar entrega (Organización)
  async rejectTask(): Promise<void> {
     this.isProcessing.set(true);
     try {
@@ -150,5 +159,15 @@ export class TaskDetailModalComponent {
       mode: 'ios'
     });
     await toast.present();
+  }
+
+  async showAlert(header: string, message: string) {
+    const alert = await this.alertController.create({
+      header: header,
+      message: message,
+      buttons: ['Entendido'],
+      cssClass: 'cozy-alert' 
+    });
+    await alert.present();
   }
 }

@@ -1,85 +1,182 @@
 <div class="modal-container">
   
+  <!-- 1. CABECERA FIJA -->
   <div class="modal-toolbar">
-    <div class="modal-title">
-      <i class="hn hn-plus"></i>
-      <span>{{ taskData ? 'Editar Microtarea' : 'Nueva Microtarea' }}</span>
-    </div>
+    <h2 class="modal-title">
+      @if (isOrgMode) {
+        {{ taskData ? 'Editar Tarea' : '+ Nueva Microtarea' }}
+      } @else {
+        Detalle de la Tarea
+      }
+    </h2>
     <button type="button" class="close-btn" (click)="cancel()" [disabled]="isSaving()">
       <i class="hn hn-times"></i>
     </button>
   </div>
 
-  <div class="modal-body">
-    <form [formGroup]="taskForm" (ngSubmit)="save()">
-      
-      <div class="form-group">
-        <label class="form-label">Título de la tarea *</label>
-        <input 
-          type="text" 
-          class="custom-input" 
-          formControlName="title"
-          placeholder="Ej: Traducir documento al inglés" 
-        />
-      </div>
+  <!-- 2. CONTENIDO SCROLLABLE -->
+  <ion-content class="modal-content-scroll">
+    <div class="modal-body-wrapper">
 
-      <div class="form-row ion-margin-top">
-        <div class="form-group half-width">
-          <label class="form-label"><i class="hn hn-clock"></i> Tiempo estimado *</label>
-          <input 
-            type="text" 
-            class="custom-input" 
-            formControlName="estimatedTime"
-            placeholder="Ej: 30 mins" 
-          />
+      <!-- ================= MODO ONG: CREAR / EDITAR TAREA ================= -->
+      @if (isOrgMode) {
+        <form [formGroup]="taskForm" (ngSubmit)="save()" class="cozy-form">
+          
+          <!-- Título -->
+          <div class="form-group">
+            <label class="form-label">TÍTULO DE LA TAREA *</label>
+            <input 
+              type="text" 
+              class="custom-input" 
+              formControlName="title" 
+              placeholder="Ej: Traducir documento al inglés" 
+            />
+          </div>
+
+          <!-- Tiempo estimado -->
+          <div class="form-group ion-margin-top">
+            <label class="form-label">
+              <i class="hn hn-clock"></i> TIEMPO ESTIMADO *
+            </label>
+            <input 
+              type="text" 
+              class="custom-input" 
+              formControlName="estimatedTime" 
+              placeholder="Ej: 30 mins" 
+            />
+          </div>
+
+          <!-- Fecha límite -->
+          <div class="form-group ion-margin-top">
+            <label class="form-label">FECHA LÍMITE *</label>
+            <input 
+              type="date" 
+              class="custom-input" 
+              formControlName="deadline" 
+            />
+          </div>
+
+          <!-- Descripción -->
+          <div class="form-group ion-margin-top">
+            <label class="form-label">
+              <i class="hn hn-align-left"></i> DESCRIPCIÓN BREVE
+            </label>
+            <textarea 
+              class="custom-textarea" 
+              formControlName="description" 
+              rows="3" 
+              placeholder="Explica detalladamente en qué consiste el apoyo requerido...">
+            </textarea>
+          </div>
+
+        </form>
+      }
+
+      <!-- ================= MODO VOLUNTARIO: VER DETALLE / ENTREGAR ================= -->
+      @else {
+        <!-- Tarjeta principal -->
+        <div class="cozy-modal-card">
+          <div class="card-sticker gold sticker-tilt-right" aria-hidden="true"></div>
+          
+          <h2 class="task-title-heading">{{ taskData?.title || 'Sin título' }}</h2>
+          <p class="org-subtext">
+            Publicado por <strong>{{ orgDisplayName }}</strong>
+          </p>
+
+          <div class="details-grid ion-margin-top">
+            <div class="detail-box">
+              <span class="detail-label"><i class="hn hn-clock"></i> TIEMPO ESTIMADO</span>
+              <span class="detail-value">{{ taskData?.estimatedTime || 'No especificado' }}</span>
+            </div>
+
+            <div class="detail-box">
+              <span class="detail-label"><i class="hn hn-calendar"></i> FECHA LÍMITE</span>
+              <span class="detail-value">
+                @if (taskData?.deadline) {
+                  {{ taskData.deadline | date:'dd/MM/yyyy' }}
+                } @else {
+                  Sin fecha
+                }
+              </span>
+            </div>
+          </div>
+
+          <div class="description-box ion-margin-top">
+            <span class="detail-label"><i class="hn hn-align-left"></i> DESCRIPCIÓN</span>
+            <p class="detail-description">{{ taskData?.description || 'Sin descripción detallada.' }}</p>
+          </div>
         </div>
 
-        <div class="form-group half-width">
-          <label class="form-label"><i class="hn hn-calendar"></i> Fecha límite *</label>
-          <input 
-            type="date" 
-            class="custom-input" 
-            formControlName="deadline"
-          />
-        </div>
-      </div>
-
-      <div class="form-group ion-margin-top">
-        <label class="form-label"><i class="hn hn-align-left"></i> Descripción breve</label>
-        <textarea 
-          class="custom-textarea" 
-          formControlName="description"
-          rows="4" 
-          placeholder="Explica detalladamente en qué consiste el apoyo requerido..."
-        ></textarea>
-      </div>
-
-      <div class="modal-actions ion-margin-top">
-        <button type="button" class="btn-secondary" (click)="cancel()" [disabled]="isSaving()">
-          Cancelar
-        </button>
-
-        <!-- Botón condicional si es modo edición/creación (ONG) o si el voluntario va a reclamar -->
-        @if (isOrgMode) {
-          <button type="submit" class="btn-primary" [disabled]="isSaving() || taskForm.invalid">
-            @if (isSaving()) {
-              <ion-spinner name="crescent"></ion-spinner>
-            } @else {
-              <span>{{ taskData ? 'Guardar Cambios' : 'Publicar Tarea' }}</span>
-            }
-          </button>
-        } @else {
-          <button type="button" class="btn-primary" (click)="claimTask()" [disabled]="isSaving()">
-            @if (isSaving()) {
-              <ion-spinner name="crescent"></ion-spinner>
-            } @else {
-              <span>Apuntarse a la Tarea</span>
-            }
-          </button>
+        <!-- SECCIÓN DE ENTREGA (Muestra si la tarea ya está En Curso) -->
+        @if (taskData?.status === 'En Curso') {
+          <div class="cozy-modal-card action-section submission-box ion-margin-top">
+            <div class="card-sticker terracotta sticker-tilt-left" aria-hidden="true"></div>
+            <h3 class="section-title">🚀 Entregar Trabajo Realizado</h3>
+            
+            <div class="form-group ion-margin-top">
+              <label class="form-label">Comentarios / Nota de entrega</label>
+              <textarea 
+                class="custom-textarea" 
+                rows="3" 
+                placeholder="Escribe brevemente qué has hecho o el resultado...">
+              </textarea>
+            </div>
+          </div>
         }
-      </div>
+      }
 
-    </form>
+    </div>
+  </ion-content>
+
+  <!-- 3. PIE DE PÁGINA FIJO CON BOTONES DE ACCIÓN -->
+  <div class="modal-footer-actions">
+    <button type="button" class="btn-secondary" (click)="cancel()" [disabled]="isSaving()">
+      {{ isOrgMode ? 'Cancelar' : 'Cerrar' }}
+    </button>
+
+    <!-- Botón ONG -->
+    @if (isOrgMode) {
+      <button 
+        type="button" 
+        class="btn-primary btn-gold" 
+        (click)="save()" 
+        [disabled]="isSaving() || taskForm.invalid">
+        @if (isSaving()) {
+          <ion-spinner name="crescent"></ion-spinner>
+        } @else {
+          <span>{{ taskData ? 'Guardar Cambios' : 'Crear Tarea' }}</span>
+        }
+      </button>
+    }
+
+    <!-- Botones Voluntario -->
+    @if (!isOrgMode) {
+      @if (taskData?.status === 'En Curso') {
+        <button 
+          type="button" 
+          class="btn-primary btn-terracotta" 
+          (click)="claimTask()" 
+          [disabled]="isSaving()">
+          @if (isSaving()) {
+            <ion-spinner name="crescent"></ion-spinner>
+          } @else {
+            <span>Enviar a Revisión</span>
+          }
+        </button>
+      } @else {
+        <button 
+          type="button" 
+          class="btn-primary btn-gold" 
+          (click)="claimTask()" 
+          [disabled]="isSaving()">
+          @if (isSaving()) {
+            <ion-spinner name="crescent"></ion-spinner>
+          } @else {
+            <span>Apuntarse a la Tarea</span>
+          }
+        </button>
+      }
+    }
   </div>
 
 </div>

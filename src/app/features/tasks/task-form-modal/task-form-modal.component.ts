@@ -1,7 +1,7 @@
 import { Component, Input, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { IonSpinner, ModalController, ToastController} from '@ionic/angular/standalone';
+import { IonSpinner, ModalController, ToastController, IonContent } from '@ionic/angular/standalone';
 import { TaskService } from '../../../core/services/task.service';
 import { AuthService } from '../../../core/services/auth.service';
 
@@ -10,7 +10,7 @@ import { AuthService } from '../../../core/services/auth.service';
   templateUrl: './task-form-modal.component.html',
   styleUrls: ['./task-form-modal.component.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, IonSpinner, ReactiveFormsModule]
+  imports: [CommonModule, FormsModule, IonSpinner, ReactiveFormsModule, IonContent]
 })
 
 export class TaskFormModalComponent implements OnInit {
